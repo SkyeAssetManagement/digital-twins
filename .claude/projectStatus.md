@@ -524,13 +524,126 @@ The Claude persona vector integration is now functional and ready for use. The s
   - Each segment now has distinct personality and priorities
   - Purchase intent varies appropriately (Leader: 10, Laggard: 4)
 
+## SEMANTIC RESPONSE REFACTOR
+
+### Branch: semantic-response-refactor
+### Start Date: 2025-09-03
+
+### Motivation
+Current keyword-based content analysis is brittle and lacks true understanding. We need semantic analysis using vector embeddings for:
+- Contextual understanding beyond exact word matches
+- Scalability without hardcoding keywords
+- Natural language understanding of marketing content
+- More authentic, contextual responses
+
+### Refactor Phases
+
+#### Phase 1: Core Semantic Engine ⏳
+- [x] Create SemanticResponseEngine class structure
+- [ ] Implement theme extraction via embeddings
+  - [ ] Define theme concepts (sustainability, lifestyle, performance, etc.)
+  - [ ] Pre-compute theme embeddings at initialization
+  - [ ] Calculate cosine similarity for theme detection
+- [ ] Build segment value profiles
+  - [ ] Leader: Environmental & ethical focus
+  - [ ] Leaning: Balance of factors
+  - [ ] Learner: Value & trend focus
+  - [ ] Laggard: Price & function only
+- [ ] Create similarity calculation methods
+  - [ ] Cosine similarity function
+  - [ ] Vector normalization
+  - [ ] Batch similarity processing
+
+#### Phase 2: Response Generation System
+- [ ] Design response template system
+  - [ ] High/medium/low alignment templates per segment
+  - [ ] Dynamic template selection based on themes
+  - [ ] Natural variation within templates
+- [ ] Implement dynamic sentiment calculation
+  - [ ] Theme-weighted sentiment scoring
+  - [ ] Segment-specific sentiment thresholds
+  - [ ] Context-aware sentiment adjustment
+- [ ] Create purchase intent logic
+  - [ ] Alignment-based intent calculation
+  - [ ] Segment-specific intent ranges
+  - [ ] Theme influence on intent
+
+#### Phase 3: Integration & Migration
+- [ ] Replace keyword-based fallback in response_engine.js
+- [ ] Update API endpoints to use semantic engine
+- [ ] Modify vector store for semantic queries
+- [ ] Add embedding cache layer
+  - [ ] LRU cache for content embeddings
+  - [ ] Persistent cache for theme embeddings
+  - [ ] Cache invalidation strategy
+- [ ] Create migration toggle for A/B testing
+
+#### Phase 4: Enhancement & Optimization
+- [ ] Fine-tune theme definitions based on testing
+- [ ] Optimize embedding performance
+  - [ ] Batch processing for multiple contents
+  - [ ] Parallel embedding generation
+  - [ ] Model quantization if needed
+- [ ] Add response personalization layer
+- [ ] Implement confidence scoring
+- [ ] Create feedback loop for improvement
+
+#### Phase 5: Testing & Validation
+- [ ] Create comprehensive test suite
+  - [ ] Unit tests for similarity calculations
+  - [ ] Integration tests for response generation
+  - [ ] End-to-end tests with real content
+- [ ] Validate against diverse marketing content
+  - [ ] Test with 50+ real ads
+  - [ ] Verify theme detection accuracy
+  - [ ] Check response relevance
+- [ ] Performance benchmarking
+  - [ ] Target: <500ms per response
+  - [ ] Memory usage optimization
+  - [ ] Concurrent request handling
+
+### Technical Tasks
+
+#### Immediate (Today)
+- [ ] Complete theme embedding implementation
+- [ ] Test cosine similarity calculations
+- [ ] Create segment value embeddings
+- [ ] Build basic response templates
+
+#### Short-term (This Week)
+- [ ] Full semantic engine implementation
+- [ ] Integration with existing system
+- [ ] Initial testing with Rip Curl ad
+- [ ] Performance optimization
+
+#### Medium-term (Next Week)
+- [ ] Comprehensive testing suite
+- [ ] A/B testing framework
+- [ ] Response quality metrics
+- [ ] Documentation updates
+
+### Success Criteria
+- Theme detection accuracy > 85%
+- Response relevance score > 0.8
+- Response uniqueness > 90%
+- Processing time < 500ms
+- Zero keyword false positives
+
+### Current Blockers
+- None identified
+
+### Notes
+- Leveraging existing Transformers.js (MiniLM) for embeddings
+- Building on top of existing vector store infrastructure
+- Maintaining backward compatibility during migration
+
 ### Next Steps
-1. Restart server to apply segment differentiation fix
-2. Add frontend UI updates for persona visualization
-3. Implement A/B testing framework
-4. Add more sophisticated drift detection
-5. Optimize API call caching
-6. Add Prometheus metrics export
+1. Complete theme embedding implementation
+2. Test semantic analysis with Rip Curl ad
+3. Build segment-specific response templates
+4. Integrate with main response pipeline
+5. Create A/B testing framework
+6. Deploy and monitor
 
 ---
-*Last updated: 2025-09-03 - Phase 1-3 Complete, Segment Differentiation Fixed*
+*Last updated: 2025-09-03 - Semantic Refactor Started*
