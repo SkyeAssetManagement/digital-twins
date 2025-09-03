@@ -25,9 +25,9 @@ export class EnhancedSurveyPersona {
    * Create a rich, data-driven persona for Claude using survey responses
    * Following Anthropic's recommended structure for system prompts
    */
-  async createDataDrivenPersona(segment, numRespondents = 10) {
-    // Get real survey respondents for this segment
-    const respondents = this.surveyLoader.getRandomResponses(segment, numRespondents);
+  async createDataDrivenPersona(segment, numRespondents = 10, seedOffset = 0) {
+    // Get real survey respondents for this segment with seed variation
+    const respondents = this.surveyLoader.getRandomResponses(segment, numRespondents, seedOffset);
     const avgScores = this.calculateDetailedScores(respondents);
     
     // Build persona using XML tags for structure (Anthropic best practice)

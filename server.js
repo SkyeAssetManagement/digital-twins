@@ -42,6 +42,12 @@ app.get('/api/dataset-config/:datasetId', getDatasetConfigRoute);
 app.get('/api/get-twin/:datasetId/:segment/:variant', getTwinRoute);
 app.get('/api/dataset-status/:datasetId', datasetStatusRoute);
 
+// Dual Engine Response API - Simplified version
+import dualEngineHandler from './api/dual-engine-simple.js';
+app.post('/api/dual-engine-response', async (req, res) => {
+  await dualEngineHandler(req, res);
+});
+
 // Digital Twin Routes
 app.get('/api/digital-twins/personas', async (req, res) => {
   try {
