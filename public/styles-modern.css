@@ -1,14 +1,16 @@
 /* Modern Clean Design System */
 :root {
-    /* Colors */
+    /* Colors - Claude-inspired palette */
     --color-primary: #000000;
     --color-primary-hover: #1a1a1a;
     --color-secondary: #6b7280;
     --color-text: #111827;
     --color-text-secondary: #6b7280;
     --color-border: #e5e7eb;
-    --color-background: #ffffff;
-    --color-background-secondary: #f9fafb;
+    --color-background: #faf9f7;  /* Claude's warm beige */
+    --color-background-secondary: #f5f3f0;  /* Slightly darker beige */
+    --color-background-card: #ffffff;  /* White for cards */
+    --color-background-hover: #f0ede8;  /* Hover state beige */
     --color-success: #10b981;
     --color-warning: #f59e0b;
     --color-error: #ef4444;
@@ -241,10 +243,11 @@ body {
 
 /* Cards */
 .card {
-    background: var(--color-background);
+    background: var(--color-background-card);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
     margin-bottom: var(--spacing-xl);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .card-header {
@@ -491,8 +494,10 @@ body {
 
 .metric-card {
     padding: var(--spacing-md);
-    background: var(--color-background-secondary);
+    background: var(--color-background-card);
     border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 .metric-label {

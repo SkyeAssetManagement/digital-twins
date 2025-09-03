@@ -1,10 +1,12 @@
 import fetch from 'node-fetch';
+import { SemanticResponseEngine } from './semantic_response_engine.js';
 
 export class DatasetAwareResponseEngine {
   constructor(twin, vectorStore) {
     this.twin = twin;
     this.vectorStore = vectorStore;
     this.claudeApiUrl = "https://api.anthropic.com/v1/messages";
+    this.semanticEngine = new SemanticResponseEngine(twin, vectorStore);
   }
   
   async generateResponse(marketingContent, imageData = null) {
@@ -168,44 +170,18 @@ Be specific to YOUR segment's perspective. Include your sentiment (positive/neut
   }
   
   async generateDataDrivenFallback(marketingContent, similarResponses) {
-    console.log(`[DataDrivenFallback] Segment: ${this.twin.segment}, Similar responses: ${similarResponses.length}`);
+    console.log(`[DataDrivenFallback] Using semantic engine for segment: ${this.twin.segment}`);
     
-    // ALWAYS use segment-specific responses for now
-    // The template-based approach is not segment-aware enough
-    console.log(`[DataDrivenFallback] Using segment-specific fallback for segment: ${this.twin.segment}`);
-    return this.generateGenericFallback(marketingContent);
-    
-    // TODO: Make template-based responses segment-aware later
-    // Original template-based code below (disabled for now):
-    /*
-    if (similarResponses.length > 0) {
-      console.log(`[DataDrivenFallback] Using template-based approach for segment: ${this.twin.segment}`);
-      // Analyze sentiment patterns in similar responses
-      const sentiments = this.analyzeSentimentPatterns(similarResponses);
-      const vocabulary = this.extractVocabulary(similarResponses);
-      
-      // Construct response using real patterns
-      const template = this.selectResponseTemplate(sentiments, this.twin.segment);
-      const response = this.fillTemplate(template, vocabulary, marketingContent);
-      
-      console.log(`[DataDrivenFallback] Template response for ${this.twin.segment}: ${response.substring(0, 100)}...`);
-      
-      return {
-        text: response,
-        sentiment: sentiments.primary,
-        purchaseIntent: sentiments.avgIntent,
-        keyFactors: this.extractKeyFactorsFromResponses(similarResponses),
-        timestamp: new Date().toISOString(),
-        isFallback: true,
-        basedOnData: true,
-        generatedBy: 'pattern-based'
-      };
+    // Use the semantic response engine for more intelligent responses
+    try {
+      const semanticResponse = await this.semanticEngine.generateSemanticResponse(marketingContent);
+      console.log(`[SemanticEngine] Generated response for ${this.twin.segment}: ${semanticResponse.text.substring(0, 100)}...`);
+      return semanticResponse;
+    } catch (error) {
+      console.error('[SemanticEngine] Error generating semantic response:', error);
+      // Fallback to rule-based if semantic engine fails
+      return this.generateGenericFallback(marketingContent);
     }
-    
-    // Ultimate fallback if no data available
-    console.log(`[DataDrivenFallback] No similar responses, using generic fallback for segment: ${this.twin.segment}`);
-    return this.generateGenericFallback(marketingContent);
-    */
   }
   
   generateGenericFallback(marketingContent) {
