@@ -8,3 +8,5 @@ data/vectors/
 *.log
 dbConfig.yaml
 package-lock.jsonnul
+config.py
+api/config.py
