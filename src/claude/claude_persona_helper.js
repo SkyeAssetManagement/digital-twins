@@ -12,7 +12,7 @@ import Anthropic from '@anthropic-ai/sdk';
 export class ClaudePersonaConfig {
   constructor(config = {}) {
     this.apiKey = config.apiKey || process.env.ANTHROPIC_API_KEY;
-    this.model = config.model || 'claude-3-5-sonnet-20241022';
+    this.model = config.model || 'claude-opus-4-1-20250805';
     this.maxTokens = config.maxTokens || 2048;
     this.temperature = config.temperature || 0.7;
     this.personaVectorIntensity = config.personaVectorIntensity || 1.0;

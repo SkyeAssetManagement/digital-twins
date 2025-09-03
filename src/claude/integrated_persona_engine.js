@@ -25,6 +25,7 @@ export class IntegratedPersonaEngine {
     
     // Initialize all components
     this.claudeHelper = new ClaudePersonaHelper({
+      model: 'claude-opus-4-1-20250805',  // Using Opus 4.1
       temperature: 0.7,  // Consistent personality
       personaVectorIntensity: 1.0
     });
