@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Twin Response Platform</title>
+    <link rel="stylesheet" href="styles-modern.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="logo-text">Digital Twins</span>
+            </div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <div class="nav-label">Workspace</div>
+                <a href="#" class="nav-item active">
+                    <svg class="nav-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M3 10H17M3 5H17M3 15H11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <span>Segments</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <svg class="nav-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M10 10C12.2091 10 14 8.20914 14 6C14 3.79086 12.2091 2 10 2C7.79086 2 6 3.79086 6 6C6 8.20914 7.79086 10 10 10Z" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M10 12C6.13401 12 3 15.134 3 19H17C17 15.134 13.866 12 10 12Z" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                    <span>Personas</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <svg class="nav-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M3 3V17H17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        <path d="M6 13L9 9L12 11L16 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>Analytics</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <svg class="nav-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <rect x="3" y="3" width="6" height="6" stroke="currentColor" stroke-width="1.5"/>
+                        <rect x="11" y="3" width="6" height="6" stroke="currentColor" stroke-width="1.5"/>
+                        <rect x="3" y="11" width="6" height="6" stroke="currentColor" stroke-width="1.5"/>
+                        <rect x="11" y="11" width="6" height="6" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                    <span>Datasets</span>
+                </a>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-label">Testing</div>
+                <a href="#" class="nav-item">
+                    <svg class="nav-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M10 2V18M6 6L14 14M6 14L14 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <span>Campaigns</span>
+                    <span class="badge">Beta</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <svg class="nav-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M4 4H16V16H4V4Z" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M4 10H16" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                    <span>A/B Tests</span>
+                    <span class="badge">Beta</span>
+                </a>
+            </div>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <a href="#" class="nav-item">
+                <svg class="nav-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <circle cx="10" cy="10" r="3" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M10 1V3M10 17V19M19 10H17M3 10H1M16.36 3.64L15 5M5 15L3.64 16.36M16.36 16.36L15 15M5 5L3.64 3.64" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                <span>Settings</span>
+            </a>
+        </div>
+    </aside>
+    
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <!-- Top Header -->
+        <header class="main-header">
+            <div class="header-left">
+                <h1 class="page-title">Segments</h1>
+            </div>
+            <div class="header-right">
+                <button class="btn-icon">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M13 13L17 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                </button>
+                <button class="btn-primary">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M10 5V15M5 10H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    New Test
+                </button>
+            </div>
+        </header>
+        
+        <!-- Tabs -->
+        <div class="tabs-container">
+            <div class="tabs">
+                <button class="tab active" data-count="4">Live</button>
+                <button class="tab" data-count="0">Draft</button>
+                <button class="tab" data-count="0">Archived</button>
+                <button class="tab" data-count="4">All</button>
+            </div>
+        </div>
+        
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Test Input Section -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Marketing Material Test</h2>
+                    <div class="card-actions">
+                        <select class="select-input" id="datasetSelect">
+                            <option value="surf-clothing">Surf Clothing (1,006 respondents)</option>
+                            <option value="custom">Upload Custom Dataset</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <div class="form-group">
+                        <label class="form-label">Marketing Content</label>
+                        <textarea 
+                            id="marketingInput" 
+                            class="form-textarea" 
+                            placeholder="Paste your marketing copy, ad text, or product description here..."
+                            rows="6"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Visual Material (Optional)</label>
+                        <div class="file-upload-area" id="fileUploadArea">
+                            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" class="upload-icon">
+                                <path d="M24 16V32M16 24H32" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <circle cx="24" cy="24" r="20" stroke="currentColor" stroke-width="2" stroke-dasharray="3 3"/>
+                            </svg>
+                            <p class="upload-text">Drop image here or <button class="link-btn">browse</button></p>
+                            <input type="file" id="imageUpload" accept="image/*" hidden>
+                        </div>
+                        <div id="imagePreview" class="image-preview-area" style="display: none;">
+                            <img id="previewImg" alt="Preview">
+                            <button class="btn-ghost" id="removeImage">Remove</button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button class="btn-secondary" id="clearButton">Clear</button>
+                        <button class="btn-primary" id="testButton">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                <path d="M5 10L15 10M15 10L11 6M15 10L11 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Generate Responses
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Loading State -->
+            <div id="loadingIndicator" class="card loading-card" style="display: none;">
+                <div class="loading-content">
+                    <div class="spinner"></div>
+                    <h3>Generating Persona Responses</h3>
+                    <p>Analyzing with Claude persona vectors...</p>
+                </div>
+            </div>
+            
+            <!-- Results Table -->
+            <div id="resultsSection" class="card" style="display: none;">
+                <div class="card-header">
+                    <h2 class="card-title">Segment Responses</h2>
+                    <div class="card-actions">
+                        <button class="btn-ghost">Export</button>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <!-- Metrics Summary -->
+                    <div class="metrics-grid" id="metricsGrid">
+                        <div class="metric-card">
+                            <div class="metric-label">Avg. Purchase Intent</div>
+                            <div class="metric-value" id="avgPurchaseIntent">-</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Positive Sentiment</div>
+                            <div class="metric-value" id="positiveSentiment">-</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Market Coverage</div>
+                            <div class="metric-value" id="marketCoverage">-</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Consistency Score</div>
+                            <div class="metric-value" id="consistencyScore">-</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Results Table -->
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Segment</th>
+                                    <th>Market Size</th>
+                                    <th>Response</th>
+                                    <th>Sentiment</th>
+                                    <th>Purchase Intent</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resultsTableBody">
+                                <!-- Results will be inserted here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Persona Vector Visualization -->
+            <div id="vectorVisualization" class="card" style="display: none;">
+                <div class="card-header">
+                    <h2 class="card-title">Personality Profiles</h2>
+                </div>
+                <div class="card-body">
+                    <canvas id="personalityChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Modal for detailed responses -->
+    <div id="responseModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Segment Response</h2>
+                <button class="btn-icon modal-close">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M15 5L5 15M5 5L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Response details will be inserted here -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary modal-close">Close</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script-modern.js"></script>
+</body>
+</html>
