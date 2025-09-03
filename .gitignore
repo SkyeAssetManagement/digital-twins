@@ -1,0 +1,10 @@
+node_modules/
+.env.local
+.env
+.vercel
+data/processed/
+data/vectors/
+.DS_Store
+*.log
+dbConfig.yaml
+package-lock.json
