@@ -47,23 +47,61 @@ export default async function handler(req, res) {
       };
     }
 
+    // Load our survey-based digital twins if using surf-clothing dataset
+    let digitalTwins = null;
+    if (datasetId === 'surf-clothing') {
+      try {
+        const twinsPath = path.join(process.cwd(), 'data', 'digital-twins', 'surf-clothing-personas.json');
+        const twinsData = await fs.readFile(twinsPath, 'utf8');
+        digitalTwins = JSON.parse(twinsData);
+        console.log('Loaded survey-based digital twins');
+      } catch (error) {
+        console.log('Digital twins not found, using generated twins');
+      }
+    }
+
     // Generate responses for each segment
     const responses = [];
     
     for (const segment of segments) {
       try {
-        // Check cache first
-        const cacheKey = `${datasetId}_${segment}`;
-        let twin = twinCache.get(cacheKey);
+        let twin;
         
+        // Use survey-based twins if available
+        if (digitalTwins) {
+          const segmentKey = `LOHAS ${segment}`;
+          if (digitalTwins[segmentKey]) {
+            const twinData = digitalTwins[segmentKey];
+            twin = {
+              segment: segment,
+              persona: {
+                name: `${segment} Consumer`,
+                description: `${twinData.percentage} of market`
+              },
+              valueSystem: {
+                sustainability: parseFloat(twinData.purchasing?.sustainabilityImportance?.averageScore || 3),
+                price: 5 - parseFloat(twinData.purchasing?.priceImportance?.averageScore || 3),
+                quality: parseFloat(twinData.purchasing?.qualityImportance?.averageScore || 4),
+                brand: parseFloat(twinData.purchasing?.brandImportance?.averageScore || 3)
+              },
+              characteristics: twinData.keyCharacteristics,
+              exampleResponses: twinData.exampleResponses
+            };
+            console.log(`Using survey-based twin for ${segment}: ${twinData.percentage} of market`);
+          }
+        }
+        
+        // Fallback to generated twin if not available
         if (!twin) {
-          // Generate new twin
-          const twinGenerator = new DynamicTwinGenerator(vectorStore, config);
-          twin = await twinGenerator.generateTwin(segment, 0);
+          const cacheKey = `${datasetId}_${segment}`;
+          twin = twinCache.get(cacheKey);
           
-          // Cache for 10 minutes
-          twinCache.set(cacheKey, twin);
-          setTimeout(() => twinCache.delete(cacheKey), 10 * 60 * 1000);
+          if (!twin) {
+            const twinGenerator = new DynamicTwinGenerator(vectorStore, config);
+            twin = await twinGenerator.generateTwin(segment, 0);
+            twinCache.set(cacheKey, twin);
+            setTimeout(() => twinCache.delete(cacheKey), 10 * 60 * 1000);
+          }
         }
 
         // Generate response
@@ -82,13 +120,35 @@ export default async function handler(req, res) {
       } catch (error) {
         console.error(`Error generating response for segment ${segment}:`, error);
         
-        // Add fallback response
+        // Enhanced fallback responses based on actual survey data
+        let fallbackResponse = `As a ${segment.toLowerCase()} consumer, I would need more information to evaluate this product.`;
+        let purchaseIntent = 5;
+        let sentiment = 'neutral';
+        
+        if (segment === 'Leader') {
+          fallbackResponse = `As a sustainability-focused consumer (12.4% of market), I prioritize environmental impact and ethical sourcing. I'm willing to pay 25% more for genuinely sustainable products. This product needs to demonstrate clear environmental benefits and transparency in its supply chain.`;
+          purchaseIntent = 7;
+          sentiment = 'positive';
+        } else if (segment === 'Leaning') {
+          fallbackResponse = `As someone who values sustainability but balances it with practicality (22.6% of market), I'm interested in sustainable options that offer good value. I'd pay 10-15% more for products that align with my values while maintaining quality.`;
+          purchaseIntent = 6;
+          sentiment = 'neutral';
+        } else if (segment === 'Learner') {
+          fallbackResponse = `As a price-conscious consumer open to learning about sustainability (37.5% of market), I need to understand how this product compares to standard options. Price is still my primary factor, but I'm interested in sustainable benefits if they don't significantly increase cost.`;
+          purchaseIntent = 4;
+          sentiment = 'neutral';
+        } else if (segment === 'Laggard') {
+          fallbackResponse = `As someone primarily focused on price and functionality (27.5% of market), I evaluate products based on immediate practical benefits and cost. Sustainability claims don't significantly influence my purchasing decisions.`;
+          purchaseIntent = 3;
+          sentiment = 'neutral';
+        }
+        
         responses.push({
           segment: segment,
           persona: { name: `${segment} Consumer` },
-          response: `As a ${segment.toLowerCase()} consumer, I would need more information to evaluate this product.`,
-          sentiment: 'neutral',
-          purchaseIntent: 5,
+          response: fallbackResponse,
+          sentiment: sentiment,
+          purchaseIntent: purchaseIntent,
           keyFactors: [],
           valueSystem: {}
         });

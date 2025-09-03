@@ -1,0 +1,182 @@
+{
+  "targetWeights": {
+    "actualPurchase": {
+      "index": 69,
+      "weight": 0.5,
+      "name": "Actual sustainable purchase behavior",
+      "type": "revealed_preference"
+    },
+    "willingnessToPay": {
+      "index": 145,
+      "weight": 0.3,
+      "name": "Stated willingness to pay 25% premium",
+      "type": "stated_preference"
+    },
+    "priceImportance": {
+      "index": 57,
+      "weight": 0.2,
+      "name": "Price sensitivity (inverted)",
+      "type": "price_sensitivity",
+      "invert": true
+    }
+  },
+  "topPredictors": [
+    {
+      "index": 141,
+      "question": "Have you ever:(select one per action) - heard of ‘Worn Wear’",
+      "correlation": 0.5408790416706473,
+      "sampleSize": 352,
+      "category": "behavior"
+    },
+    {
+      "index": 136,
+      "question": "Have you ever:(select one per action) - subscribed to the Patagonia online newsletter",
+      "correlation": 0.5216453008701352,
+      "sampleSize": 352,
+      "category": "behavior"
+    },
+    {
+      "index": 121,
+      "question": "Have you ever purchased a Patagonia product? - Response",
+      "correlation": 0.5047215506638456,
+      "sampleSize": 352,
+      "category": "behavior"
+    },
+    {
+      "index": 154,
+      "question": "Have you ever… (select one per option) - Participated in a demonstration about an environmental organisation/cause",
+      "correlation": 0.47947955561645145,
+      "sampleSize": 1006,
+      "category": "behavior"
+    },
+    {
+      "index": 137,
+      "question": "Have you ever:(select one per action) - viewed Patagonia’s Facebook page",
+      "correlation": 0.4785096570327404,
+      "sampleSize": 352,
+      "category": "behavior"
+    },
+    {
+      "index": 135,
+      "question": "Have you ever:(select one per action) - visited the Patagonia website",
+      "correlation": 0.47736035109769687,
+      "sampleSize": 352,
+      "category": "behavior"
+    },
+    {
+      "index": 138,
+      "question": "Have you ever:(select one per action) - viewed Patagonia’s Instagram page",
+      "correlation": 0.4649746216408972,
+      "sampleSize": 352,
+      "category": "behavior"
+    },
+    {
+      "index": 139,
+      "question": "Have you ever:(select one per action) - watched a film made by Patagonia (such as Reef Beneath, 180 degrees South, Nevertown, Takanya)",
+      "correlation": 0.44056392695632735,
+      "sampleSize": 352,
+      "category": "behavior"
+    },
+    {
+      "index": 140,
+      "question": "Have you ever:(select one per action) - heard of ‘1% for the Planet’",
+      "correlation": 0.4301642078570412,
+      "sampleSize": 352,
+      "category": "behavior"
+    },
+    {
+      "index": 150,
+      "question": "In the last 12 months have you surfed (surfboard, bodyboard, SUP)? - Response",
+      "correlation": 0.4257159763297029,
+      "sampleSize": 1006,
+      "category": "behavior"
+    },
+    {
+      "index": 70,
+      "question": "When considering which surf clothing product to buy, how important are the following aspects to you right now in deciding which one to purchase?(select one per aspect) - includes Organic materials (eg. cotton grown without pesticides to minimise environmental impacts)",
+      "correlation": 0.4204574863476085,
+      "sampleSize": 1006,
+      "category": "importance"
+    },
+    {
+      "index": 56,
+      "question": "In the past 12 months have you purchased a surf clothing product from the following type of outlet: (select one per outlet types) - Single brand (sells only one brand) online store (eg. internet based site such Rip Curl, Billabong, Patagonia)",
+      "correlation": 0.4038399721040736,
+      "sampleSize": 1006,
+      "category": "behavior"
+    },
+    {
+      "index": 78,
+      "question": "Please indicate your agreement with the following statements: (select one per statement) - I think that the brands in the surf industry currently have a strong focus on being sustainable",
+      "correlation": 0.3890649923755728,
+      "sampleSize": 1006,
+      "category": "values"
+    },
+    {
+      "index": 153,
+      "question": "Have you ever… (select one per option) - Volunteered for an environmental organisation/cause",
+      "correlation": 0.386561268352855,
+      "sampleSize": 1006,
+      "category": "behavior"
+    },
+    {
+      "index": 72,
+      "question": "When considering which surf clothing product to buy, how important are the following aspects to you right now in deciding which one to purchase?(select one per aspect) - includes Recycled materials (eg. polyester made from re-used plastic)",
+      "correlation": 0.36525004713929754,
+      "sampleSize": 1006,
+      "category": "importance"
+    },
+    {
+      "index": 124,
+      "question": "Have you ever purchased a Patagonia product from:(select one per outlet types) - A Patagonia retail shop",
+      "correlation": 0.3412099550049508,
+      "sampleSize": 147,
+      "category": "behavior"
+    },
+    {
+      "index": 147,
+      "question": "Please indicate how much you agree with the following statements:(select one response per statement) - I often tell family and friends about the benefits of purchasing environmentally friendly products",
+      "correlation": 0.3393354712923575,
+      "sampleSize": 1006,
+      "category": "values"
+    },
+    {
+      "index": 71,
+      "question": "When considering which surf clothing product to buy, how important are the following aspects to you right now in deciding which one to purchase?(select one per aspect) - includes Fairtrade materials (eg. cotton sourced from producers in developing countries and certified to provide enhanced workplace, social and environmental outcomes)",
+      "correlation": 0.3321384126268096,
+      "sampleSize": 1006,
+      "category": "importance"
+    },
+    {
+      "index": 55,
+      "question": "In the past 12 months have you purchased a surf clothing product from the following type of outlet: (select one per outlet types) - Multi brand (sells a variety of brands) online store (eg. internet based site such as surfstitch.com, sds.com.au)",
+      "correlation": 0.32834993027943676,
+      "sampleSize": 1006,
+      "category": "behavior"
+    },
+    {
+      "index": 125,
+      "question": "Have you ever purchased a Patagonia product from:(select one per outlet types) - The Patagonia online store",
+      "correlation": 0.3212274506700766,
+      "sampleSize": 147,
+      "category": "behavior"
+    }
+  ],
+  "distribution": {
+    "categories": {
+      "Selective Payer (Proven)": 107,
+      "Price Conscious": 342,
+      "Premium Payer (Proven)": 190,
+      "Price Sensitive": 367
+    },
+    "scoreRanges": {
+      "Very High (4.5-5.0)": 0,
+      "High (3.5-4.5)": 297,
+      "Medium (2.5-3.5)": 0,
+      "Low (1.5-2.5)": 709,
+      "Very Low (1.0-1.5)": 0
+    },
+    "averageScore": 2.6167992047713757
+  },
+  "respondentCount": 1006
+}

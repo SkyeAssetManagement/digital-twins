@@ -1,0 +1,48 @@
+{
+  "direct": [
+    {
+      "index": 145,
+      "question": "Please indicate how much you agree with the following statements:(select one response per statement) - I am willing to pay 25% more for products and services which are made in an environmentally friendly manner",
+      "mainHeader": "Please indicate how much you agree with the following statements:(select one response per statement)",
+      "subHeader": "I am willing to pay 25% more for products and services which are made in an environmentally friendly manner"
+    }
+  ],
+  "price": [
+    {
+      "index": 57,
+      "question": "When considering which surf clothing product to buy, how important are the following aspects to you in deciding which one to purchase:(select one per aspect) - Price/Value",
+      "mainHeader": "When considering which surf clothing product to buy, how important are the following aspects to you in deciding which one to purchase:(select one per aspect)",
+      "subHeader": "Price/Value"
+    }
+  ],
+  "value": [
+    {
+      "index": 128,
+      "question": "What, if any, are barriers to you buying a Patagonia surf products in the future:(select all that apply) - Price/Value",
+      "mainHeader": "What, if any, are barriers to you buying a Patagonia surf products in the future:(select all that apply)",
+      "subHeader": "Price/Value"
+    }
+  ],
+  "purchase": [
+    {
+      "index": 69,
+      "question": "Have you ever chosen a surf clothing product specifically because of its sustainability (such as organic, Fairtrade, recycled) attributes? - Response",
+      "mainHeader": "Have you ever chosen a surf clothing product specifically because of its sustainability (such as organic, Fairtrade, recycled) attributes?",
+      "subHeader": "Response"
+    }
+  ],
+  "tradeoff": [
+    {
+      "index": 84,
+      "question": "Please indicate your agreement with the following statements: (select one per statement) - Brands in the surf industry should engage Government on environmental and social issues",
+      "mainHeader": "Please indicate your agreement with the following statements: (select one per statement)",
+      "subHeader": "Brands in the surf industry should engage Government on environmental and social issues"
+    },
+    {
+      "index": 68,
+      "question": "You chose to spend your $1,000 on {{ Q13 }}Please say why you chose that brand: - Open-Ended Response",
+      "mainHeader": "You chose to spend your $1,000 on {{ Q13 }}Please say why you chose that brand:",
+      "subHeader": "Open-Ended Response"
+    }
+  ]
+}

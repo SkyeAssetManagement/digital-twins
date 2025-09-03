@@ -1,0 +1,248 @@
+{
+  "topPredictors": [
+    {
+      "question": "Please indicate your agreement with the following statements: (select one per statement) - I would change my purchasing to support brands who can demonstrate a commitment to being sustainable",
+      "index": 82,
+      "correlation": 0.4825404977336869,
+      "sampleSize": 998,
+      "avgValueScore": 4.002004008016032,
+      "avgPaymentScore": 3.6253220727168536
+    },
+    {
+      "question": "Please indicate how much you agree with the following statements:(select one response per statement) - I often tell family and friends about the benefits of purchasing environmentally friendly products",
+      "index": 147,
+      "correlation": 0.45816863492458,
+      "sampleSize": 998,
+      "avgValueScore": 4.155310621242485,
+      "avgPaymentScore": 3.6253220727168536
+    },
+    {
+      "question": "Please indicate your agreement with the following statements: (select one per statement) - I want to know more about what the brands in the surf industry are doing about being sustainable",
+      "index": 80,
+      "correlation": 0.42136236860206333,
+      "sampleSize": 998,
+      "avgValueScore": 4.031062124248497,
+      "avgPaymentScore": 3.6253220727168536
+    },
+    {
+      "question": "Please indicate your agreement with the following statements: (select one per statement) - Brands in the surf industry should engage Government on environmental and social issues",
+      "index": 84,
+      "correlation": 0.41928857338934405,
+      "sampleSize": 998,
+      "avgValueScore": 3.995991983967936,
+      "avgPaymentScore": 3.6253220727168536
+    },
+    {
+      "question": "Please indicate how much you agree with the following statements:(select one response per statement) - I am willing to pay 25% more for products and services which are made in an environmentally friendly manner",
+      "index": 145,
+      "correlation": 0.4050362723209048,
+      "sampleSize": 998,
+      "avgValueScore": 4.128256513026052,
+      "avgPaymentScore": 3.6253220727168536
+    },
+    {
+      "question": "Please indicate your agreement with the following statements: (select one per statement) - Brands in the surf industry should support/campaign on environmental and social issues",
+      "index": 83,
+      "correlation": 0.40008698585406327,
+      "sampleSize": 998,
+      "avgValueScore": 4.077154308617234,
+      "avgPaymentScore": 3.6253220727168536
+    },
+    {
+      "question": "Please indicate your agreement with the following statements: (select one per statement) - It is important for the brands in the surf industry to demonstrate leadership in being sustainable",
+      "index": 79,
+      "correlation": 0.3947702565720072,
+      "sampleSize": 998,
+      "avgValueScore": 4.097194388777555,
+      "avgPaymentScore": 3.6253220727168536
+    },
+    {
+      "question": "Please indicate your agreement with the following statements: (select one per statement) - I think that the brands in the surf industry currently have a strong focus on being sustainable",
+      "index": 78,
+      "correlation": 0.38064365640046405,
+      "sampleSize": 998,
+      "avgValueScore": 3.8947895791583167,
+      "avgPaymentScore": 3.6253220727168536
+    },
+    {
+      "question": "Have you ever… (select one per option) - Participated in a demonstration about an environmental organisation/cause",
+      "index": 154,
+      "correlation": 0.3471158052326104,
+      "sampleSize": 998,
+      "avgValueScore": 1.877755511022044,
+      "avgPaymentScore": 3.6253220727168536
+    },
+    {
+      "question": "Please indicate how much you agree with the following statements:(select one response per statement) - I am concerned about the environment and sustainability, but only if it has a direct impact on me",
+      "index": 142,
+      "correlation": 0.3370129585659352,
+      "sampleSize": 998,
+      "avgValueScore": 4.147294589178356,
+      "avgPaymentScore": 3.6253220727168536
+    },
+    {
+      "question": "Please indicate how much you agree with the following statements:(select one response per statement) - I often find environmental issues complex and I would like clearer information about the environmental benefits and impacts of my product and service choices",
+      "index": 148,
+      "correlation": 0.3331693714151712,
+      "sampleSize": 998,
+      "avgValueScore": 4.188376753507014,
+      "avgPaymentScore": 3.6253220727168536
+    },
+    {
+      "question": "Have you ever… (select one per option) - Volunteered for an environmental organisation/cause",
+      "index": 153,
+      "correlation": 0.3255033882255519,
+      "sampleSize": 998,
+      "avgValueScore": 2.218436873747495,
+      "avgPaymentScore": 3.6253220727168536
+    },
+    {
+      "question": "Please indicate how much you agree with the following statements:(select one response per statement) - I believe that it is important for companies to consider the impact of their operations on the environment and community and not just make profits",
+      "index": 146,
+      "correlation": 0.2908701083170313,
+      "sampleSize": 998,
+      "avgValueScore": 4.30060120240481,
+      "avgPaymentScore": 3.6253220727168536
+    },
+    {
+      "question": "Please indicate how much you agree with the following statements:(select one response per statement) - I am often sceptical about the health and environmental claims that companies make about their products and services",
+      "index": 143,
+      "correlation": 0.28482697396003864,
+      "sampleSize": 998,
+      "avgValueScore": 4.201402805611222,
+      "avgPaymentScore": 3.6253220727168536
+    },
+    {
+      "question": "Please indicate how much you agree with the following statements:(select one response per statement) - I feel conflicted by my desire to enjoy my current lifestyle, and my concern about the environmental impact of my purchasing choices",
+      "index": 149,
+      "correlation": 0.2834896354799725,
+      "sampleSize": 998,
+      "avgValueScore": 4.153306613226453,
+      "avgPaymentScore": 3.6253220727168536
+    },
+    {
+      "question": "Please indicate your agreement with the following statements: (select one per statement) - I believe that sexualised imagery of women in advertising and promotion is an issue that the surf industry needs to address",
+      "index": 81,
+      "correlation": 0.2763748092011473,
+      "sampleSize": 998,
+      "avgValueScore": 4.034068136272545,
+      "avgPaymentScore": 3.6253220727168536
+    },
+    {
+      "question": "Have you ever… (select one per option) - Donated to an environmental organisation/cause",
+      "index": 152,
+      "correlation": 0.2717891027731005,
+      "sampleSize": 998,
+      "avgValueScore": 3.220440881763527,
+      "avgPaymentScore": 3.6253220727168536
+    },
+    {
+      "question": "Have you ever… (select one per option) - Signed a petition for an environmental organisation/cause",
+      "index": 155,
+      "correlation": 0.2083738290356223,
+      "sampleSize": 998,
+      "avgValueScore": 2.8036072144288577,
+      "avgPaymentScore": 3.6253220727168536
+    },
+    {
+      "question": "What do you believe are the most important environmental / social issues that brands in the surf industry should tackle? - Open-Ended Response",
+      "index": 86,
+      "correlation": 0.05076820049280885,
+      "sampleSize": 985,
+      "avgValueScore": 2.977664974619289,
+      "avgPaymentScore": 3.626250906453944
+    },
+    {
+      "question": "How did you first learn about Patagonia?  (select all that apply) - Social media",
+      "index": 116,
+      "correlation": 0,
+      "sampleSize": 53,
+      "avgValueScore": 3,
+      "avgPaymentScore": 3.7147349505840084
+    }
+  ],
+  "topPositive": [
+    {
+      "question": "Please indicate your agreement with the following statements: (select one per statement) - I would change my purchasing to support brands who can demonstrate a commitment to being sustainable",
+      "index": 82,
+      "correlation": 0.4825404977336869,
+      "sampleSize": 998,
+      "avgValueScore": 4.002004008016032,
+      "avgPaymentScore": 3.6253220727168536
+    },
+    {
+      "question": "Please indicate how much you agree with the following statements:(select one response per statement) - I often tell family and friends about the benefits of purchasing environmentally friendly products",
+      "index": 147,
+      "correlation": 0.45816863492458,
+      "sampleSize": 998,
+      "avgValueScore": 4.155310621242485,
+      "avgPaymentScore": 3.6253220727168536
+    },
+    {
+      "question": "Please indicate your agreement with the following statements: (select one per statement) - I want to know more about what the brands in the surf industry are doing about being sustainable",
+      "index": 80,
+      "correlation": 0.42136236860206333,
+      "sampleSize": 998,
+      "avgValueScore": 4.031062124248497,
+      "avgPaymentScore": 3.6253220727168536
+    },
+    {
+      "question": "Please indicate your agreement with the following statements: (select one per statement) - Brands in the surf industry should engage Government on environmental and social issues",
+      "index": 84,
+      "correlation": 0.41928857338934405,
+      "sampleSize": 998,
+      "avgValueScore": 3.995991983967936,
+      "avgPaymentScore": 3.6253220727168536
+    },
+    {
+      "question": "Please indicate how much you agree with the following statements:(select one response per statement) - I am willing to pay 25% more for products and services which are made in an environmentally friendly manner",
+      "index": 145,
+      "correlation": 0.4050362723209048,
+      "sampleSize": 998,
+      "avgValueScore": 4.128256513026052,
+      "avgPaymentScore": 3.6253220727168536
+    },
+    {
+      "question": "Please indicate your agreement with the following statements: (select one per statement) - Brands in the surf industry should support/campaign on environmental and social issues",
+      "index": 83,
+      "correlation": 0.40008698585406327,
+      "sampleSize": 998,
+      "avgValueScore": 4.077154308617234,
+      "avgPaymentScore": 3.6253220727168536
+    },
+    {
+      "question": "Please indicate your agreement with the following statements: (select one per statement) - It is important for the brands in the surf industry to demonstrate leadership in being sustainable",
+      "index": 79,
+      "correlation": 0.3947702565720072,
+      "sampleSize": 998,
+      "avgValueScore": 4.097194388777555,
+      "avgPaymentScore": 3.6253220727168536
+    },
+    {
+      "question": "Please indicate your agreement with the following statements: (select one per statement) - I think that the brands in the surf industry currently have a strong focus on being sustainable",
+      "index": 78,
+      "correlation": 0.38064365640046405,
+      "sampleSize": 998,
+      "avgValueScore": 3.8947895791583167,
+      "avgPaymentScore": 3.6253220727168536
+    },
+    {
+      "question": "Have you ever… (select one per option) - Participated in a demonstration about an environmental organisation/cause",
+      "index": 154,
+      "correlation": 0.3471158052326104,
+      "sampleSize": 998,
+      "avgValueScore": 1.877755511022044,
+      "avgPaymentScore": 3.6253220727168536
+    },
+    {
+      "question": "Please indicate how much you agree with the following statements:(select one response per statement) - I am concerned about the environment and sustainability, but only if it has a direct impact on me",
+      "index": 142,
+      "correlation": 0.3370129585659352,
+      "sampleSize": 998,
+      "avgValueScore": 4.147294589178356,
+      "avgPaymentScore": 3.6253220727168536
+    }
+  ],
+  "topNegative": [],
+  "totalQuestionsAnalyzed": 20
+}

@@ -13,6 +13,10 @@ import getDatasetConfigRoute from './api/dataset-config.js';
 import getTwinRoute from './api/get-twin.js';
 import datasetStatusRoute from './api/dataset-status.js';
 
+// Import Digital Twin Service
+import DigitalTwinService from './api/digital-twin-service.js';
+const digitalTwinService = new DigitalTwinService();
+
 // Load environment variables
 dotenv.config({ path: '.env.local' });
 
@@ -37,6 +41,55 @@ app.post('/api/upload-dataset', uploadDatasetRoute);
 app.get('/api/dataset-config/:datasetId', getDatasetConfigRoute);
 app.get('/api/get-twin/:datasetId/:segment/:variant', getTwinRoute);
 app.get('/api/dataset-status/:datasetId', datasetStatusRoute);
+
+// Digital Twin Routes
+app.get('/api/digital-twins/personas', async (req, res) => {
+  try {
+    const personas = await digitalTwinService.getAvailablePersonas();
+    res.json({ success: true, personas });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.get('/api/digital-twins/persona/:id', async (req, res) => {
+  try {
+    const persona = await digitalTwinService.getPersona(req.params.id);
+    res.json({ success: true, persona });
+  } catch (error) {
+    res.status(404).json({ success: false, error: error.message });
+  }
+});
+
+app.post('/api/digital-twins/generate-response', async (req, res) => {
+  try {
+    const { personaId, prompt, context } = req.body;
+    const response = await digitalTwinService.generateResponse(personaId, prompt, context);
+    res.json({ success: true, response });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.post('/api/digital-twins/market-analysis', async (req, res) => {
+  try {
+    const { productFeatures } = req.body;
+    const analysis = await digitalTwinService.analyzeMarketOpportunity(productFeatures);
+    res.json({ success: true, analysis });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.post('/api/digital-twins/compare-responses', async (req, res) => {
+  try {
+    const { prompt, context } = req.body;
+    const comparisons = await digitalTwinService.comparePersonaResponses(prompt, context);
+    res.json({ success: true, comparisons });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

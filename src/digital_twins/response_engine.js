@@ -58,7 +58,7 @@ export class DatasetAwareResponseEngine {
         "anthropic-version": "2023-06-01"
       },
       body: JSON.stringify({
-        model: "claude-3-sonnet-20240229",
+        model: "claude-3-5-sonnet-20241022",
         max_tokens: 500,
         messages
       })
@@ -88,47 +88,64 @@ export class DatasetAwareResponseEngine {
   }
   
   buildContextualPrompt(marketingContent, similarResponses) {
-    const { persona, valueSystem, segment, responsePatterns } = this.twin;
+    const { persona, valueSystem, segment, characteristics, exampleResponses } = this.twin;
     
     // Build context from actual survey responses
     const responseContext = similarResponses.map(r => 
       `When asked "${r.question}", someone like you said: "${r.answer}"`
     ).join('\n');
     
-    // Extract vocabulary patterns
-    const vocabularyHints = responsePatterns?.vocabulary 
-      ? Object.keys(responsePatterns.vocabulary).slice(0, 20).join(', ')
-      : '';
-    
-    // Format persona details
-    const personaDetails = typeof persona === 'object' 
-      ? `${persona.name || 'Consumer'}, a ${persona.age || 35}-year-old ${persona.occupation || 'professional'}`
-      : 'A consumer';
+    // Format persona details with market percentage if available
+    const marketSize = persona?.description || '';
+    const personaDetails = `${persona?.name || segment + ' Consumer'} ${marketSize}`;
     
     // Format value system
     const valueDetails = Object.entries(valueSystem || {})
       .map(([key, value]) => `- ${key}: ${typeof value === 'number' ? (value * 10).toFixed(1) + '/10' : value}`)
       .join('\n');
     
-    return `You are ${personaDetails} who falls into the "${segment}" category of consumers.
+    // Add characteristics if available
+    const characteristicsText = characteristics && characteristics.length > 0
+      ? `\nYour key characteristics:\n${characteristics.slice(0, 4).map(c => `- ${c}`).join('\n')}`
+      : '';
+    
+    // Add example responses if available
+    const examplesText = exampleResponses 
+      ? `\nExample of how you typically respond:\n${exampleResponses.priceQuestion || exampleResponses.brandQuestion || 'I evaluate products based on my values.'}`
+      : '';
+    
+    // Segment-specific prompting
+    let segmentGuidance = '';
+    if (segment === 'Leader') {
+      segmentGuidance = '\nAs a Leader, you prioritize sustainability and are willing to pay 25%+ premium for genuinely sustainable products. Environmental impact is crucial to your decisions.';
+    } else if (segment === 'Leaning') {
+      segmentGuidance = '\nAs someone Leaning toward sustainability, you balance environmental concerns with practicality. You pay 10-15% more for products that align with your values.';
+    } else if (segment === 'Learner') {
+      segmentGuidance = '\nAs a Learner, you are interested in sustainability but price remains your primary factor. You need education and clear value propositions.';
+    } else if (segment === 'Laggard') {
+      segmentGuidance = '\nAs a Laggard, you focus primarily on price and functionality. Sustainability claims do not significantly influence your purchasing decisions.';
+    }
+    
+    return `You are ${personaDetails} who falls into the LOHAS "${segment}" category of surf clothing consumers.
 
 Your value system:
 ${valueDetails || '- Balanced across all factors'}
+${characteristicsText}
+${segmentGuidance}
+${examplesText}
 
-${responseContext ? `Here are some responses from people similar to you:\n${responseContext}\n` : ''}
+${responseContext ? `\nHere are some responses from people similar to you:\n${responseContext}\n` : ''}
 
-${vocabularyHints ? `Common words/phrases you and similar people use: ${vocabularyHints}\n` : ''}
-
-React authentically to this marketing material as this persona would:
+Now, react authentically to this Rip Curl marketing material as this persona would:
 "${marketingContent}"
 
-Respond in 2-3 sentences with your genuine reaction. Consider:
-1. Whether this aligns with your values
-2. Your typical vocabulary and communication style
-3. Your specific concerns and priorities
-4. Whether you'd actually purchase this
+Respond in 2-3 sentences with your genuine, specific reaction. Consider:
+1. Whether this aligns with your values (especially sustainability for Leaders)
+2. Your price sensitivity and willingness to pay
+3. How the brand messaging resonates with you
+4. Whether you'd actually purchase Rip Curl products
 
-Be specific and authentic to your persona, not generic. Include your sentiment (positive/neutral/negative) and purchase intent (1-10 scale) at the end in this format:
+Be specific to YOUR segment's perspective. Include your sentiment (positive/neutral/negative) and purchase intent (1-10 scale) at the end in this format:
 [Sentiment: X, Purchase Intent: Y]`;
   }
   

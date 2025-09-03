@@ -11,35 +11,42 @@ export class VectorStore {
   }
   
   async initialize() {
-    // Initialize PostgreSQL connection pool
-    this.pool = new Pool({
-      connectionString: process.env.DATABASE_URL,
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-      max: 10,
-      idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 2000,
-    });
-    
-    // Test connection
+    // Try to initialize PostgreSQL connection pool
     try {
+      this.pool = new Pool({
+        connectionString: process.env.DATABASE_URL,
+        ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+        max: 10,
+        idleTimeoutMillis: 30000,
+        connectionTimeoutMillis: 2000,
+      });
+      
+      // Test connection
       const client = await this.pool.connect();
       await client.query('SELECT NOW()');
       client.release();
       console.log('Database connected successfully');
+      
+      // Create tables with pgvector extension
+      await this.createTables();
     } catch (error) {
-      console.error('Database connection failed:', error);
-      throw error;
+      console.warn('Database connection failed, using in-memory fallback:', error.message);
+      this.pool = null;
+      // Initialize in-memory store
+      this.inMemoryStore = {
+        responses: [],
+        segments: [],
+        personas: [],
+        datasets: []
+      };
     }
-    
-    // Create tables with pgvector extension
-    await this.createTables();
     
     // Initialize embedder (using Transformers.js for local embeddings)
     try {
       this.embedder = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
       console.log('Embedder initialized successfully');
     } catch (error) {
-      console.warn('Failed to initialize embedder:', error);
+      console.warn('Failed to initialize embedder:', error.message);
       // Continue without embeddings for now
     }
   }
@@ -211,6 +218,21 @@ export class VectorStore {
   }
   
   async storeResponse(respondentId, segment, question, answer, metadata = {}) {
+    // If using in-memory store
+    if (!this.pool) {
+      const response = {
+        id: Date.now(),
+        dataset_id: this.datasetId,
+        respondent_id: respondentId,
+        segment: segment,
+        question: question,
+        answer: answer,
+        metadata: metadata
+      };
+      this.inMemoryStore.responses.push(response);
+      return response.id;
+    }
+    
     const embedding = await this.embedText(`${question} ${answer}`);
     
     // Check if we have vector support
@@ -262,6 +284,7 @@ export class VectorStore {
   }
   
   async checkVectorSupport() {
+    if (!this.pool) return false;
     try {
       const result = await this.pool.query(
         "SELECT EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'vector')"
@@ -273,6 +296,16 @@ export class VectorStore {
   }
   
   async findSimilarResponses(query, segment = null, limit = 10) {
+    // If using in-memory store
+    if (!this.pool) {
+      const responses = this.inMemoryStore.responses.filter(r => 
+        r.dataset_id === this.datasetId && 
+        (!segment || r.segment === segment)
+      );
+      // Return mock similar responses
+      return responses.slice(0, limit);
+    }
+    
     const queryEmbedding = await this.embedText(query);
     const hasVectorSupport = await this.checkVectorSupport();
     
@@ -344,6 +377,19 @@ export class VectorStore {
   }
   
   async storeSegmentProfile(segmentName, characteristics, valueSystem) {
+    // If using in-memory store
+    if (!this.pool) {
+      const segment = {
+        id: Date.now(),
+        dataset_id: this.datasetId,
+        segment_name: segmentName,
+        characteristics: characteristics,
+        value_system: valueSystem
+      };
+      this.inMemoryStore.segments.push(segment);
+      return segment.id;
+    }
+    
     const characteristicText = Object.entries(characteristics)
       .map(([k, v]) => `${k}: ${v}`)
       .join(', ');
@@ -446,6 +492,17 @@ export class VectorStore {
   }
   
   async getSegmentProfile(segmentName) {
+    // If using in-memory store
+    if (!this.pool) {
+      const segment = this.inMemoryStore.segments.find(
+        s => s.dataset_id === this.datasetId && s.segment_name === segmentName
+      );
+      return segment ? {
+        characteristics: segment.characteristics,
+        value_system: segment.value_system
+      } : null;
+    }
+    
     const query = `
       SELECT characteristics, value_system 
       FROM segments 
@@ -484,6 +541,20 @@ export class VectorStore {
   }
   
   async listDatasets() {
+    // If using in-memory store
+    if (!this.pool) {
+      // Return default surf-clothing dataset
+      return [{
+        id: 'surf-clothing',
+        name: 'Surf Clothing Consumer Research 2018',
+        description: 'LOHAS segmentation of surf clothing buyers',
+        status: 'completed',
+        created_at: new Date().toISOString(),
+        segment_count: 4,
+        response_count: 0
+      }];
+    }
+    
     const query = `
       SELECT 
         d.id,
