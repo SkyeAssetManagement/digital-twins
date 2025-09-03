@@ -1,17 +1,29 @@
 # Digital Twin Consumer Response System - Code Documentation
 
-## Last Updated: 2025-09-03 - Semantic Response Refactor Complete
+## Last Updated: 2025-09-03 - Semantic vs Claude Pipeline Comparison Complete
 
 ## Project Overview
 A sophisticated AI-powered system that generates consumer responses to marketing materials based on real survey data from 1,006 surf clothing consumers. The system uses LOHAS (Lifestyles of Health and Sustainability) segmentation to create accurate digital twins representing different consumer segments.
 
-### Recent Major Update: Semantic Response Engine
+### Recent Major Updates
+
+#### 2025-09-03: Comprehensive Comparison Testing
+Successfully completed comparison of two approaches:
+1. **Semantic Engine**: Local embeddings, 48.5ms avg response, free, consistent
+2. **Claude Pipeline**: API-based, 3366ms avg response, $0.015/call, rich but misaligned
+
+Key findings:
+- Claude responses contradict survey values for environmental segments
+- Semantic engine 69x faster with proper value alignment
+- Created detailed comparison documentation in COMPARISON-SEMANTIC-VS-CLAUDE.md
+
+#### Semantic Response Engine Implementation
 The system now uses advanced semantic embeddings instead of keyword matching, providing:
 - Context-aware understanding of marketing content
 - Theme and tone analysis using vector embeddings  
 - Segment-specific value alignment scoring
 - Natural response variations with consistent personality
-- Pre-computed embeddings for <500ms response times
+- Pre-computed embeddings for <50ms response times
 
 ## Architecture Diagram (Updated with Claude Persona Vectors)
 
