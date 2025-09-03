@@ -159,21 +159,34 @@ export class SurveyResponseLoader {
     return responses;
   }
   
-  getRandomResponses(segment, count = 5) {
+  getRandomResponses(segment, count = 5, seedOffset = 0) {
     const segmentKey = segment.replace('LOHAS ', '');
     const responses = this.segmentResponses[segmentKey] || [];
     
     if (responses.length === 0) return [];
     
-    // Randomly select responses
-    const selected = [];
-    const indices = new Set();
+    // Use seedOffset to select different subsets for variety
+    const startIdx = seedOffset % responses.length;
+    const rotatedResponses = [
+      ...responses.slice(startIdx),
+      ...responses.slice(0, startIdx)
+    ];
     
-    while (selected.length < count && indices.size < responses.length) {
-      const index = Math.floor(Math.random() * responses.length);
-      if (!indices.has(index)) {
-        indices.add(index);
-        selected.push(responses[index]);
+    // Select responses with deterministic variation
+    const selected = [];
+    const step = Math.max(1, Math.floor(responses.length / count));
+    
+    for (let i = 0; i < count && i * step < rotatedResponses.length; i++) {
+      selected.push(rotatedResponses[i * step]);
+    }
+    
+    // Fill remaining if needed
+    while (selected.length < count && selected.length < responses.length) {
+      const idx = selected.length;
+      if (idx < rotatedResponses.length) {
+        selected.push(rotatedResponses[idx]);
+      } else {
+        break;
       }
     }
     

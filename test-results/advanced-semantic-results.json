@@ -1,0 +1,110 @@
+{
+  "metadata": {
+    "approach": "Advanced Semantic Engine with OpenAI text-embedding-3-large",
+    "model": "text-embedding-3-large (3072D)",
+    "method": "Persona vectors + Latent space interpolation + RAG",
+    "features": [
+      "3072-dimensional embeddings for nuanced understanding",
+      "Persona vector calculation from survey respondents",
+      "Latent space interpolation for response generation",
+      "Multi-manifold traversal for natural language",
+      "Contextual response templates with variable injection"
+    ],
+    "timestamp": "2025-09-03T17:21:33.449Z"
+  },
+  "adContent": "Here is a surf ad commercial script in the style you requested.\r\n\r\nTitle: \"The Search\"\r\n\r\nScene: A sun-drenched beach with perfect, glassy waves.\r\n\r\n(0-5 seconds)\r\n\r\nMusic: Upbeat, slightly distorted surf rock with a driving beat.\r\n\r\nVisuals: A beautiful, bikini-clad woman is lying on the beach, tanning. She lifts her sunglasses as a group of four male surfers walk past her, boards under their arms. She smiles, and they give her a confident nod without breaking their stride.\r\n\r\n(5-15 seconds)\r\n\r\nVisuals: Quick cuts of the surfers waxing their boards, laughing and joking with each other. The camera focuses on their new Rip Curl boardshorts and wetsuits.\r\n\r\n(15-25 seconds)\r\n\r\nVisuals: The surfers are in the water, paddling out. Slow-motion shots of them duck-diving under waves, their movements powerful and effortless.\r\n\r\n(25-45 seconds)\r\n\r\nVisuals: Epic surfing action. Huge aerials, deep barrel rides, and massive turns. The camera captures the spray flying off the waves and the intensity in the surfers' eyes.\r\n\r\n(45-55 seconds)\r\n\r\nVisuals: The surfers are back on the beach, exhausted but exhilarated. They're sitting on their boards, watching the sunset. The woman from the beginning of the ad approaches them and offers them a beer. They all cheer and take a drink.\r\n\r\n(55-60 seconds)\r\n\r\nVisuals: A final, epic shot of a surfer riding a massive wave.\r\n\r\nText on screen: Rip Curl. The Ultimate Surfing Company.\r\n\r\nVoiceover (deep, masculine voice): Live the search.",
+  "responses": {
+    "Leader": {
+      "text": "This is just lifestyle marketing without any substance. Show me real environmental commitment or I'm not interested.",
+      "sentiment": "neutral",
+      "purchaseIntent": 2,
+      "responseTime": 6551,
+      "basedOn": {
+        "method": "advanced-semantic-interpolation",
+        "embeddingModel": "text-embedding-3-large",
+        "dimensions": 3072,
+        "nearestNeighbors": 0
+      },
+      "themes": {
+        "sustainability": 0.23786293420300067,
+        "lifestyle": 0.22205110574608092,
+        "performance": 0.0946572472623783,
+        "price": 0.08210024104984594,
+        "quality": 0.07289977407485873,
+        "innovation": 0.08979199541767166,
+        "brand": 0.11536944137890956,
+        "social": 0.08526726086725414
+      },
+      "timestamp": "2025-09-03T17:22:01.612Z"
+    },
+    "Leaning": {
+      "text": "The product looks good, though I'm concerned about the price point. If the quality matches the price, I'd consider paying 10-15% more.",
+      "sentiment": "neutral",
+      "purchaseIntent": 4,
+      "responseTime": 1,
+      "basedOn": {
+        "method": "advanced-semantic-interpolation",
+        "embeddingModel": "text-embedding-3-large",
+        "dimensions": 3072,
+        "nearestNeighbors": 0
+      },
+      "themes": {
+        "sustainability": 0.23786293420300067,
+        "lifestyle": 0.22205110574608092,
+        "performance": 0.0946572472623783,
+        "price": 0.08210024104984594,
+        "quality": 0.07289977407485873,
+        "innovation": 0.08979199541767166,
+        "brand": 0.11536944137890956,
+        "social": 0.08526726086725414
+      },
+      "timestamp": "2025-09-03T17:22:01.613Z"
+    },
+    "Learner": {
+      "text": "What makes this different from regular brands? I'm still learning about premium products.",
+      "sentiment": "neutral",
+      "purchaseIntent": 4,
+      "responseTime": 1,
+      "basedOn": {
+        "method": "advanced-semantic-interpolation",
+        "embeddingModel": "text-embedding-3-large",
+        "dimensions": 3072,
+        "nearestNeighbors": 0
+      },
+      "themes": {
+        "sustainability": 0.23786293420300067,
+        "lifestyle": 0.22205110574608092,
+        "performance": 0.0946572472623783,
+        "price": 0.08210024104984594,
+        "quality": 0.07289977407485873,
+        "innovation": 0.08979199541767166,
+        "brand": 0.11536944137890956,
+        "social": 0.08526726086725414
+      },
+      "timestamp": "2025-09-03T17:22:01.615Z"
+    },
+    "Laggard": {
+      "text": "I guess Same old marketing - just another overpriced hype. I can get other brands for half of the price.",
+      "sentiment": "neutral",
+      "purchaseIntent": 2,
+      "responseTime": 2,
+      "basedOn": {
+        "method": "advanced-semantic-interpolation",
+        "embeddingModel": "text-embedding-3-large",
+        "dimensions": 3072,
+        "nearestNeighbors": 0
+      },
+      "themes": {
+        "sustainability": 0.23786293420300067,
+        "lifestyle": 0.22205110574608092,
+        "performance": 0.0946572472623783,
+        "price": 0.08210024104984594,
+        "quality": 0.07289977407485873,
+        "innovation": 0.08979199541767166,
+        "brand": 0.11536944137890956,
+        "social": 0.08526726086725414
+      },
+      "timestamp": "2025-09-03T17:22:01.618Z"
+    }
+  }
+}

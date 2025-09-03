@@ -43,10 +43,12 @@ export class IntegratedPersonaEngineV2 {
     
     // Step 1: Create data-driven persona from real survey respondents
     const numRespondents = options.numRespondents || 10;
-    const systemPrompt = await this.enhancedPersona.createDataDrivenPersona(segment, numRespondents);
+    const seedOffset = options.seedOffset || 0;
+    const temperature = options.temperature || 0.7;
+    const systemPrompt = await this.enhancedPersona.createDataDrivenPersona(segment, numRespondents, seedOffset);
     
-    // Step 2: Get similar real respondents for context
-    const respondents = this.surveyLoader.getRandomResponses(segment, 5);
+    // Step 2: Get similar real respondents for context (with seed variation)
+    const respondents = this.surveyLoader.getRandomResponses(segment, 5, seedOffset);
     
     // Step 3: Build user prompt with proper structure
     const userPrompt = this.buildStructuredPrompt(marketingContent, respondents, segment);
@@ -59,7 +61,7 @@ export class IntegratedPersonaEngineV2 {
       const response = await this.client.messages.create({
         model: 'claude-opus-4-1-20250805',
         max_tokens: 300,
-        temperature: 0.7,
+        temperature: temperature,
         system: systemPrompt,
         messages: [
           {
