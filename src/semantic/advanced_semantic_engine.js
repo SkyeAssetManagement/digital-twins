@@ -575,10 +575,10 @@ export class AdvancedSemanticEngine {
       interpolated
     );
     
-    // Perform template substitution
+    // Perform template substitution with global replacement
     let response = template;
     for (const [key, value] of Object.entries(variables)) {
-      response = response.replace(`{${key}}`, value);
+      response = response.replace(new RegExp(`\\{${key}\\}`, 'g'), value);
     }
     
     // Add natural variations
@@ -720,6 +720,7 @@ export class AdvancedSemanticEngine {
       environmental_concern: 'ocean health',
       environmental_issue: 'climate change',
       missing_value: 'substance',
+      sustainability_requirement: 'environmental commitment',
       sustainability_feature: 'eco-friendly approach',
       performance_metric: 'durability',
       certification_type: 'B-Corp',
