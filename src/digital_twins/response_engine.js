@@ -1,10 +1,12 @@
 import fetch from 'node-fetch';
+import { SemanticResponseEngine } from './semantic_response_engine.js';
 
 export class DatasetAwareResponseEngine {
   constructor(twin, vectorStore) {
     this.twin = twin;
     this.vectorStore = vectorStore;
     this.claudeApiUrl = "https://api.anthropic.com/v1/messages";
+    this.semanticEngine = new SemanticResponseEngine(twin, vectorStore);
   }
   
   async generateResponse(marketingContent, imageData = null) {
@@ -168,43 +170,49 @@ Be specific to YOUR segment's perspective. Include your sentiment (positive/neut
   }
   
   async generateDataDrivenFallback(marketingContent, similarResponses) {
-    // Generate response based on actual dataset patterns
-    if (similarResponses.length > 0) {
-      // Analyze sentiment patterns in similar responses
-      const sentiments = this.analyzeSentimentPatterns(similarResponses);
-      const vocabulary = this.extractVocabulary(similarResponses);
-      
-      // Construct response using real patterns
-      const template = this.selectResponseTemplate(sentiments, this.twin.segment);
-      const response = this.fillTemplate(template, vocabulary, marketingContent);
-      
-      return {
-        text: response,
-        sentiment: sentiments.primary,
-        purchaseIntent: sentiments.avgIntent,
-        keyFactors: this.extractKeyFactorsFromResponses(similarResponses),
-        timestamp: new Date().toISOString(),
-        isFallback: true,
-        basedOnData: true,
-        generatedBy: 'pattern-based'
-      };
-    }
+    console.log(`[DataDrivenFallback] Using semantic engine for segment: ${this.twin.segment}`);
     
-    // Ultimate fallback if no data available
-    return this.generateGenericFallback(marketingContent);
+    // Use the semantic response engine for more intelligent responses
+    try {
+      const semanticResponse = await this.semanticEngine.generateSemanticResponse(marketingContent);
+      console.log(`[SemanticEngine] Generated response for ${this.twin.segment}: ${semanticResponse.text.substring(0, 100)}...`);
+      return semanticResponse;
+    } catch (error) {
+      console.error('[SemanticEngine] Error generating semantic response:', error);
+      // Fallback to rule-based if semantic engine fails
+      return this.generateGenericFallback(marketingContent);
+    }
   }
   
   generateGenericFallback(marketingContent) {
     const { valueSystem, persona, segment } = this.twin;
     
-    // Analyze marketing content
+    console.log(`[GenericFallback] Called for segment: ${segment}`);
+    console.log(`[GenericFallback] Marketing content: ${marketingContent.substring(0, 100)}...`);
+    
+    // Analyze marketing content more deeply
     const contentLower = marketingContent.toLowerCase();
-    const hasSustainability = contentLower.includes('sustain') || contentLower.includes('eco') || contentLower.includes('green') || contentLower.includes('recycl');
+    
+    // Check for sustainability keywords with word boundaries to avoid false positives
+    const hasSustainability = /\b(sustain|eco-|eco\s|green|recycl)/i.test(marketingContent) || 
+                              contentLower.includes('eco-friendly') || 
+                              contentLower.includes('ecological') || 
+                              contentLower.includes('environmentally');
     const hasDiscount = contentLower.includes('sale') || contentLower.includes('discount') || contentLower.includes('% off');
-    const hasPremium = contentLower.includes('premium') || contentLower.includes('luxury') || contentLower.includes('exclusive');
+    const hasPremium = contentLower.includes('premium') || contentLower.includes('luxury') || contentLower.includes('exclusive') || contentLower.includes('ultimate');
     const hasInnovation = contentLower.includes('new') || contentLower.includes('innovative') || contentLower.includes('revolutionary');
     const hasSurfAction = contentLower.includes('surf') || contentLower.includes('wave') || contentLower.includes('board') || contentLower.includes('barrel');
     const hasBrand = contentLower.includes('rip curl') || contentLower.includes('billabong') || contentLower.includes('quiksilver');
+    
+    // Analyze specific ad elements
+    const hasBeachLifestyle = contentLower.includes('beach') || contentLower.includes('sunset') || contentLower.includes('sun-drenched');
+    const hasSexAppeal = contentLower.includes('bikini') || contentLower.includes('beautiful') || contentLower.includes('woman') || contentLower.includes('beer');
+    const hasBrotherhood = contentLower.includes('group') || contentLower.includes('joking') || contentLower.includes('laughing') || contentLower.includes('together');
+    const hasAction = contentLower.includes('aerial') || contentLower.includes('epic') || contentLower.includes('massive') || contentLower.includes('intensity');
+    const hasProduct = contentLower.includes('boardshort') || contentLower.includes('wetsuit') || contentLower.includes('gear');
+    const hasTagline = contentLower.includes('live the search') || contentLower.includes('the search');
+    
+    console.log(`[GenericFallback] Content analysis - Sustainability: ${hasSustainability}, Discount: ${hasDiscount}, Surf: ${hasSurfAction}`);
     
     // Generate response based on SEGMENT FIRST, then content
     let response = '';
@@ -213,28 +221,38 @@ Be specific to YOUR segment's perspective. Include your sentiment (positive/neut
     
     // SEGMENT-SPECIFIC RESPONSES
     if (segment && segment.toLowerCase().includes('leader')) {
+      console.log(`[GenericFallback] Using LEADER response logic`);
       // Leaders care about sustainability and brand values
       if (hasSustainability) {
         response = "This aligns perfectly with my values. I'm willing to pay premium for genuine sustainability. Tell me more about your supply chain and environmental impact.";
         sentiment = 'positive';
         purchaseIntent = 9;
+      } else if (hasSurfAction && hasBrand) {
+        response = `The ${hasAction ? 'epic surfing footage' : 'surf imagery'} is impressive, but ${hasSexAppeal ? "the objectification of women in the ad is outdated and" : ''} I need to know about Rip Curl's environmental practices. Do they use sustainable materials? What's their ocean conservation stance? ${hasTagline ? '"Live the search" sounds cool, but I search for brands that protect what we love.' : ''}`;
+        sentiment = hasSexAppeal ? 'negative' : 'neutral';
+        purchaseIntent = hasSexAppeal ? 4 : 6;
       } else if (hasSurfAction) {
-        response = "The performance looks impressive, but I need to know about the brand's environmental practices. Does Rip Curl use sustainable materials? What's their ocean conservation stance?";
+        response = "The surf gear looks decent, but without sustainability credentials, I'll stick with more eco-conscious brands. The ocean needs protection, not just exploitation for marketing.";
         sentiment = 'neutral';
-        purchaseIntent = 6;
+        purchaseIntent = 5;
       } else {
         response = "I prioritize brands that demonstrate real commitment to sustainability. Without clear eco-credentials, I'll probably look for alternatives that better align with my values.";
         sentiment = 'negative';
         purchaseIntent = 4;
       }
     } else if (segment && segment.toLowerCase().includes('leaning')) {
+      console.log(`[GenericFallback] Using LEANING response logic`);
       // Leaning balance sustainability with practicality
       if (hasSustainability) {
         response = "The sustainability aspect is appealing. If the quality is good and the price premium isn't excessive (10-15% max), I'd definitely consider this.";
         sentiment = 'positive';
         purchaseIntent = 7;
+      } else if (hasSurfAction && hasBrand) {
+        response = `Rip Curl makes solid gear. ${hasAction ? 'The surfing action looks intense - those are some serious waves.' : ''} ${hasProduct ? 'Their boardshorts and wetsuits have good durability.' : ''} I'd consider it if the price is reasonable, though ${hasSexAppeal ? 'the beach lifestyle marketing is a bit much' : 'some eco-features would be nice'}.`;
+        sentiment = 'positive';
+        purchaseIntent = 7;
       } else if (hasSurfAction) {
-        response = "Looks like quality surf gear. I'd be more interested if they highlighted any sustainable practices, but performance and value are my main concerns.";
+        response = `${hasBeachLifestyle ? 'Love the beach vibe!' : 'Looks like quality surf gear.'} Performance matters most to me, but I also care about value. ${hasBrotherhood ? 'The crew aspect is cool - surfing with friends is the best.' : ''} Would need to know more about pricing.`;
         sentiment = 'neutral';
         purchaseIntent = 6;
       } else {
@@ -243,13 +261,18 @@ Be specific to YOUR segment's perspective. Include your sentiment (positive/neut
         purchaseIntent = 5;
       }
     } else if (segment && segment.toLowerCase().includes('learner')) {
+      console.log(`[GenericFallback] Using LEARNER response logic`);
       // Learners are price-focused but curious
       if (hasDiscount) {
         response = "Great price! That's what catches my attention. If the quality is decent for the price, I'd definitely consider it.";
         sentiment = 'positive';
         purchaseIntent = 7;
+      } else if (hasSurfAction && hasBrand) {
+        response = `${hasAction ? 'Wow, those aerials and barrels are sick!' : 'Rip Curl gear looks cool.'} But what's the price? ${hasProduct ? 'Are the boardshorts and wetsuits affordable?' : ''} ${hasSexAppeal && hasBeachLifestyle ? 'The whole beach party vibe is fun but' : ''} I need to know if it's worth the money compared to cheaper brands.`;
+        sentiment = 'neutral';
+        purchaseIntent = 5;
       } else if (hasSurfAction) {
-        response = "Looks cool, but what's the price point? I need good value for money. The surfing action is impressive but I make decisions based on price and quality.";
+        response = `${hasBeachLifestyle ? 'The beach lifestyle looks appealing!' : 'Surf gear is interesting.'} But I'm on a budget. ${hasBrotherhood ? 'Having a surf crew would be cool,' : ''} I just need functional gear at a good price.`;
         sentiment = 'neutral';
         purchaseIntent = 5;
       } else if (hasSustainability) {
@@ -262,13 +285,18 @@ Be specific to YOUR segment's perspective. Include your sentiment (positive/neut
         purchaseIntent = 4;
       }
     } else if (segment && segment.toLowerCase().includes('laggard')) {
+      console.log(`[GenericFallback] Using LAGGARD response logic`);
       // Laggards only care about price and function
       if (hasDiscount) {
         response = "Now you're talking! A good discount is what I'm looking for. As long as it works and the price is right, I'm interested.";
         sentiment = 'positive';
         purchaseIntent = 6;
+      } else if (hasSurfAction && hasBrand) {
+        response = `${hasAction ? "All those fancy moves don't impress me." : 'Rip Curl, whatever.'} ${hasSexAppeal && hasBeachLifestyle ? 'The beach babes and beer thing is nice but' : ''} what's the price? Will it last? ${hasProduct ? 'Are the boardshorts just overpriced fabric?' : ''} ${hasTagline ? '"Live the search"? I just need shorts that work.' : ''}`;
+        sentiment = 'negative';
+        purchaseIntent = 3;
       } else if (hasSurfAction) {
-        response = "The action shots don't really influence me. What's the price? Is it durable? Those are my only concerns.";
+        response = `${hasBeachLifestyle ? 'Beach stuff, okay.' : 'Surf gear.'} But is it cheap and durable? ${hasBrotherhood ? "Don't care about the social aspect," : ''} I just need functional gear at the lowest price. Marketing fluff doesn't work on me.`;
         sentiment = 'neutral';
         purchaseIntent = 3;
       } else if (hasSustainability) {
@@ -281,6 +309,7 @@ Be specific to YOUR segment's perspective. Include your sentiment (positive/neut
         purchaseIntent = 3;
       }
     } else if (valueSystem?.brandLoyalty > 0.7) {
+      console.log(`[GenericFallback] Using brand loyalty fallback`);
       response = "I tend to stick with brands I trust. If this is from a reputable company, I might give it a try. Otherwise, I'd need more convincing or recommendations from friends.";
       sentiment = 'neutral';
       purchaseIntent = 5;
@@ -293,6 +322,7 @@ Be specific to YOUR segment's perspective. Include your sentiment (positive/neut
       sentiment = 'neutral';
       purchaseIntent = 6;
     } else {
+      console.log(`[GenericFallback] Using generic balanced response - segment not matched: '${segment}'`);
       // Generic balanced response
       response = "This seems interesting, but I'd need more information before making a decision. I usually compare options and read reviews before purchasing. It depends on how it compares to alternatives.";
       sentiment = 'neutral';
@@ -307,6 +337,9 @@ Be specific to YOUR segment's perspective. Include your sentiment (positive/neut
       purchaseIntent = Math.max(1, purchaseIntent - 2);
       if (!hasDiscount) sentiment = 'negative';
     }
+    
+    console.log(`[GenericFallback] Final response for ${segment}: "${response.substring(0, 100)}..."`);
+    console.log(`[GenericFallback] Sentiment: ${sentiment}, Purchase Intent: ${purchaseIntent}`);
     
     return {
       text: response,

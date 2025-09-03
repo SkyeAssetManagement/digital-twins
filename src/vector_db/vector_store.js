@@ -298,12 +298,9 @@ export class VectorStore {
   async findSimilarResponses(query, segment = null, limit = 10) {
     // If using in-memory store
     if (!this.pool) {
-      const responses = this.inMemoryStore.responses.filter(r => 
-        r.dataset_id === this.datasetId && 
-        (!segment || r.segment === segment)
-      );
-      // Return mock similar responses
-      return responses.slice(0, limit);
+      // Return empty array to force segment-specific responses
+      // TODO: Implement proper in-memory similarity search
+      return [];
     }
     
     const queryEmbedding = await this.embedText(query);

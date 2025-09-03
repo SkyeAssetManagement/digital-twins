@@ -1,0 +1,142 @@
+{
+  "metadata": {
+    "approach": "Current Semantic Engine (MiniLM embeddings)",
+    "model": "Xenova/all-MiniLM-L6-v2",
+    "dimensions": 384,
+    "method": "Semantic similarity with survey data",
+    "timestamp": "2025-09-03T16:34:46.922Z"
+  },
+  "adContent": "Here is a surf ad commercial script in the style you requested.\r\n\r\nTitle: \"The Search\"\r\n\r\nScene: A sun-drenched beach with perfect, glassy waves.\r\n\r\n(0-5 seconds)\r\n\r\nMusic: Upbeat, slightly distorted surf rock with a driving beat.\r\n\r\nVisuals: A beautiful, bikini-clad woman is lying on the beach, tanning. She lifts her sunglasses as a group of four male surfers walk past her, boards under their arms. She smiles, and they give her a confident nod without breaking their stride.\r\n\r\n(5-15 seconds)\r\n\r\nVisuals: Quick cuts of the surfers waxing their boards, laughing and joking with each other. The camera focuses on their new Rip Curl boardshorts and wetsuits.\r\n\r\n(15-25 seconds)\r\n\r\nVisuals: The surfers are in the water, paddling out. Slow-motion shots of them duck-diving under waves, their movements powerful and effortless.\r\n\r\n(25-45 seconds)\r\n\r\nVisuals: Epic surfing action. Huge aerials, deep barrel rides, and massive turns. The camera captures the spray flying off the waves and the intensity in the surfers' eyes.\r\n\r\n(45-55 seconds)\r\n\r\nVisuals: The surfers are back on the beach, exhausted but exhilarated. They're sitting on their boards, watching the sunset. The woman from the beginning of the ad approaches them and offers them a beer. They all cheer and take a drink.\r\n\r\n(55-60 seconds)\r\n\r\nVisuals: A final, epic shot of a surfer riding a massive wave.\r\n\r\nText on screen: Rip Curl. The Ultimate Surfing Company.\r\n\r\nVoiceover (deep, masculine voice): Live the search.",
+  "responses": {
+    "Leader": {
+      "text": "This doesn't align with what 112 of us Leaders look for. We need substance worth paying premium for.",
+      "sentiment": "negative",
+      "purchaseIntent": 2,
+      "responseTime": 50,
+      "themes": {
+        "sustainability": 0.1636124144874317,
+        "lifestyle": 0.6633847717570839,
+        "performance": 0.17255349149037155,
+        "value": 0.0686616985440078,
+        "brand": 0.11786235022719252,
+        "social": 0.09974796563038273,
+        "innovation": 0.05979520323525342
+      },
+      "valueAlignment": {
+        "environmental sustainability and ecological protection": 0.0575150903176766,
+        "ethical business practices and social responsibility": -0.00657075363038414,
+        "authentic brand values and mission-driven companies": 0.14428498963779346,
+        "ocean conservation and marine ecosystem protection": 0.17772966378546956,
+        "reducing carbon footprint and climate action": 0.060149001755597904,
+        "fair trade and supply chain transparency": -0.08388016548418709,
+        "community impact and social justice": -0.0024156958025467507
+      },
+      "basedOnSurveyData": true,
+      "surveyRespondents": [
+        "10199263255",
+        "10206963299",
+        "10213725805",
+        "10209483700",
+        "10203761312"
+      ],
+      "generatedBy": "semantic-engine-with-survey-data",
+      "timestamp": "2025-09-03T16:34:47.479Z"
+    },
+    "Leaning": {
+      "text": "I need good value for my money.",
+      "sentiment": "negative",
+      "purchaseIntent": 4,
+      "responseTime": 50,
+      "themes": {
+        "sustainability": 0.1636124144874317,
+        "lifestyle": 0.6633847717570839,
+        "performance": 0.17255349149037155,
+        "value": 0.0686616985440078,
+        "brand": 0.11786235022719252,
+        "social": 0.09974796563038273,
+        "innovation": 0.05979520323525342
+      },
+      "valueAlignment": {
+        "balance between quality and environmental consciousness": 0.10948729938852098,
+        "good value with some sustainability features": 0.10227224718603735,
+        "reputable brands with decent ethics": 0.14128728503591428,
+        "practical eco-friendly options": 0.0526065512342698,
+        "performance that doesn't sacrifice the planet": 0.23937682696934812
+      },
+      "basedOnSurveyData": true,
+      "surveyRespondents": [
+        "10207294487",
+        "10212464765",
+        "10204625965",
+        "10203486942",
+        "10201810792"
+      ],
+      "generatedBy": "semantic-engine-with-survey-data",
+      "timestamp": "2025-09-03T16:34:47.840Z"
+    },
+    "Learner": {
+      "text": "Looks cool but what's the price? Need to know if it's worth it.",
+      "sentiment": "neutral",
+      "purchaseIntent": 5,
+      "responseTime": 49,
+      "themes": {
+        "sustainability": 0.1636124144874317,
+        "lifestyle": 0.6633847717570839,
+        "performance": 0.17255349149037155,
+        "value": 0.0686616985440078,
+        "brand": 0.11786235022719252,
+        "social": 0.09974796563038273,
+        "innovation": 0.05979520323525342
+      },
+      "valueAlignment": {
+        "affordable pricing and good deals": 0.05871586949666717,
+        "functional products that work well": 0.11506010779408009,
+        "value for money comparisons": 0.011462763505723072,
+        "basic quality at reasonable cost": 0.1004605606088451,
+        "trendy or cool factor as a bonus": 0.13677415501215912
+      },
+      "basedOnSurveyData": true,
+      "surveyRespondents": [
+        "10209973284",
+        "10204514675",
+        "10204427045",
+        "10205334715",
+        "10213480911"
+      ],
+      "generatedBy": "semantic-engine-with-survey-data",
+      "timestamp": "2025-09-03T16:34:48.197Z"
+    },
+    "Laggard": {
+      "text": "Probably overpriced. Not interested.",
+      "sentiment": "negative",
+      "purchaseIntent": 2,
+      "responseTime": 45,
+      "themes": {
+        "sustainability": 0.1636124144874317,
+        "lifestyle": 0.6633847717570839,
+        "performance": 0.17255349149037155,
+        "value": 0.0686616985440078,
+        "brand": 0.11786235022719252,
+        "social": 0.09974796563038273,
+        "innovation": 0.05979520323525342
+      },
+      "valueAlignment": {
+        "lowest price possible": -0.006456310864884274,
+        "basic functionality only": 0.002277332605923695,
+        "durability and longevity": 0.09633729277163716,
+        "no frills or extras": 0.12497242670238794,
+        "practical use only": 0.0462633938644677
+      },
+      "basedOnSurveyData": true,
+      "surveyRespondents": [
+        "10209617782",
+        "10209175213",
+        "10209109051",
+        "10209011601",
+        "10208976365"
+      ],
+      "generatedBy": "semantic-engine-with-survey-data",
+      "timestamp": "2025-09-03T16:34:48.529Z"
+    }
+  }
+}

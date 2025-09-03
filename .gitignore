@@ -7,4 +7,4 @@ data/vectors/
 .DS_Store
 *.log
 dbConfig.yaml
-package-lock.json
+package-lock.jsonnul
