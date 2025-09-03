@@ -1,0 +1,845 @@
+{
+  "targetQuestion": "Have you ever chosen a surf clothing product specifically because of its sustainability (such as organic, Fairtrade, recycled) attributes? - Response",
+  "topOverall": [
+    {
+      "question": "Have you ever:(select one per action) - heard of ‘Worn Wear’",
+      "index": 141,
+      "correlation": 0.5329622275329572,
+      "sampleSize": 347
+    },
+    {
+      "question": "Have you ever:(select one per action) - subscribed to the Patagonia online newsletter",
+      "index": 136,
+      "correlation": 0.5187034714643092,
+      "sampleSize": 347
+    },
+    {
+      "question": "Have you ever purchased a Patagonia product? - Response",
+      "index": 121,
+      "correlation": 0.5133210797783488,
+      "sampleSize": 347
+    },
+    {
+      "question": "Have you ever:(select one per action) - visited the Patagonia website",
+      "index": 135,
+      "correlation": 0.4749562246433243,
+      "sampleSize": 347
+    },
+    {
+      "question": "Have you ever… (select one per option) - Participated in a demonstration about an environmental organisation/cause",
+      "index": 154,
+      "correlation": 0.4732212353515183,
+      "sampleSize": 998
+    },
+    {
+      "question": "Have you ever:(select one per action) - viewed Patagonia’s Facebook page",
+      "index": 137,
+      "correlation": 0.4730159657588036,
+      "sampleSize": 347
+    },
+    {
+      "question": "Have you ever:(select one per action) - viewed Patagonia’s Instagram page",
+      "index": 138,
+      "correlation": 0.45173097391803424,
+      "sampleSize": 347
+    },
+    {
+      "question": "Have you ever:(select one per action) - watched a film made by Patagonia (such as Reef Beneath, 180 degrees South, Nevertown, Takanya)",
+      "index": 139,
+      "correlation": 0.43708341250352123,
+      "sampleSize": 347
+    },
+    {
+      "question": "Have you ever:(select one per action) - heard of ‘1% for the Planet’",
+      "index": 140,
+      "correlation": 0.41776423226726833,
+      "sampleSize": 347
+    },
+    {
+      "question": "In the last 12 months have you surfed (surfboard, bodyboard, SUP)? - Response",
+      "index": 150,
+      "correlation": 0.41749449904887437,
+      "sampleSize": 998
+    }
+  ],
+  "grouped": {
+    "values": [
+      {
+        "question": "Please indicate your agreement with the following statements: (select one per statement) - I think that the brands in the surf industry currently have a strong focus on being sustainable",
+        "index": 78,
+        "correlation": 0.38144075902116936,
+        "sampleSize": 998
+      },
+      {
+        "question": "Please indicate how much you agree with the following statements:(select one response per statement) - I often tell family and friends about the benefits of purchasing environmentally friendly products",
+        "index": 147,
+        "correlation": 0.314066458097922,
+        "sampleSize": 998
+      },
+      {
+        "question": "Please indicate your agreement with the following statements: (select one per statement) - I would change my purchasing to support brands who can demonstrate a commitment to being sustainable",
+        "index": 82,
+        "correlation": 0.3014435909477114,
+        "sampleSize": 998
+      },
+      {
+        "question": "Please indicate your agreement with the following statements: (select one per statement) - I want to know more about what the brands in the surf industry are doing about being sustainable",
+        "index": 80,
+        "correlation": 0.28028107881571773,
+        "sampleSize": 998
+      },
+      {
+        "question": "Please indicate how much you agree with the following statements:(select one response per statement) - I am concerned about the environment and sustainability, but only if it has a direct impact on me",
+        "index": 142,
+        "correlation": 0.279594817604993,
+        "sampleSize": 998
+      },
+      {
+        "question": "Please indicate your agreement with the following statements: (select one per statement) - Brands in the surf industry should engage Government on environmental and social issues",
+        "index": 84,
+        "correlation": 0.27313804692266286,
+        "sampleSize": 998
+      },
+      {
+        "question": "Please indicate your agreement with the following statements: (select one per statement) - Brands in the surf industry should support/campaign on environmental and social issues",
+        "index": 83,
+        "correlation": 0.24957122329977074,
+        "sampleSize": 998
+      },
+      {
+        "question": "Please indicate your agreement with the following statements: (select one per statement) - It is important for the brands in the surf industry to demonstrate leadership in being sustainable",
+        "index": 79,
+        "correlation": 0.2422109163328409,
+        "sampleSize": 998
+      },
+      {
+        "question": "Please indicate how much you agree with the following statements:(select one response per statement) - I feel conflicted by my desire to enjoy my current lifestyle, and my concern about the environmental impact of my purchasing choices",
+        "index": 149,
+        "correlation": 0.20316619108431117,
+        "sampleSize": 998
+      },
+      {
+        "question": "Please indicate how much you agree with the following statements:(select one response per statement) - The fact that a company cares about the impact of their activities on the environment and community gives me more incentive to buy their products or services",
+        "index": 144,
+        "correlation": 0.2024248930347255,
+        "sampleSize": 998
+      },
+      {
+        "question": "Please indicate how much you agree with the following statements:(select one response per statement) - I often find environmental issues complex and I would like clearer information about the environmental benefits and impacts of my product and service choices",
+        "index": 148,
+        "correlation": 0.18584468397499254,
+        "sampleSize": 998
+      },
+      {
+        "question": "Please indicate how much you agree with the following statements:(select one response per statement) - I am often sceptical about the health and environmental claims that companies make about their products and services",
+        "index": 143,
+        "correlation": 0.18227277701277797,
+        "sampleSize": 998
+      },
+      {
+        "question": "Please indicate your agreement with the following statements: (select one per statement) - I believe that sexualised imagery of women in advertising and promotion is an issue that the surf industry needs to address",
+        "index": 81,
+        "correlation": 0.14559272319087369,
+        "sampleSize": 998
+      },
+      {
+        "question": "Please indicate how much you agree with the following statements:(select one response per statement) - I believe that it is important for companies to consider the impact of their operations on the environment and community and not just make profits",
+        "index": 146,
+        "correlation": 0.10675283736599558,
+        "sampleSize": 998
+      }
+    ],
+    "importance": [
+      {
+        "question": "When considering which surf clothing product to buy, how important are the following aspects to you right now in deciding which one to purchase?(select one per aspect) - includes Organic materials (eg. cotton grown without pesticides to minimise environmental impacts)",
+        "index": 70,
+        "correlation": 0.41656623004621873,
+        "sampleSize": 998
+      },
+      {
+        "question": "When considering which surf clothing product to buy, how important are the following aspects to you right now in deciding which one to purchase?(select one per aspect) - includes Recycled materials (eg. polyester made from re-used plastic)",
+        "index": 72,
+        "correlation": 0.3581464982878394,
+        "sampleSize": 998
+      },
+      {
+        "question": "When considering which surf clothing product to buy, how important are the following aspects to you right now in deciding which one to purchase?(select one per aspect) - includes Fairtrade materials (eg. cotton sourced from producers in developing countries and certified to provide enhanced workplace, social and environmental outcomes)",
+        "index": 71,
+        "correlation": 0.3194349591323207,
+        "sampleSize": 998
+      },
+      {
+        "question": "When considering which surf clothing product to buy, how important are the following aspects to you in deciding which one to purchase:(select one per aspect) - Sustainability attributes (eg. organic, Fairtrade, recycled)",
+        "index": 64,
+        "correlation": 0.29642969488220067,
+        "sampleSize": 998
+      },
+      {
+        "question": "When considering which surf clothing product to buy, how important are the following aspects to you right now in deciding which one to purchase?(select one per aspect) - includes Petroleum free materials (eg. Yulex wetsuits that contain no petrochemicals)",
+        "index": 74,
+        "correlation": 0.26689680599713445,
+        "sampleSize": 998
+      },
+      {
+        "question": "When considering which surf clothing product to buy, how important are the following aspects to you right now in deciding which one to purchase?(select one per aspect) - has minimal Packaging",
+        "index": 75,
+        "correlation": 0.240309359922063,
+        "sampleSize": 998
+      },
+      {
+        "question": "Five years from now, how important do you think sustainability aspects (organic, Fairtrade, recycled, cruelty free, petroleum free) will be in your decision making about which surf brand to purchase:(select one) - Response",
+        "index": 77,
+        "correlation": 0.23593709847816352,
+        "sampleSize": 998
+      },
+      {
+        "question": "When considering which surf clothing product to buy, how important are the following aspects to you right now in deciding which one to purchase?(select one per aspect) - includes Cruelty free materials (eg. down filling from certified cruelty-free farms)",
+        "index": 73,
+        "correlation": 0.2129766195129445,
+        "sampleSize": 998
+      },
+      {
+        "question": "When considering which surf clothing product to buy, how important are the following aspects to you in deciding which one to purchase:(select one per aspect) - Brand",
+        "index": 58,
+        "correlation": 0.21173314959285558,
+        "sampleSize": 998
+      },
+      {
+        "question": "When considering which surf clothing product to buy, how important are the following aspects to you in deciding which one to purchase:(select one per aspect) - Technical features/Performance",
+        "index": 60,
+        "correlation": 0.20120212180285998,
+        "sampleSize": 998
+      },
+      {
+        "question": "If there are any other important aspects that you consider when purchasing surf clothing, please outline them: - Open-Ended Response",
+        "index": 65,
+        "correlation": 0.1618531654880258,
+        "sampleSize": 239
+      },
+      {
+        "question": "When considering which surf clothing product to buy, how important are the following aspects to you in deciding which one to purchase:(select one per aspect) - Fashion",
+        "index": 59,
+        "correlation": 0.13115914563286118,
+        "sampleSize": 998
+      },
+      {
+        "question": "When considering which surf clothing product to buy, how important are the following aspects to you in deciding which one to purchase:(select one per aspect) - Easy access (eg. free shipping online, stocked in local store)",
+        "index": 61,
+        "correlation": 0.12376304862431604,
+        "sampleSize": 998
+      },
+      {
+        "question": "When considering which surf clothing product to buy, how important are the following aspects to you in deciding which one to purchase:(select one per aspect) - Size/Fit",
+        "index": 63,
+        "correlation": -0.06539463492422948,
+        "sampleSize": 998
+      },
+      {
+        "question": "Please indicate which of these are most important for surf companies to focus on:  (select in order of importance) - Local issues (eg. pollution on beaches, logging of native forests)",
+        "index": 87,
+        "correlation": 0.040630902351309776,
+        "sampleSize": 998
+      },
+      {
+        "question": "Please indicate which of these are most important for surf companies to focus on:  (select in order of importance) - National issues (eg. protection of the Barrier Reef, oil drilling in the Great Australian Bight)",
+        "index": 88,
+        "correlation": -0.040217438862228054,
+        "sampleSize": 998
+      },
+      {
+        "question": "When considering which surf clothing product to buy, how important are the following aspects to you in deciding which one to purchase:(select one per aspect) - Quality/Durability",
+        "index": 62,
+        "correlation": 0.01279207152794102,
+        "sampleSize": 998
+      },
+      {
+        "question": "When considering which surf clothing product to buy, how important are the following aspects to you in deciding which one to purchase:(select one per aspect) - Price/Value",
+        "index": 57,
+        "correlation": -0.009501350143457661,
+        "sampleSize": 998
+      },
+      {
+        "question": "What do you believe are the most important environmental / social issues that brands in the surf industry should tackle? - Open-Ended Response",
+        "index": 86,
+        "correlation": -0.008006319820768748,
+        "sampleSize": 985
+      },
+      {
+        "question": "Please indicate which of these are most important for surf companies to focus on:  (select in order of importance) - International Issues (eg. rising sea levels, climate change)",
+        "index": 89,
+        "correlation": -0.00044710503333922363,
+        "sampleSize": 998
+      },
+      {
+        "question": "For each brand below, please indicate how much consideration you believe is currently being given by that organisation to the sustainability of their products and business operations: (select one per brand) - Rip Curl",
+        "index": 90,
+        "correlation": 0,
+        "sampleSize": 998
+      },
+      {
+        "question": "For each brand below, please indicate how much consideration you believe is currently being given by that organisation to the sustainability of their products and business operations: (select one per brand) - Patagonia",
+        "index": 91,
+        "correlation": 0,
+        "sampleSize": 998
+      },
+      {
+        "question": "For each brand below, please indicate how much consideration you believe is currently being given by that organisation to the sustainability of their products and business operations: (select one per brand) - Billabong",
+        "index": 92,
+        "correlation": 0,
+        "sampleSize": 998
+      },
+      {
+        "question": "For each brand below, please indicate how much consideration you believe is currently being given by that organisation to the sustainability of their products and business operations: (select one per brand) - Quiksilver",
+        "index": 93,
+        "correlation": 0,
+        "sampleSize": 998
+      },
+      {
+        "question": "For each brand below, please indicate how much consideration you believe is currently being given by that organisation to the sustainability of their products and business operations: (select one per brand) - Hurley",
+        "index": 94,
+        "correlation": 0,
+        "sampleSize": 998
+      },
+      {
+        "question": "For each brand below, please indicate how much consideration you believe is currently being given by that organisation to the sustainability of their products and business operations: (select one per brand) - Outerknown",
+        "index": 95,
+        "correlation": 0,
+        "sampleSize": 998
+      }
+    ],
+    "behavior": [
+      {
+        "question": "Have you ever:(select one per action) - heard of ‘Worn Wear’",
+        "index": 141,
+        "correlation": 0.5329622275329572,
+        "sampleSize": 347
+      },
+      {
+        "question": "Have you ever:(select one per action) - subscribed to the Patagonia online newsletter",
+        "index": 136,
+        "correlation": 0.5187034714643092,
+        "sampleSize": 347
+      },
+      {
+        "question": "Have you ever purchased a Patagonia product? - Response",
+        "index": 121,
+        "correlation": 0.5133210797783488,
+        "sampleSize": 347
+      },
+      {
+        "question": "Have you ever:(select one per action) - visited the Patagonia website",
+        "index": 135,
+        "correlation": 0.4749562246433243,
+        "sampleSize": 347
+      },
+      {
+        "question": "Have you ever… (select one per option) - Participated in a demonstration about an environmental organisation/cause",
+        "index": 154,
+        "correlation": 0.4732212353515183,
+        "sampleSize": 998
+      },
+      {
+        "question": "Have you ever:(select one per action) - viewed Patagonia’s Facebook page",
+        "index": 137,
+        "correlation": 0.4730159657588036,
+        "sampleSize": 347
+      },
+      {
+        "question": "Have you ever:(select one per action) - viewed Patagonia’s Instagram page",
+        "index": 138,
+        "correlation": 0.45173097391803424,
+        "sampleSize": 347
+      },
+      {
+        "question": "Have you ever:(select one per action) - watched a film made by Patagonia (such as Reef Beneath, 180 degrees South, Nevertown, Takanya)",
+        "index": 139,
+        "correlation": 0.43708341250352123,
+        "sampleSize": 347
+      },
+      {
+        "question": "Have you ever:(select one per action) - heard of ‘1% for the Planet’",
+        "index": 140,
+        "correlation": 0.41776423226726833,
+        "sampleSize": 347
+      },
+      {
+        "question": "In the last 12 months have you surfed (surfboard, bodyboard, SUP)? - Response",
+        "index": 150,
+        "correlation": 0.41749449904887437,
+        "sampleSize": 998
+      },
+      {
+        "question": "In the past 12 months have you purchased a surf clothing product from the following type of outlet: (select one per outlet types) - Single brand (sells only one brand) online store (eg. internet based site such Rip Curl, Billabong, Patagonia)",
+        "index": 56,
+        "correlation": 0.39004873616472857,
+        "sampleSize": 998
+      },
+      {
+        "question": "Have you ever… (select one per option) - Volunteered for an environmental organisation/cause",
+        "index": 153,
+        "correlation": 0.37830726530983483,
+        "sampleSize": 998
+      },
+      {
+        "question": "Have you ever purchased a Patagonia product from:(select one per outlet types) - A Patagonia retail shop",
+        "index": 124,
+        "correlation": 0.3443784128369114,
+        "sampleSize": 144
+      },
+      {
+        "question": "In the past 12 months have you purchased a surf clothing product from the following type of outlet: (select one per outlet types) - Multi brand (sells a variety of brands) online store (eg. internet based site such as surfstitch.com, sds.com.au)",
+        "index": 55,
+        "correlation": 0.32290457933515065,
+        "sampleSize": 998
+      },
+      {
+        "question": "In the past 12 months have you purchased a surf clothing product from the following type of outlet: (select one per outlet types) - Multi brand (sells a variety of brands) retail shop (eg. store at a mall or in a shopping strip such as Surf Dive n’ Ski, Ozmosis, your local surf shop)",
+        "index": 53,
+        "correlation": 0.30653692881669053,
+        "sampleSize": 998
+      },
+      {
+        "question": "Have you ever… (select one per option) - Donated to an environmental organisation/cause",
+        "index": 152,
+        "correlation": 0.3009609565236967,
+        "sampleSize": 998
+      },
+      {
+        "question": "Have you ever purchased a Patagonia product from:(select one per outlet types) - The Patagonia online store",
+        "index": 125,
+        "correlation": 0.2982404540317303,
+        "sampleSize": 144
+      },
+      {
+        "question": "In the past 12 months have you purchased a surf clothing product from the following type of outlet: (select one per outlet types) - Single brand (sells only one brand) retail shop (eg. store at a mall or in a shopping strip such as Rip Curl, Quiksilver, Patagonia, Billabong)",
+        "index": 54,
+        "correlation": 0.29169212693939395,
+        "sampleSize": 998
+      },
+      {
+        "question": "Have you ever purchased a Patagonia product from:(select one per outlet types) - Multi brand (sells a variety of brands) retail shop (eg. store at a mall or in a shopping strip such as Surf Dive n’ Ski, Rays Outdoors, Myer, Paddy Pallin)",
+        "index": 122,
+        "correlation": 0.18002390876273094,
+        "sampleSize": 144
+      },
+      {
+        "question": "Have you ever… (select one per option) - Signed a petition for an environmental organisation/cause",
+        "index": 155,
+        "correlation": 0.16526308254956576,
+        "sampleSize": 998
+      },
+      {
+        "question": "Have you ever purchased a Patagonia product from:(select one per outlet types) - Multi brand (sells a variety of brands) online store (eg. internet based site such as Surfstitch, The Iconic)",
+        "index": 123,
+        "correlation": 0.09417076215456129,
+        "sampleSize": 144
+      },
+      {
+        "question": "In which State or Territory do you currently live? - Response",
+        "index": 10,
+        "correlation": 0,
+        "sampleSize": 998
+      },
+      {
+        "question": "Please indicate which of the following items  have you purchased in the past 12 months: (select any that apply) - Boardshorts",
+        "index": 12,
+        "correlation": 0,
+        "sampleSize": 273
+      },
+      {
+        "question": "Please indicate which of the following items  have you purchased in the past 12 months: (select any that apply) - T-Shirt",
+        "index": 13,
+        "correlation": 0,
+        "sampleSize": 567
+      },
+      {
+        "question": "Please indicate which of the following items  have you purchased in the past 12 months: (select any that apply) - Cap",
+        "index": 14,
+        "correlation": 0,
+        "sampleSize": 314
+      },
+      {
+        "question": "Please indicate which of the following items  have you purchased in the past 12 months: (select any that apply) - Insulated Jacket",
+        "index": 15,
+        "correlation": 0,
+        "sampleSize": 231
+      },
+      {
+        "question": "Please indicate which of the following items  have you purchased in the past 12 months: (select any that apply) - Rain Jacket",
+        "index": 16,
+        "correlation": 0,
+        "sampleSize": 228
+      },
+      {
+        "question": "Please indicate which of the following items  have you purchased in the past 12 months: (select any that apply) - Gear Bag / Backpack",
+        "index": 17,
+        "correlation": 0,
+        "sampleSize": 307
+      },
+      {
+        "question": "Which of the following surf brands have you purchased a product from in the past 12 months? (select any that apply) - Rip Curl",
+        "index": 19,
+        "correlation": 0,
+        "sampleSize": 215
+      },
+      {
+        "question": "Which of the following surf brands have you purchased a product from in the past 12 months? (select any that apply) - Quiksilver",
+        "index": 20,
+        "correlation": 0,
+        "sampleSize": 226
+      },
+      {
+        "question": "Which of the following surf brands have you purchased a product from in the past 12 months? (select any that apply) - Billabong",
+        "index": 21,
+        "correlation": 0,
+        "sampleSize": 227
+      },
+      {
+        "question": "Which of the following surf brands have you purchased a product from in the past 12 months? (select any that apply) - O’Neill",
+        "index": 22,
+        "correlation": 0,
+        "sampleSize": 66
+      },
+      {
+        "question": "Which of the following surf brands have you purchased a product from in the past 12 months? (select any that apply) - Patagonia",
+        "index": 23,
+        "correlation": 0,
+        "sampleSize": 63
+      },
+      {
+        "question": "Which of the following surf brands have you purchased a product from in the past 12 months? (select any that apply) - Hurley",
+        "index": 24,
+        "correlation": 0,
+        "sampleSize": 119
+      },
+      {
+        "question": "Which of the following surf brands have you purchased a product from in the past 12 months? (select any that apply) - Volcom",
+        "index": 25,
+        "correlation": 0,
+        "sampleSize": 64
+      },
+      {
+        "question": "Which of the following surf brands have you purchased a product from in the past 12 months? (select any that apply) - RVCA",
+        "index": 26,
+        "correlation": 0,
+        "sampleSize": 82
+      },
+      {
+        "question": "Which of the following surf brands have you purchased a product from in the past 12 months? (select any that apply) - None of these",
+        "index": 30,
+        "correlation": 0,
+        "sampleSize": 210
+      },
+      {
+        "question": "Please indicate which of the following items  have you purchased in the past 12 months: (select any that apply) - Bikini / Swimwear",
+        "index": 31,
+        "correlation": 0,
+        "sampleSize": 202
+      },
+      {
+        "question": "Please indicate which of the following items  have you purchased in the past 12 months: (select any that apply) - Boardshorts",
+        "index": 32,
+        "correlation": 0,
+        "sampleSize": 90
+      },
+      {
+        "question": "Please indicate which of the following items  have you purchased in the past 12 months: (select any that apply) - T-Shirt",
+        "index": 33,
+        "correlation": 0,
+        "sampleSize": 333
+      },
+      {
+        "question": "Please indicate which of the following items  have you purchased in the past 12 months: (select any that apply) - Cap",
+        "index": 34,
+        "correlation": 0,
+        "sampleSize": 144
+      },
+      {
+        "question": "Please indicate which of the following items  have you purchased in the past 12 months: (select any that apply) - Insulated Jacket",
+        "index": 35,
+        "correlation": 0,
+        "sampleSize": 131
+      },
+      {
+        "question": "Please indicate which of the following items  have you purchased in the past 12 months: (select any that apply) - Rain Jacket",
+        "index": 36,
+        "correlation": 0,
+        "sampleSize": 109
+      },
+      {
+        "question": "Please indicate which of the following items  have you purchased in the past 12 months: (select any that apply) - Gear Bag / Backpack",
+        "index": 37,
+        "correlation": 0,
+        "sampleSize": 150
+      },
+      {
+        "question": "Which of the following surf brands have you purchased a product from in the past 12 months? (select any that apply) - Rip Curl",
+        "index": 39,
+        "correlation": 0,
+        "sampleSize": 111
+      },
+      {
+        "question": "Which of the following surf brands have you purchased a product from in the past 12 months? (select any that apply) - Roxy",
+        "index": 40,
+        "correlation": 0,
+        "sampleSize": 120
+      },
+      {
+        "question": "Which of the following surf brands have you purchased a product from in the past 12 months? (select any that apply) - Billabong",
+        "index": 41,
+        "correlation": 0,
+        "sampleSize": 132
+      },
+      {
+        "question": "Which of the following surf brands have you purchased a product from in the past 12 months? (select any that apply) - Seafolly",
+        "index": 44,
+        "correlation": 0,
+        "sampleSize": 83
+      },
+      {
+        "question": "Which of the following surf brands have you purchased a product from in the past 12 months? (select any that apply) - Tigerlily",
+        "index": 48,
+        "correlation": 0,
+        "sampleSize": 52
+      },
+      {
+        "question": "Which of the following surf brands have you purchased a product from in the past 12 months? (select any that apply) - None of these",
+        "index": 50,
+        "correlation": 0,
+        "sampleSize": 110
+      },
+      {
+        "question": "And how often do you go surfing? - Response",
+        "index": 151,
+        "correlation": 0,
+        "sampleSize": 317
+      }
+    ],
+    "demographics": [
+      {
+        "question": "Which of the following best describes your annual personal income before tax? - Response",
+        "index": 158,
+        "correlation": 0,
+        "sampleSize": 998
+      }
+    ],
+    "other": [
+      {
+        "question": "Prior to taking this survey had you ever heard of the brand Patagonia? - Response",
+        "index": 108,
+        "correlation": 0.312040672617879,
+        "sampleSize": 998
+      },
+      {
+        "question": "If there are any other sustainability aspects that you consider when purchasing surf clothing please say what they are: - Open-Ended Response",
+        "index": 76,
+        "correlation": 0.14519384034632632,
+        "sampleSize": 544
+      },
+      {
+        "question": "Please enter the name and postcode of the suburb / town where you live: - Name of Suburb/town:",
+        "index": 156,
+        "correlation": 0.10698254533482772,
+        "sampleSize": 961
+      },
+      {
+        "question": "Briefly, please indicate what you know about Patagonia? - Open-Ended Response",
+        "index": 109,
+        "correlation": -0.07230174990796527,
+        "sampleSize": 344
+      },
+      {
+        "question": "Please enter the name and postcode of the suburb / town where you live: - Postcode:",
+        "index": 157,
+        "correlation": -0.054155576388568286,
+        "sampleSize": 963
+      },
+      {
+        "question": "You chose to spend your $1,000 on {{ Q13 }}Please say why you chose that brand: - Open-Ended Response",
+        "index": 68,
+        "correlation": -0.03451148400051076,
+        "sampleSize": 997
+      },
+      {
+        "question": "Please name any surf industry brands that you believe currently have strong reputations for operating in a sustainable manner: - Open-Ended Response",
+        "index": 85,
+        "correlation": -0.0045731303769871645,
+        "sampleSize": 708
+      },
+      {
+        "question": "How old are you: - Response",
+        "index": 9,
+        "correlation": 0,
+        "sampleSize": 998
+      },
+      {
+        "question": "Are you: - Response",
+        "index": 11,
+        "correlation": 0,
+        "sampleSize": 998
+      },
+      {
+        "question": "Which brand would you choose? (select one) - Response",
+        "index": 66,
+        "correlation": 0,
+        "sampleSize": 998
+      },
+      {
+        "question": "Which brand would you choose? (select one) - Some other brand (please specify)",
+        "index": 67,
+        "correlation": 0,
+        "sampleSize": 59
+      },
+      {
+        "question": "If you wanted information, how would you prefer to receive communication from surf brands: (select all that apply) - In-store events",
+        "index": 96,
+        "correlation": 0,
+        "sampleSize": 327
+      },
+      {
+        "question": "If you wanted information, how would you prefer to receive communication from surf brands: (select all that apply) - Company Facebook",
+        "index": 97,
+        "correlation": 0,
+        "sampleSize": 380
+      },
+      {
+        "question": "If you wanted information, how would you prefer to receive communication from surf brands: (select all that apply) - Company Instagram",
+        "index": 98,
+        "correlation": 0,
+        "sampleSize": 247
+      },
+      {
+        "question": "If you wanted information, how would you prefer to receive communication from surf brands: (select all that apply) - Company Twitter",
+        "index": 99,
+        "correlation": 0,
+        "sampleSize": 153
+      },
+      {
+        "question": "If you wanted information, how would you prefer to receive communication from surf brands: (select all that apply) - Company website",
+        "index": 100,
+        "correlation": 0,
+        "sampleSize": 426
+      },
+      {
+        "question": "If you wanted information, how would you prefer to receive communication from surf brands: (select all that apply) - Company online newsletter/email",
+        "index": 101,
+        "correlation": 0,
+        "sampleSize": 253
+      },
+      {
+        "question": "If you wanted information, how would you prefer to receive communication from surf brands: (select all that apply) - Company Brand Ambassadors",
+        "index": 102,
+        "correlation": 0,
+        "sampleSize": 135
+      },
+      {
+        "question": "If you wanted information, how would you prefer to receive communication from surf brands: (select all that apply) - Surfing magazines",
+        "index": 103,
+        "correlation": 0,
+        "sampleSize": 177
+      },
+      {
+        "question": "If you wanted information, how would you prefer to receive communication from surf brands: (select all that apply) - Surf websites",
+        "index": 104,
+        "correlation": 0,
+        "sampleSize": 287
+      },
+      {
+        "question": "If you wanted information, how would you prefer to receive communication from surf brands: (select all that apply) - Surf events",
+        "index": 105,
+        "correlation": 0,
+        "sampleSize": 173
+      },
+      {
+        "question": "If you wanted information, how would you prefer to receive communication from surf brands: (select all that apply) - None of these",
+        "index": 106,
+        "correlation": 0,
+        "sampleSize": 117
+      },
+      {
+        "question": "How did you first learn about Patagonia?  (select all that apply) - Friends or Family",
+        "index": 110,
+        "correlation": 0,
+        "sampleSize": 88
+      },
+      {
+        "question": "How did you first learn about Patagonia?  (select all that apply) - Saw product in a store",
+        "index": 111,
+        "correlation": 0,
+        "sampleSize": 145
+      },
+      {
+        "question": "How did you first learn about Patagonia?  (select all that apply) - Saw product online",
+        "index": 112,
+        "correlation": 0,
+        "sampleSize": 95
+      },
+      {
+        "question": "How did you first learn about Patagonia?  (select all that apply) - Saw people wearing product",
+        "index": 113,
+        "correlation": 0,
+        "sampleSize": 94
+      },
+      {
+        "question": "How did you first learn about Patagonia?  (select all that apply) - Read an article online",
+        "index": 114,
+        "correlation": 0,
+        "sampleSize": 57
+      },
+      {
+        "question": "How did you first learn about Patagonia?  (select all that apply) - Social media",
+        "index": 116,
+        "correlation": 0,
+        "sampleSize": 53
+      },
+      {
+        "question": "How did you first learn about Patagonia?  (select all that apply) - Can’t remember",
+        "index": 119,
+        "correlation": 0,
+        "sampleSize": 53
+      },
+      {
+        "question": "Would you say Patagonia is: - Response",
+        "index": 126,
+        "correlation": 0,
+        "sampleSize": 144
+      },
+      {
+        "question": "What, if any, are barriers to you buying a Patagonia surf products in the future:(select all that apply) - Nothing – ready to buy if I need something",
+        "index": 127,
+        "correlation": 0,
+        "sampleSize": 126
+      },
+      {
+        "question": "What, if any, are barriers to you buying a Patagonia surf products in the future:(select all that apply) - Price/Value",
+        "index": 128,
+        "correlation": 0,
+        "sampleSize": 132
+      },
+      {
+        "question": "What, if any, are barriers to you buying a Patagonia surf products in the future:(select all that apply) - Range (don’t have the type of products I want)",
+        "index": 129,
+        "correlation": 0,
+        "sampleSize": 77
+      },
+      {
+        "question": "What, if any, are barriers to you buying a Patagonia surf products in the future:(select all that apply) - Availability (not convenient/easy to buy)",
+        "index": 130,
+        "correlation": 0,
+        "sampleSize": 68
+      },
+      {
+        "question": "What, if any, are barriers to you buying a Patagonia surf products in the future:(select all that apply) - Style (don’t have colours/cuts I like)",
+        "index": 131,
+        "correlation": 0,
+        "sampleSize": 54
+      },
+      {
+        "question": "What, if any, are barriers to you buying a Patagonia surf products in the future:(select all that apply) - Size/Fit",
+        "index": 132,
+        "correlation": 0,
+        "sampleSize": 50
+      }
+    ]
+  }
+}

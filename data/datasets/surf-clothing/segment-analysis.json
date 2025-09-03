@@ -1,0 +1,66 @@
+{
+  "totalResponses": 0,
+  "distribution": {},
+  "keyQuestions": [
+    {
+      "column": 53,
+      "question": "In the past 12 months have you purchased a surf clothing product from the following type of outlet: (select one per outlet types)",
+      "subQuestion": "Multi brand (sells a variety of brands) retail shop (eg. store at a mall or in a shopping strip such as Surf Dive n’ Ski, Ozmosis, your local surf shop)",
+      "pattern": "local"
+    },
+    {
+      "column": 61,
+      "question": "",
+      "subQuestion": "Easy access (eg. free shipping online, stocked in local store)",
+      "pattern": "local"
+    },
+    {
+      "column": 64,
+      "question": "",
+      "subQuestion": "Sustainability attributes (eg. organic, Fairtrade, recycled)",
+      "pattern": "sustain"
+    },
+    {
+      "column": 69,
+      "question": "Have you ever chosen a surf clothing product specifically because of its sustainability (such as organic, Fairtrade, recycled) attributes?",
+      "subQuestion": "Response",
+      "pattern": "sustain"
+    },
+    {
+      "column": 70,
+      "question": "When considering which surf clothing product to buy, how important are the following aspects to you right now in deciding which one to purchase?(select one per aspect)",
+      "subQuestion": "includes Organic materials (eg. cotton grown without pesticides to minimise environmental impacts)",
+      "pattern": "environment"
+    },
+    {
+      "column": 71,
+      "question": "",
+      "subQuestion": "includes Fairtrade materials (eg. cotton sourced from producers in developing countries and certified to provide enhanced workplace, social and environmental outcomes)",
+      "pattern": "environment"
+    },
+    {
+      "column": 72,
+      "question": "",
+      "subQuestion": "includes Recycled materials (eg. polyester made from re-used plastic)",
+      "pattern": "recycle"
+    },
+    {
+      "column": 76,
+      "question": "If there are any other sustainability aspects that you consider when purchasing surf clothing please say what they are:",
+      "subQuestion": "Open-Ended Response",
+      "pattern": "sustain"
+    },
+    {
+      "column": 77,
+      "question": "Five years from now, how important do you think sustainability aspects (organic, Fairtrade, recycled, cruelty free, petroleum free) will be in your decision making about which surf brand to purchase:(select one)",
+      "subQuestion": "Response",
+      "pattern": "sustain"
+    },
+    {
+      "column": 78,
+      "question": "Please indicate your agreement with the following statements: (select one per statement)",
+      "subQuestion": "I think that the brands in the surf industry currently have a strong focus on being sustainable",
+      "pattern": "sustain"
+    }
+  ]
+}

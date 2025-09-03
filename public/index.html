@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Twin Consumer Response Tester</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Digital Twin Consumer Response Tester</h1>
+            <p class="subtitle">Test marketing materials against AI-powered consumer segments</p>
+        </header>
+        
+        <!-- Dataset selector will be inserted here by app.js -->
+        <div id="datasetSelector"></div>
+        
+        <!-- Development Mode Indicator -->
+        <div id="devMode" class="dev-indicator" style="display: none;">
+            Development Mode - Using Local Server
+        </div>
+        
+        <!-- Dataset info will be inserted here -->
+        <div id="datasetInfo"></div>
+        
+        <div class="input-section">
+            <h2>Marketing Material Input</h2>
+            <textarea 
+                id="marketingInput" 
+                placeholder="Paste your marketing copy, ad text, or product description here..." 
+                rows="6"
+            ></textarea>
+            
+            <div class="file-upload">
+                <label for="imageUpload" class="file-label">
+                    <span>Upload Marketing Image (optional)</span>
+                    <input type="file" id="imageUpload" accept="image/*">
+                </label>
+                <div id="imagePreview" class="image-preview" style="display: none;">
+                    <img id="previewImg" alt="Preview">
+                    <button id="removeImage" class="remove-btn">Remove</button>
+                </div>
+                <small class="help-text">Image analysis requires Claude API connection</small>
+            </div>
+            
+            <div class="button-group">
+                <button id="testButton" class="primary-button">Generate Responses</button>
+                <button id="clearButton" class="secondary-button">Clear</button>
+            </div>
+        </div>
+        
+        <div id="loadingIndicator" class="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>Generating authentic responses from consumer segments...</p>
+        </div>
+        
+        <div class="results-section" id="resultsSection" style="display: none;">
+            <h2>Digital Twin Responses</h2>
+            
+            <!-- Aggregate Metrics -->
+            <div id="aggregateMetrics" class="metrics-panel"></div>
+            
+            <!-- Individual Responses -->
+            <div id="responses" class="responses-grid"></div>
+        </div>
+        
+        <div class="analysis-section" id="analysisSection" style="display: none;">
+            <h2>Segment Analysis</h2>
+            <div id="analysis"></div>
+        </div>
+        
+        <!-- Dataset Upload Modal -->
+        <div id="uploadModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <h2>Upload New Dataset</h2>
+                <form id="datasetUploadForm">
+                    <div class="form-group">
+                        <label>Dataset Name</label>
+                        <input type="text" id="datasetName" required placeholder="e.g., Q4 Consumer Survey">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Survey Data (CSV/Excel)</label>
+                        <input type="file" id="surveyFile" accept=".csv,.xlsx,.xls" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Research PDFs (Optional)</label>
+                        <input type="file" id="pdfFiles" accept=".pdf" multiple>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Segmentation Method</label>
+                        <select id="segmentMethod">
+                            <option value="auto">Automatic (Discover from data)</option>
+                            <option value="manual">Manual (I'll define segments)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" id="manualSegments" style="display: none;">
+                        <label>Define Segments (comma separated)</label>
+                        <input type="text" id="segmentNames" placeholder="e.g., Leader, Follower, Skeptic">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Key Dimensions to Analyze</label>
+                        <div id="dimensionCheckboxes">
+                            <label><input type="checkbox" value="price" checked> Price Sensitivity</label>
+                            <label><input type="checkbox" value="quality" checked> Quality Focus</label>
+                            <label><input type="checkbox" value="brand" checked> Brand Loyalty</label>
+                            <label><input type="checkbox" value="innovation"> Innovation Adoption</label>
+                            <label><input type="checkbox" value="social"> Social Influence</label>
+                            <label><input type="checkbox" value="sustainability"> Sustainability</label>
+                        </div>
+                    </div>
+                    
+                    <div class="button-group">
+                        <button type="submit" class="primary-button">Upload & Process</button>
+                        <button type="button" class="secondary-button" id="cancelUpload">Cancel</button>
+                    </div>
+                </form>
+                
+                <div id="uploadProgress" style="display: none;">
+                    <div class="progress-bar">
+                        <div class="progress-fill"></div>
+                    </div>
+                    <p class="progress-text">Uploading dataset...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>

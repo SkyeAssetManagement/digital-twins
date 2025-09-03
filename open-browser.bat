@@ -1,0 +1,3 @@
+@echo off
+echo Opening Digital Twin app in browser...
+start http://localhost:3000

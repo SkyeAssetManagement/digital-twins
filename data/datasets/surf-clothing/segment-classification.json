@@ -1,0 +1,229 @@
+{
+  "totalRespondents": 1006,
+  "distribution": {
+    "leader": {
+      "count": 0,
+      "percentage": "0.0"
+    },
+    "leaning": {
+      "count": 0,
+      "percentage": "0.0"
+    },
+    "learner": {
+      "count": 1006,
+      "percentage": "100.0"
+    },
+    "laggard": {
+      "count": 0,
+      "percentage": "0.0"
+    }
+  },
+  "keyQuestions": [
+    {
+      "key": "quality_importance",
+      "question": "When considering which surf clothing product to buy, how important are the following aspects to you in deciding which one to purchase:(select one per aspect) - Quality/Durability",
+      "variance": 3.7517193064278347,
+      "segmentAverages": {
+        "leader": 0,
+        "leaning": 0,
+        "learner": 4.473161033797217,
+        "laggard": 0
+      }
+    },
+    {
+      "key": "price_importance",
+      "question": "When considering which surf clothing product to buy, how important are the following aspects to you in deciding which one to purchase:(select one per aspect) - Price/Value",
+      "variance": 3.5904849886433556,
+      "segmentAverages": {
+        "leader": 0,
+        "leaning": 0,
+        "learner": 4.375985977212971,
+        "laggard": 0
+      }
+    },
+    {
+      "key": "organic_importance",
+      "question": "When considering which surf clothing product to buy, how important are the following aspects to you right now in deciding which one to purchase?(select one per aspect) - includes Organic materials (eg. cotton grown without pesticides to minimise environmental impacts)",
+      "variance": 3.2572795705883975,
+      "segmentAverages": {
+        "leader": 0,
+        "leaning": 0,
+        "learner": 4.167992047713717,
+        "laggard": 0
+      }
+    },
+    {
+      "key": "fairtrade_importance",
+      "question": "When considering which surf clothing product to buy, how important are the following aspects to you right now in deciding which one to purchase?(select one per aspect) - includes Fairtrade materials (eg. cotton sourced from producers in developing countries and certified to provide enhanced workplace, social and environmental outcomes)",
+      "variance": 3.2572795705883975,
+      "segmentAverages": {
+        "leader": 0,
+        "leaning": 0,
+        "learner": 4.167992047713717,
+        "laggard": 0
+      }
+    },
+    {
+      "key": "recycled_importance",
+      "question": "When considering which surf clothing product to buy, how important are the following aspects to you right now in deciding which one to purchase?(select one per aspect) - includes Recycled materials (eg. polyester made from re-used plastic)",
+      "variance": 3.232468200241889,
+      "segmentAverages": {
+        "leader": 0,
+        "leaning": 0,
+        "learner": 4.152087475149106,
+        "laggard": 0
+      }
+    },
+    {
+      "key": "future_sustainability",
+      "question": "If there are any other sustainability aspects that you consider when purchasing surf clothing please say what they are: - Open-Ended Response",
+      "variance": 2.0232351746529327,
+      "segmentAverages": {
+        "leader": 0,
+        "leaning": 0,
+        "learner": 3.28490298154283,
+        "laggard": 0
+      }
+    },
+    {
+      "key": "brand_importance",
+      "question": "Which of the following surf brands have you purchased a product from in the past 12 months? (select any that apply) - Rip Curl",
+      "variance": 1.6919871242409483,
+      "segmentAverages": {
+        "leader": 0,
+        "leaning": 0,
+        "learner": 3.0039859069717783,
+        "laggard": 0
+      }
+    },
+    {
+      "key": "sustainability_purchase",
+      "question": "Have you ever chosen a surf clothing product specifically because of its sustainability (such as organic, Fairtrade, recycled) attributes? - Response",
+      "variance": 1.6875,
+      "segmentAverages": {
+        "leader": 0,
+        "leaning": 0,
+        "learner": 3,
+        "laggard": 0
+      }
+    },
+    {
+      "key": "brand_sustainability",
+      "question": "Please indicate your agreement with the following statements: (select one per statement) - I think that the brands in the surf industry currently have a strong focus on being sustainable",
+      "variance": 1.6835798154779362,
+      "segmentAverages": {
+        "leader": 0,
+        "leaning": 0,
+        "learner": 2.996513365432509,
+        "laggard": 0
+      }
+    }
+  ],
+  "fullQuestions": {
+    "sustainability_purchase": [
+      69
+    ],
+    "organic_importance": [
+      70
+    ],
+    "fairtrade_importance": [
+      71
+    ],
+    "recycled_importance": [
+      72
+    ],
+    "future_sustainability": [
+      76,
+      77,
+      127,
+      128,
+      129,
+      130,
+      131,
+      132,
+      133,
+      134
+    ],
+    "brand_sustainability": [
+      78,
+      79,
+      80,
+      83,
+      84,
+      86
+    ],
+    "price_importance": [
+      57,
+      128
+    ],
+    "quality_importance": [
+      62
+    ],
+    "brand_importance": [
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      53,
+      54,
+      55,
+      56,
+      58,
+      66,
+      67,
+      68,
+      77,
+      78,
+      79,
+      80,
+      82,
+      83,
+      84,
+      85,
+      86,
+      90,
+      91,
+      92,
+      93,
+      94,
+      95,
+      96,
+      97,
+      98,
+      99,
+      100,
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      107,
+      108,
+      122,
+      123,
+      133
+    ]
+  }
+}

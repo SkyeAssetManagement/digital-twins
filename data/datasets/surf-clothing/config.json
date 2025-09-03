@@ -1,0 +1,24 @@
+{
+  "id": "surf-clothing",
+  "name": "Surf Clothing Consumer Research 2018",
+  "description": "LOHAS segmentation of surf clothing buyers",
+  "dataFiles": {
+    "survey": "All_Surf_detail 2.xlsx",
+    "research": ["Surf_Shopper_Research_2018_final.pdf", "LivingLOHAS_6_V11.pdf"]
+  },
+  "segmentationMethod": "auto",
+  "predefinedSegments": ["leader", "leaning", "learner", "laggard"],
+  "keyDimensions": [
+    "sustainability",
+    "priceConsciousness", 
+    "brandLoyalty",
+    "environmentalConcern",
+    "socialInfluence"
+  ],
+  "responseColumns": {
+    "identifierColumn": 0,
+    "startColumn": 9,
+    "questionRowIndex": 0,
+    "subQuestionRowIndex": 1
+  }
+}
