@@ -79,10 +79,11 @@ export default async function handler(req, res) {
                 description: `${twinData.percentage} of market`
               },
               valueSystem: {
-                sustainability: parseFloat(twinData.purchasing?.sustainabilityImportance?.averageScore || 3),
-                price: 5 - parseFloat(twinData.purchasing?.priceImportance?.averageScore || 3),
-                quality: parseFloat(twinData.purchasing?.qualityImportance?.averageScore || 4),
-                brand: parseFloat(twinData.purchasing?.brandImportance?.averageScore || 3)
+                sustainability: parseFloat(twinData.purchasing?.sustainabilityImportance?.averageScore || 3) / 5,
+                priceConsciousness: (5 - parseFloat(twinData.purchasing?.priceImportance?.averageScore || 3)) / 5,
+                quality: parseFloat(twinData.purchasing?.qualityImportance?.averageScore || 4) / 5,
+                brandLoyalty: parseFloat(twinData.purchasing?.brandImportance?.averageScore || 3) / 5,
+                innovation: 0.5 // Default middle value
               },
               characteristics: twinData.keyCharacteristics,
               exampleResponses: twinData.exampleResponses

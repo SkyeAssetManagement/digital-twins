@@ -199,24 +199,87 @@ Be specific to YOUR segment's perspective. Include your sentiment (positive/neut
     
     // Analyze marketing content
     const contentLower = marketingContent.toLowerCase();
-    const hasSustainability = contentLower.includes('sustain') || contentLower.includes('eco') || contentLower.includes('green');
+    const hasSustainability = contentLower.includes('sustain') || contentLower.includes('eco') || contentLower.includes('green') || contentLower.includes('recycl');
     const hasDiscount = contentLower.includes('sale') || contentLower.includes('discount') || contentLower.includes('% off');
     const hasPremium = contentLower.includes('premium') || contentLower.includes('luxury') || contentLower.includes('exclusive');
     const hasInnovation = contentLower.includes('new') || contentLower.includes('innovative') || contentLower.includes('revolutionary');
+    const hasSurfAction = contentLower.includes('surf') || contentLower.includes('wave') || contentLower.includes('board') || contentLower.includes('barrel');
+    const hasBrand = contentLower.includes('rip curl') || contentLower.includes('billabong') || contentLower.includes('quiksilver');
     
-    // Generate response based on value system
+    // Generate response based on SEGMENT FIRST, then content
     let response = '';
     let sentiment = 'neutral';
     let purchaseIntent = 5;
     
-    if (valueSystem?.sustainability > 0.7 && hasSustainability) {
-      response = "This really aligns with my environmental values. I appreciate brands that prioritize sustainability. I'd definitely consider this if the quality matches the eco-friendly promise.";
-      sentiment = 'positive';
-      purchaseIntent = 8;
-    } else if (valueSystem?.priceConsciousness > 0.7 && hasDiscount) {
-      response = "The discount definitely catches my attention. I always look for good deals, but I'd want to make sure the quality isn't compromised. Might be worth trying at this price point.";
-      sentiment = 'positive';
-      purchaseIntent = 7;
+    // SEGMENT-SPECIFIC RESPONSES
+    if (segment && segment.toLowerCase().includes('leader')) {
+      // Leaders care about sustainability and brand values
+      if (hasSustainability) {
+        response = "This aligns perfectly with my values. I'm willing to pay premium for genuine sustainability. Tell me more about your supply chain and environmental impact.";
+        sentiment = 'positive';
+        purchaseIntent = 9;
+      } else if (hasSurfAction) {
+        response = "The performance looks impressive, but I need to know about the brand's environmental practices. Does Rip Curl use sustainable materials? What's their ocean conservation stance?";
+        sentiment = 'neutral';
+        purchaseIntent = 6;
+      } else {
+        response = "I prioritize brands that demonstrate real commitment to sustainability. Without clear eco-credentials, I'll probably look for alternatives that better align with my values.";
+        sentiment = 'negative';
+        purchaseIntent = 4;
+      }
+    } else if (segment && segment.toLowerCase().includes('leaning')) {
+      // Leaning balance sustainability with practicality
+      if (hasSustainability) {
+        response = "The sustainability aspect is appealing. If the quality is good and the price premium isn't excessive (10-15% max), I'd definitely consider this.";
+        sentiment = 'positive';
+        purchaseIntent = 7;
+      } else if (hasSurfAction) {
+        response = "Looks like quality surf gear. I'd be more interested if they highlighted any sustainable practices, but performance and value are my main concerns.";
+        sentiment = 'neutral';
+        purchaseIntent = 6;
+      } else {
+        response = "I need a good balance of quality, price, and ideally some sustainability features. This might work if the value proposition is strong.";
+        sentiment = 'neutral';
+        purchaseIntent = 5;
+      }
+    } else if (segment && segment.toLowerCase().includes('learner')) {
+      // Learners are price-focused but curious
+      if (hasDiscount) {
+        response = "Great price! That's what catches my attention. If the quality is decent for the price, I'd definitely consider it.";
+        sentiment = 'positive';
+        purchaseIntent = 7;
+      } else if (hasSurfAction) {
+        response = "Looks cool, but what's the price point? I need good value for money. The surfing action is impressive but I make decisions based on price and quality.";
+        sentiment = 'neutral';
+        purchaseIntent = 5;
+      } else if (hasSustainability) {
+        response = "Sustainability is nice to have, but only if it doesn't add too much to the price. I'd need to see clear value before paying extra for eco-features.";
+        sentiment = 'neutral';
+        purchaseIntent = 4;
+      } else {
+        response = "I'd need to know more about the price and compare it with other options. Quality matters but price is my main factor.";
+        sentiment = 'neutral';
+        purchaseIntent = 4;
+      }
+    } else if (segment && segment.toLowerCase().includes('laggard')) {
+      // Laggards only care about price and function
+      if (hasDiscount) {
+        response = "Now you're talking! A good discount is what I'm looking for. As long as it works and the price is right, I'm interested.";
+        sentiment = 'positive';
+        purchaseIntent = 6;
+      } else if (hasSurfAction) {
+        response = "The action shots don't really influence me. What's the price? Is it durable? Those are my only concerns.";
+        sentiment = 'neutral';
+        purchaseIntent = 3;
+      } else if (hasSustainability) {
+        response = "All this eco-talk usually means higher prices. I just want functional gear at a reasonable price. The green stuff doesn't matter to me.";
+        sentiment = 'negative';
+        purchaseIntent = 2;
+      } else {
+        response = "I need to know the price first. If it's not competitively priced, I'm not interested. Functionality and cost are all that matter.";
+        sentiment = 'neutral';
+        purchaseIntent = 3;
+      }
     } else if (valueSystem?.brandLoyalty > 0.7) {
       response = "I tend to stick with brands I trust. If this is from a reputable company, I might give it a try. Otherwise, I'd need more convincing or recommendations from friends.";
       sentiment = 'neutral';
