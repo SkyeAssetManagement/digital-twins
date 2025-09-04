@@ -532,34 +532,33 @@
             console.log('showExtractedContent called');
             console.log('extractedMarketingContent:', extractedMarketingContent);
             
-            // Show modal with the stored extracted content
-            const textarea = document.getElementById('extractedContent');
-            const modal = document.getElementById('contentModal');
-            
-            console.log('Elements found:', {textarea: !!textarea, modal: !!modal});
-            
             if (!extractedMarketingContent) {
                 alert('No extracted content available. Please wait for analysis to complete.');
                 return;
             }
             
+            // Get elements
+            const textarea = document.getElementById('extractedContent');
+            const modal = document.getElementById('contentModal');
+            
+            console.log('Elements found:', {textarea: !!textarea, modal: !!modal});
+            
             if (!textarea || !modal) {
                 alert('Modal elements not found in the page');
-                console.error('Missing elements:', {textarea, modal});
                 return;
             }
             
-            // Set the content and show modal
+            // Set the content
             textarea.value = extractedMarketingContent;
-            modal.style.display = 'flex';  // Force display
-            modal.classList.add('show');
-            console.log('Modal display set to flex and show class added');
+            
+            // Show modal using direct style manipulation
+            modal.style.display = 'flex';
+            console.log('Modal should be visible now');
         }
         
         function closeContentModal() {
             const modal = document.getElementById('contentModal');
             if (modal) {
-                modal.classList.remove('show');
                 modal.style.display = 'none';
             }
         }
@@ -642,7 +641,7 @@ Price: $549`;
     </script>
     
     <!-- Content Analysis Modal -->
-    <div id="contentModal" class="modal">
+    <div id="contentModal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5); align-items:center; justify-content:center;">
         <div class="modal-content">
             <div class="mb-4">
                 <h2 class="text-2xl font-bold text-gray-800 mb-2">📸 Image Analysis Complete</h2>
