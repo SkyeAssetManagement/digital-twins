@@ -103,17 +103,27 @@ export default async function handler(req, res) {
         console.log('Anthropic client created');
         
         // Extract base64 data and media type
-        let base64Data, mediaType = 'image/jpeg';
+        let base64Data, mediaType;
         if (content.startsWith('data:image')) {
           const matches = content.match(/^data:image\/(\w+);base64,(.+)$/);
           if (matches) {
             mediaType = `image/${matches[1]}`;
             base64Data = matches[2];
           } else {
-            base64Data = content.split(',')[1] || content;
+            // Fallback parsing for data URLs
+            const parts = content.split(',');
+            base64Data = parts[1] || content;
+            // Try to extract media type from the header
+            if (parts[0] && parts[0].includes('image/')) {
+              const typeMatch = parts[0].match(/image\/(\w+)/);
+              mediaType = typeMatch ? `image/${typeMatch[1]}` : 'image/jpeg';
+            } else {
+              mediaType = 'image/jpeg';
+            }
           }
         } else {
           base64Data = content;
+          mediaType = 'image/jpeg'; // Default for raw base64
         }
         
         console.log('Media type detected:', mediaType);
