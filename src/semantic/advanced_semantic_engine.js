@@ -675,6 +675,7 @@ export class AdvancedSemanticEngine {
    * Analyze marketing content for key elements
    */
   analyzeMarketingContent(content) {
+    const contentLower = content.toLowerCase();
     const analysis = {
       product: 'product',
       brand: 'brand',
@@ -684,21 +685,41 @@ export class AdvancedSemanticEngine {
       emotionalAppeal: 'lifestyle'
     };
     
-    // Extract product mentions
-    if (content.includes('boardshorts')) analysis.product = 'boardshorts';
-    if (content.includes('wetsuit')) analysis.product = 'wetsuit';
-    if (content.includes('Rip Curl')) analysis.brand = 'Rip Curl';
+    // Extract product mentions - check for actual products in content
+    if (/wetsuit|wet suit|neoprene/i.test(content)) analysis.product = 'wetsuit';
+    else if (/boardshort|board short|swim trunk/i.test(content)) analysis.product = 'boardshorts';
+    else if (/jacket|coat|shell/i.test(content)) analysis.product = 'jacket';
+    else if (/gear|equipment|kit/i.test(content)) analysis.product = 'gear';
     
-    // Extract features
-    if (content.includes('recycled')) analysis.features.push('recycled materials');
-    if (content.includes('performance')) analysis.features.push('performance');
-    if (content.includes('quality')) analysis.features.push('quality');
+    // Extract brand mentions
+    if (/rip curl/i.test(content)) analysis.brand = 'Rip Curl';
+    else if (/patagonia/i.test(content)) analysis.brand = 'Patagonia';
+    else if (/billabong/i.test(content)) analysis.brand = 'Billabong';
     
-    // Detect emotional appeal
-    if (content.includes('lifestyle') || content.includes('party')) {
-      analysis.emotionalAppeal = 'lifestyle';
-    } else if (content.includes('professional') || content.includes('technical')) {
+    // Extract actual features from content
+    if (/recycl|ocean plastic|sustainable|eco/i.test(content)) {
+      analysis.features.push('recycled materials');
+    }
+    if (/thermal|warm|insulated|heat/i.test(content)) {
+      analysis.features.push('thermal technology');
+    }
+    if (/seamless|paddle zone|flexible/i.test(content)) {
+      analysis.features.push('seamless paddle zones');
+    }
+    if (/performance|technical|advanced/i.test(content)) {
+      analysis.features.push('performance');
+    }
+    if (/premium|quality|pro series/i.test(content)) {
+      analysis.features.push('premium quality');
+    }
+    
+    // Detect emotional appeal based on actual content
+    if (/sustainable|eco|environment|planet|protect/i.test(content)) {
+      analysis.emotionalAppeal = 'environmental';
+    } else if (/performance|technical|professional|advanced/i.test(content)) {
       analysis.emotionalAppeal = 'performance';
+    } else if (/lifestyle|party|fun|adventure/i.test(content)) {
+      analysis.emotionalAppeal = 'lifestyle';
     }
     
     return analysis;
@@ -708,8 +729,15 @@ export class AdvancedSemanticEngine {
    * Generate template variables
    */
   generateTemplateVariables(segment, themes, contentAnalysis, interpolated) {
+    // Extract actual features to reference
+    const mainFeature = contentAnalysis.features[0] || 'innovative features';
+    const specificFeature = contentAnalysis.features[1] || contentAnalysis.features[0] || 'advanced technology';
+    
     const variables = {
       product: contentAnalysis.product,
+      brand: contentAnalysis.brand,
+      main_feature: mainFeature,
+      specific_feature: specificFeature,
       brand: contentAnalysis.brand,
       product_type: contentAnalysis.product,
       product_aspect: contentAnalysis.features[0] || 'this',

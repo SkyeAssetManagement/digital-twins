@@ -235,8 +235,12 @@
                 content = uploadedImageData;
             }
 
-            // Clear previous responses
-            document.getElementById('semanticResponses').innerHTML = '<div class="loader mx-auto"></div>';
+            // Clear previous responses and show what's being analyzed
+            const analysisMessage = currentTab === 'image' 
+                ? '<div class="text-blue-600 mb-4 p-3 bg-blue-50 rounded">📸 Analyzing uploaded image with sustainability-focused surf gear content...</div><div class="loader mx-auto"></div>'
+                : '<div class="text-green-600 mb-4 p-3 bg-green-50 rounded">📝 Analyzing text input: "' + content.substring(0, 100) + '..."</div><div class="loader mx-auto"></div>';
+            
+            document.getElementById('semanticResponses').innerHTML = analysisMessage;
             document.getElementById('claudeResponses').innerHTML = '<div class="loader mx-auto"></div>';
             document.getElementById('statistics').classList.add('hidden');
 
