@@ -92,6 +92,9 @@ export default async function handler(req, res) {
       console.log('API Key length:', process.env.ANTHROPIC_API_KEY?.length || 0);
       console.log('API Key prefix:', process.env.ANTHROPIC_API_KEY?.substring(0, 10) || 'NOT SET');
       
+      // Define variables outside try block so they're accessible in error handler
+      let base64Data, mediaType;
+      
       try {
         // Import Anthropic for image analysis
         const Anthropic = (await import('@anthropic-ai/sdk')).default;
@@ -103,7 +106,6 @@ export default async function handler(req, res) {
         console.log('Anthropic client created');
         
         // Extract base64 data and media type
-        let base64Data, mediaType;
         if (content.startsWith('data:image')) {
           const matches = content.match(/^data:image\/(\w+);base64,(.+)$/);
           if (matches) {
@@ -146,10 +148,10 @@ export default async function handler(req, res) {
         }
         
         console.log('Calling Claude API with image...');
-        // Analyze image with Claude Opus 4.1
+        // Analyze image with Claude Opus 4.1 (reduced tokens to avoid timeout)
         const imageAnalysis = await anthropic.messages.create({
           model: 'claude-opus-4-1-20250805',
-          max_tokens: 10000,
+          max_tokens: 1000,
           messages: [{
             role: 'user',
             content: [
