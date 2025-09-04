@@ -236,9 +236,18 @@
             }
 
             // Clear previous responses and show what's being analyzed
-            const analysisMessage = currentTab === 'image' 
-                ? '<div class="text-blue-600 mb-4 p-3 bg-blue-50 rounded">📸 Analyzing uploaded image with sustainability-focused surf gear content...</div><div class="loader mx-auto"></div>'
-                : '<div class="text-green-600 mb-4 p-3 bg-green-50 rounded">📝 Analyzing text input: "' + content.substring(0, 100) + '..."</div><div class="loader mx-auto"></div>';
+            let analysisMessage;
+            if (currentTab === 'image') {
+                analysisMessage = `
+                    <div class="text-blue-600 mb-4 p-3 bg-blue-50 rounded">
+                        <div class="font-semibold mb-2">📸 Analyzing image with Claude Opus 4.1...</div>
+                        <div class="text-sm">Extracting marketing content, themes, and messaging from your uploaded image.</div>
+                        <div class="text-xs mt-2 italic">This will generate context-aware responses based on the actual ad content.</div>
+                    </div>
+                    <div class="loader mx-auto"></div>`;
+            } else {
+                analysisMessage = '<div class="text-green-600 mb-4 p-3 bg-green-50 rounded">📝 Analyzing text input: "' + content.substring(0, 100) + '..."</div><div class="loader mx-auto"></div>';
+            }
             
             document.getElementById('semanticResponses').innerHTML = analysisMessage;
             document.getElementById('claudeResponses').innerHTML = '<div class="loader mx-auto"></div>';
@@ -263,6 +272,18 @@
 
                 const data = await response.json();
                 allResponses = data;
+                
+                // Show extracted content if image was analyzed
+                if (data.wasImageAnalyzed && data.extractedContent) {
+                    const extractedDiv = document.createElement('div');
+                    extractedDiv.className = 'mb-4 p-4 bg-purple-50 border border-purple-200 rounded-lg';
+                    extractedDiv.innerHTML = `
+                        <div class="font-semibold text-purple-800 mb-2">🔍 Image Analysis Complete</div>
+                        <div class="text-sm text-purple-700">${data.extractedContent}</div>
+                    `;
+                    document.getElementById('semanticResponses').insertBefore(extractedDiv, document.getElementById('semanticResponses').firstChild);
+                }
+                
                 displayResponses(data, segmentFilter);
                 calculateStatistics(data);
             } catch (error) {

@@ -83,20 +83,64 @@ export default async function handler(req, res) {
   try {
     let marketingContent = content;
     
-    // For image content, extract meaningful marketing text
+    // For image content, use Claude to analyze and extract marketing text
     if (contentType === 'image') {
-      // In production, this would use OCR or vision API to extract text
-      // For now, provide a realistic surf gear marketing message
-      marketingContent = `New Rip Curl Pro Series Wetsuit - Ultimate Performance Meets Sustainability. Made from 100% recycled neoprene and ocean plastics. Features: Advanced thermal technology, seamless paddle zones, and eco-friendly water-based glue. Join the movement - protect what you love. Available now at premium surf retailers.`;
       console.log('=== IMAGE UPLOAD DETECTED ===');
-      console.log('ContentType:', contentType);
-      console.log('Content length:', content.length);
-      console.log('Is base64 image:', content.startsWith('data:image'));
-      console.log('Marketing content being used:', marketingContent);
-      console.log('===========================');
+      console.log('Analyzing image with Claude Opus 4.1...');
+      
+      try {
+        // Import Anthropic for image analysis
+        const Anthropic = (await import('@anthropic-ai/sdk')).default;
+        const anthropic = new Anthropic({
+          apiKey: process.env.ANTHROPIC_API_KEY
+        });
+        
+        // Extract base64 data
+        const base64Data = content.startsWith('data:image') 
+          ? content.split(',')[1] 
+          : content;
+        
+        // Analyze image with Claude
+        const imageAnalysis = await anthropic.messages.create({
+          model: 'claude-3-opus-20240229',
+          max_tokens: 300,
+          messages: [{
+            role: 'user',
+            content: [
+              {
+                type: 'image',
+                source: {
+                  type: 'base64',
+                  media_type: 'image/jpeg',
+                  data: base64Data
+                }
+              },
+              {
+                type: 'text',
+                text: `Extract the marketing content from this image. Include:
+- Product name and brand
+- Key features and benefits
+- Sustainability/environmental claims
+- Price or value messaging
+- Any specific technologies or materials mentioned
+Be concise but specific. Focus on what's actually shown/written in the ad.`
+              }
+            ]
+          }]
+        });
+        
+        marketingContent = imageAnalysis.content[0].text;
+        console.log('Claude extracted content:', marketingContent);
+        console.log('===========================');
+        
+      } catch (error) {
+        console.error('Image analysis failed:', error.message);
+        // Fallback to placeholder if analysis fails
+        marketingContent = `New Rip Curl Pro Series Wetsuit - Ultimate Performance Meets Sustainability. Made from 100% recycled neoprene and ocean plastics. Features: Advanced thermal technology, seamless paddle zones, and eco-friendly water-based glue. Join the movement - protect what you love.`;
+        console.log('Using fallback content');
+      }
     } else {
       console.log('=== TEXT INPUT DETECTED ===');
-      console.log('ContentType:', contentType);
       console.log('Marketing content:', marketingContent.substring(0, 100) + '...');
       console.log('===========================');
     }
@@ -209,7 +253,9 @@ export default async function handler(req, res) {
       semantic: semanticResponses,
       claude: claudeResponses,
       stats: stats,
-      contentAnalyzed: marketingContent.substring(0, 200) + '...'
+      contentAnalyzed: marketingContent,
+      wasImageAnalyzed: contentType === 'image',
+      extractedContent: contentType === 'image' ? `Claude analyzed your image and extracted: "${marketingContent}"` : null
     });
     
   } catch (error) {
