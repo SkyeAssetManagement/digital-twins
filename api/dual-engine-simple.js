@@ -149,7 +149,7 @@ export default async function handler(req, res) {
         // Analyze image with Claude Opus 4.1
         const imageAnalysis = await anthropic.messages.create({
           model: 'claude-opus-4-1-20250805',
-          max_tokens: 300,
+          max_tokens: 10000,
           messages: [{
             role: 'user',
             content: [
