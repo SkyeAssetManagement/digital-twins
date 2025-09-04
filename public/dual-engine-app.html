@@ -117,29 +117,22 @@
                      ondragover="handleDragOver(event)" 
                      ondragenter="handleDragEnter(event)" 
                      ondragleave="handleDragLeave(event)">
-                    <input type="file" id="imageFile" accept="image/*,application/pdf" class="hidden" onchange="handleImageUpload(event)">
+                    <input type="file" id="imageFile" accept="image/*,application/pdf" class="hidden" onchange="handleImageUpload(event)" multiple>
                     <label for="imageFile" class="cursor-pointer">
                         <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
                             <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
                         <p class="mt-2 text-sm text-gray-600">Click to upload or drag and drop</p>
-                        <p class="text-xs text-gray-500">PNG, JPG, PDF up to 10MB</p>
+                        <p class="text-xs text-gray-500">PNG, JPG, PDF up to 10MB (multiple files supported)</p>
                     </label>
                 </div>
-                <div id="imagePreview" class="hidden">
-                    <div class="relative inline-block mx-auto">
-                        <img id="previewImg" class="max-w-md rounded-lg shadow-md">
-                        <!-- Clickable green circle overlay -->
-                        <button id="viewContentBtn" onclick="showExtractedContent()" 
-                            class="absolute top-2 left-2 w-8 h-8 bg-green-500 hover:bg-green-600 rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-110 hidden"
-                            title="View/Edit Extracted Content">
-                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                            </svg>
-                        </button>
+                
+                <!-- Uploaded Content Container -->
+                <div id="uploadedContent" class="hidden">
+                    <h3 class="text-lg font-semibold mb-3">Uploaded Content</h3>
+                    <div id="contentList" class="max-h-96 overflow-y-auto border border-gray-200 rounded-lg p-4 space-y-4">
+                        <!-- Content items will be added here dynamically -->
                     </div>
-                    <p id="imageText" class="mt-4 p-3 bg-gray-50 rounded text-sm"></p>
                 </div>
             </div>
 
@@ -245,92 +238,133 @@
             }
         }
 
+        let uploadedItems = [];
+        let currentItemIndex = 0;
+        
         async function handleImageUpload(event) {
-            const file = event.target.files[0];
-            if (file) {
-                processImageFile(file);
+            const files = event.target.files;
+            for (let i = 0; i < files.length; i++) {
+                processImageFile(files[i]);
             }
         }
 
         function processImageFile(file) {
             const reader = new FileReader();
             reader.onload = async (e) => {
-                uploadedImageData = e.target.result;
-                document.getElementById('previewImg').src = uploadedImageData;
-                document.getElementById('imagePreview').classList.remove('hidden');
+                const itemId = 'item_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                const imageData = e.target.result;
+                
+                // Create thumbnail and text area
+                const contentItem = document.createElement('div');
+                contentItem.className = 'flex space-x-4 p-3 bg-gray-50 rounded-lg';
+                contentItem.id = itemId;
+                
+                contentItem.innerHTML = `
+                    <div class="flex-shrink-0">
+                        <img src="${imageData}" class="w-24 h-24 object-cover rounded-lg shadow-sm" alt="Uploaded content">
+                    </div>
+                    <div class="flex-1">
+                        <div class="mb-2 text-sm text-gray-600">
+                            <span class="font-medium">${file.name}</span>
+                            <span class="ml-2 text-blue-600">🔍 Analyzing...</span>
+                        </div>
+                        <textarea class="w-full h-32 p-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                                  placeholder="Analysis will appear here..." 
+                                  id="text_${itemId}"></textarea>
+                    </div>
+                `;
+                
+                // Add to container
+                document.getElementById('contentList').appendChild(contentItem);
+                document.getElementById('uploadedContent').classList.remove('hidden');
+                
+                // Store item data
+                uploadedItems.push({
+                    id: itemId,
+                    file: file,
+                    imageData: imageData,
+                    extractedContent: ''
+                });
                 
                 // Analyze image immediately
-                document.getElementById('imageText').innerHTML = '<span class="text-blue-600">🔍 Analyzing image with Claude Opus 4.1...</span>';
+                try {
+                    console.log('Starting image analysis for:', file.name);
                     
-                    try {
-                        console.log('Starting image analysis...');
-                        console.log('Image data length:', uploadedImageData.length);
-                        console.log('Image data preview:', uploadedImageData.substring(0, 50));
-                        
-                        // Call the dual-engine API with special analyze-only flag
-                        const response = await fetch('/api/dual-engine-response', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ 
-                                content: uploadedImageData,
-                                contentType: 'image',
-                                analyzeOnly: true,  // Just analyze, don't generate responses
-                                segments: ['Leader'],  // Minimal segment for analysis
-                                responseCount: 1
-                            })
-                        });
+                    // Call the dual-engine API with special analyze-only flag
+                    const response = await fetch('/api/dual-engine-response', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            content: imageData,
+                            contentType: 'image',
+                            analyzeOnly: true,
+                            segments: ['Leader'],
+                            responseCount: 1
+                        })
+                    });
                         
                         console.log('Response status:', response.status);
                         const result = await response.json();
                         console.log('Full API response:', result);
                         
-                        if (result.error) {
-                            console.error('API returned error:', result);
-                            document.getElementById('imageText').innerHTML = 
-                                '<span class="text-red-600">❌ ' + (result.error || 'Analysis failed') + '<br><small>' + (result.details || '') + '</small></span>';
-                        } else if (result.success || result.contentAnalyzed || result.extractedContent) {
-                            // Check if we got real content or placeholder
-                            const content = result.contentAnalyzed || result.extractedContent || '';
-                            
-                            if (content.includes('[Image analysis would occur here') || content.includes('NA -') || !content) {
-                                console.error('Got placeholder content, analysis failed');
-                                document.getElementById('imageText').innerHTML = 
-                                    '<span class="text-red-600">❌ Image analysis failed - Claude API may not be configured properly on server</span>';
-                            } else {
-                                console.log('Analysis successful, extracted content:', content);
-                                // Clean up the content
-                                let cleanedContent = content;
-                                if (content.includes('Claude analyzed your image and extracted:')) {
-                                    cleanedContent = content.replace('Claude analyzed your image and extracted: "', '').replace(/"$/, '');
-                                }
-                                console.log('Cleaned content for modal:', cleanedContent);
-                                
-                                // Show modal with extracted content
-                                const textarea = document.getElementById('extractedContent');
-                                const modal = document.getElementById('contentModal');
-                                
-                                // Store the extracted content
-                                extractedMarketingContent = cleanedContent;
-                                
-                                // Show the green button
-                                document.getElementById('viewContentBtn').classList.remove('hidden');
-                                
-                                // Update status text
-                                document.getElementById('imageText').innerHTML = 
-                                    '<span class="text-green-600">✅ Analysis complete! Click the green button to view/edit the extracted content.</span>';
-                            }
+                    const textarea = document.getElementById(`text_${itemId}`);
+                    const statusSpan = contentItem.querySelector('.text-blue-600');
+                    
+                    if (result.error) {
+                        console.error('API returned error:', result);
+                        statusSpan.innerHTML = '❌ Analysis failed';
+                        statusSpan.className = 'ml-2 text-red-600';
+                        textarea.value = 'Error: ' + (result.error || 'Analysis failed');
+                    } else if (result.success || result.contentAnalyzed || result.extractedContent) {
+                        const content = result.contentAnalyzed || result.extractedContent || '';
+                        
+                        if (content.includes('[Image analysis would occur here') || content.includes('NA -') || !content) {
+                            console.error('Got placeholder content, analysis failed');
+                            statusSpan.innerHTML = '❌ Failed';
+                            statusSpan.className = 'ml-2 text-red-600';
+                            textarea.value = 'Analysis failed - Claude API may not be configured properly';
                         } else {
-                            console.error('Analysis failed with result:', result);
-                            document.getElementById('imageText').innerHTML = 
-                                '<span class="text-red-600">❌ Analysis failed. Check console for details.</span>';
+                            console.log('Analysis successful, extracted content:', content);
+                            
+                            // Clean up the content
+                            let cleanedContent = content;
+                            if (content.includes('Claude analyzed your image and extracted:')) {
+                                cleanedContent = content.replace('Claude analyzed your image and extracted: "', '').replace(/"$/, '');
+                            }
+                            
+                            // Update the item's textarea with extracted content
+                            textarea.value = cleanedContent;
+                            
+                            // Update status
+                            statusSpan.innerHTML = '✅ Analysis complete';
+                            statusSpan.className = 'ml-2 text-green-600';
+                            
+                            // Store the extracted content for this item
+                            const itemIndex = uploadedItems.findIndex(item => item.id === itemId);
+                            if (itemIndex !== -1) {
+                                uploadedItems[itemIndex].extractedContent = cleanedContent;
+                            }
                         }
-                    } catch (error) {
-                        console.error('Image analysis error:', error);
-                        document.getElementById('imageText').innerHTML = 
-                            '<span class="text-red-600">❌ Failed to analyze image. Error: ' + error.message + '</span>';
+                    } else {
+                        console.error('Analysis failed with result:', result);
+                        statusSpan.innerHTML = '❌ Failed';
+                        statusSpan.className = 'ml-2 text-red-600';
+                        textarea.value = 'Analysis failed. Check console for details.';
                     }
-                };
-                reader.readAsDataURL(file);
+                } catch (error) {
+                    console.error('Image analysis error:', error);
+                    const textarea = document.getElementById(`text_${itemId}`);
+                    const statusSpan = contentItem.querySelector('.text-blue-600, .text-red-600');
+                    if (statusSpan) {
+                        statusSpan.innerHTML = '❌ Error';
+                        statusSpan.className = 'ml-2 text-red-600';
+                    }
+                    if (textarea) {
+                        textarea.value = 'Error: ' + error.message;
+                    }
+                }
+            };
+            reader.readAsDataURL(file);
         }
         
         // Drag and Drop handlers
@@ -358,12 +392,12 @@
             document.getElementById('dropzone').classList.remove('border-blue-500', 'bg-blue-50');
             
             const files = event.dataTransfer.files;
-            if (files.length > 0) {
-                const file = files[0];
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
                 if (file.type.startsWith('image/') || file.type === 'application/pdf') {
                     processImageFile(file);
                 } else {
-                    alert('Please upload an image (PNG/JPG) or PDF file.');
+                    console.warn('Skipping unsupported file:', file.name);
                 }
             }
         }
@@ -380,11 +414,21 @@
                     return;
                 }
             } else {
-                if (!uploadedImageData) {
-                    alert('Please upload an image to analyze');
+                // Use the text from the first uploaded item
+                if (uploadedItems.length === 0) {
+                    alert('Please upload an image or PDF to analyze');
                     return;
                 }
-                content = uploadedImageData;
+                
+                // Get the text from the first item's textarea (user may have edited it)
+                const firstItemId = uploadedItems[0].id;
+                const textarea = document.getElementById(`text_${firstItemId}`);
+                content = textarea ? textarea.value.trim() : uploadedItems[0].extractedContent;
+                
+                if (!content || content.includes('Analyzing...') || content.includes('Error:')) {
+                    alert('Please wait for image analysis to complete or enter text manually in the textarea');
+                    return;
+                }
             }
 
             // Clear previous responses and show what's being analyzed
