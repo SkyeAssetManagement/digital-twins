@@ -408,7 +408,7 @@
             let content = '';
 
             if (currentTab === 'text') {
-                content = document.getElementById('marketingContent').value;
+                content = document.getElementById('marketingContent').value.trim();
                 if (!content) {
                     alert('Please enter marketing content to analyze');
                     return;
@@ -455,15 +455,31 @@
                 : [segmentFilter];
 
             try {
+                // Prepare request payload
+                let requestPayload = {
+                    segments: segments,
+                    responseCount: responseCount
+                };
+                
+                if (currentTab === 'text') {
+                    // For text input, send as text
+                    requestPayload.content = content;
+                    requestPayload.contentType = 'text';
+                } else {
+                    // For image input, send the extracted text
+                    requestPayload.content = content;  // This is the extracted text from textarea
+                    requestPayload.contentType = 'text';
+                    
+                    // Also include the original image if available for context
+                    if (uploadedItems.length > 0 && uploadedItems[0].imageData) {
+                        requestPayload.originalImage = uploadedItems[0].imageData;
+                    }
+                }
+                
                 const response = await fetch('/api/dual-engine-response', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        content: content,
-                        contentType: currentTab,
-                        segments: segments,
-                        responseCount: responseCount
-                    })
+                    body: JSON.stringify(requestPayload)
                 });
 
                 const data = await response.json();
