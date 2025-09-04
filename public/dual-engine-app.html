@@ -112,7 +112,11 @@
 
             <!-- Image Input (Hidden by default) -->
             <div id="imageInput" class="space-y-4 hidden">
-                <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                <div id="dropzone" class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center" 
+                     ondrop="handleDrop(event)" 
+                     ondragover="handleDragOver(event)" 
+                     ondragenter="handleDragEnter(event)" 
+                     ondragleave="handleDragLeave(event)">
                     <input type="file" id="imageFile" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
                     <label for="imageFile" class="cursor-pointer">
                         <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
@@ -233,14 +237,19 @@
         async function handleImageUpload(event) {
             const file = event.target.files[0];
             if (file) {
-                const reader = new FileReader();
-                reader.onload = async (e) => {
-                    uploadedImageData = e.target.result;
-                    document.getElementById('previewImg').src = uploadedImageData;
-                    document.getElementById('imagePreview').classList.remove('hidden');
-                    
-                    // Analyze image immediately
-                    document.getElementById('imageText').innerHTML = '<span class="text-blue-600">🔍 Analyzing image with Claude Opus 4.1...</span>';
+                processImageFile(file);
+            }
+        }
+
+        function processImageFile(file) {
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                uploadedImageData = e.target.result;
+                document.getElementById('previewImg').src = uploadedImageData;
+                document.getElementById('imagePreview').classList.remove('hidden');
+                
+                // Analyze image immediately
+                document.getElementById('imageText').innerHTML = '<span class="text-blue-600">🔍 Analyzing image with Claude Opus 4.1...</span>';
                     
                     try {
                         console.log('Starting image analysis...');
@@ -296,6 +305,36 @@
                     }
                 };
                 reader.readAsDataURL(file);
+            }
+        }
+        
+        // Drag and Drop handlers
+        function handleDragOver(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            event.dataTransfer.dropEffect = 'copy';
+        }
+        
+        function handleDragEnter(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            document.getElementById('dropzone').classList.add('border-blue-500', 'bg-blue-50');
+        }
+        
+        function handleDragLeave(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            document.getElementById('dropzone').classList.remove('border-blue-500', 'bg-blue-50');
+        }
+        
+        function handleDrop(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            document.getElementById('dropzone').classList.remove('border-blue-500', 'bg-blue-50');
+            
+            const files = event.dataTransfer.files;
+            if (files.length > 0 && files[0].type.startsWith('image/')) {
+                processImageFile(files[0]);
             }
         }
 
