@@ -287,11 +287,28 @@
                                     '<span class="text-red-600">❌ Image analysis failed - Claude API may not be configured properly on server</span>';
                             } else {
                                 console.log('Analysis successful, extracted content:', content);
+                                // Clean up the content
+                                let cleanedContent = content;
+                                if (content.includes('Claude analyzed your image and extracted:')) {
+                                    cleanedContent = content.replace('Claude analyzed your image and extracted: "', '').replace(/"$/, '');
+                                }
+                                console.log('Cleaned content for modal:', cleanedContent);
+                                
                                 // Show modal with extracted content
-                                document.getElementById('extractedContent').value = content.replace('Claude analyzed your image and extracted: "', '').replace('"', '');
-                                document.getElementById('contentModal').classList.add('show');
-                                document.getElementById('imageText').innerHTML = 
-                                    '<span class="text-green-600">✅ Analysis complete! Review the extracted content in the popup.</span>';
+                                const textarea = document.getElementById('extractedContent');
+                                const modal = document.getElementById('contentModal');
+                                
+                                if (textarea && modal) {
+                                    textarea.value = cleanedContent;
+                                    modal.classList.add('show');
+                                    console.log('Modal should be visible now');
+                                    document.getElementById('imageText').innerHTML = 
+                                        '<span class="text-green-600">✅ Analysis complete! Review the extracted content in the popup.</span>';
+                                } else {
+                                    console.error('Modal elements not found:', {textarea, modal});
+                                    document.getElementById('imageText').innerHTML = 
+                                        '<span class="text-yellow-600">⚠️ Analysis complete but modal not found. Content: ' + cleanedContent.substring(0, 100) + '...</span>';
+                                }
                             }
                         } else {
                             console.error('Analysis failed with result:', result);
