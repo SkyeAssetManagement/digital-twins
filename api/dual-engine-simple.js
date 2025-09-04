@@ -73,7 +73,8 @@ export default async function handler(req, res) {
     content, 
     contentType = 'text', 
     segments = ['Leader', 'Leaning', 'Learner', 'Laggard'],
-    responseCount = 10 
+    responseCount = 10,
+    analyzeOnly = false 
   } = req.body;
   
   if (!content) {
@@ -144,6 +145,16 @@ Be concise but specific. Focus on what's actually shown/written in the ad.`
         marketingContent = imageAnalysis.content[0].text;
         console.log('Claude extracted content:', marketingContent);
         console.log('===========================');
+        
+        // If analyzeOnly flag is set, return just the extracted content
+        if (analyzeOnly) {
+          return res.status(200).json({
+            success: true,
+            contentAnalyzed: marketingContent,
+            extractedContent: marketingContent,
+            wasImageAnalyzed: true
+          });
+        }
         
       } catch (error) {
         console.error('=== IMAGE ANALYSIS ERROR ===');

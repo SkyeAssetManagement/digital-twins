@@ -243,29 +243,39 @@
                     document.getElementById('imageText').innerHTML = '<span class="text-blue-600">🔍 Analyzing image with Claude Opus 4.1...</span>';
                     
                     try {
-                        // Call API to analyze image
-                        const response = await fetch('/api/analyze-image', {
+                        // Call the dual-engine API with special analyze-only flag
+                        const response = await fetch('/api/dual-engine-response', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ imageData: uploadedImageData })
+                            body: JSON.stringify({ 
+                                content: uploadedImageData,
+                                contentType: 'image',
+                                analyzeOnly: true,  // Just analyze, don't generate responses
+                                segments: ['Leader'],  // Minimal segment for analysis
+                                responseCount: 1
+                            })
                         });
                         
                         const result = await response.json();
                         
-                        if (result.success) {
+                        if (result.error) {
+                            document.getElementById('imageText').innerHTML = 
+                                '<span class="text-red-600">❌ ' + (result.error || 'Analysis failed') + '</span>';
+                        } else if (result.extractedContent && result.extractedContent !== 'NA - Image analysis failed') {
                             // Show modal with extracted content
-                            document.getElementById('extractedContent').value = result.marketingSummary || result.analysis;
+                            const content = result.contentAnalyzed || result.extractedContent || 'Failed to extract content';
+                            document.getElementById('extractedContent').value = content.replace('Claude analyzed your image and extracted: "', '').replace('"', '');
                             document.getElementById('contentModal').classList.add('show');
                             document.getElementById('imageText').innerHTML = 
                                 '<span class="text-green-600">✅ Analysis complete! Review the extracted content in the popup.</span>';
                         } else {
                             document.getElementById('imageText').innerHTML = 
-                                '<span class="text-red-600">❌ Analysis failed: ' + (result.error || 'Unknown error') + '</span>';
+                                '<span class="text-red-600">❌ Analysis failed. Please try again with a different image.</span>';
                         }
                     } catch (error) {
                         console.error('Image analysis error:', error);
                         document.getElementById('imageText').innerHTML = 
-                            '<span class="text-red-600">❌ Failed to analyze image. Please try again.</span>';
+                            '<span class="text-red-600">❌ Failed to analyze image. Error: ' + error.message + '</span>';
                     }
                 };
                 reader.readAsDataURL(file);
