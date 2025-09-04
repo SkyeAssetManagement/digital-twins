@@ -95,10 +95,22 @@ export default async function handler(req, res) {
           apiKey: process.env.ANTHROPIC_API_KEY
         });
         
-        // Extract base64 data
-        const base64Data = content.startsWith('data:image') 
-          ? content.split(',')[1] 
-          : content;
+        // Extract base64 data and media type
+        let base64Data, mediaType = 'image/jpeg';
+        if (content.startsWith('data:image')) {
+          const matches = content.match(/^data:image\/(\w+);base64,(.+)$/);
+          if (matches) {
+            mediaType = `image/${matches[1]}`;
+            base64Data = matches[2];
+          } else {
+            base64Data = content.split(',')[1] || content;
+          }
+        } else {
+          base64Data = content;
+        }
+        
+        console.log('Media type detected:', mediaType);
+        console.log('Base64 data extracted, length:', base64Data ? base64Data.length : 0);
         
         // Analyze image with Claude
         const imageAnalysis = await anthropic.messages.create({
@@ -111,7 +123,7 @@ export default async function handler(req, res) {
                 type: 'image',
                 source: {
                   type: 'base64',
-                  media_type: 'image/jpeg',
+                  media_type: mediaType,
                   data: base64Data
                 }
               },
@@ -134,10 +146,17 @@ Be concise but specific. Focus on what's actually shown/written in the ad.`
         console.log('===========================');
         
       } catch (error) {
-        console.error('Image analysis failed:', error.message);
+        console.error('=== IMAGE ANALYSIS ERROR ===');
+        console.error('Error type:', error.name);
+        console.error('Error message:', error.message);
+        console.error('Error details:', error);
+        console.error('Base64 data length:', base64Data ? base64Data.length : 'undefined');
+        console.error('API Key present:', !!process.env.ANTHROPIC_API_KEY);
+        console.error('===========================');
+        
         // Fallback to placeholder if analysis fails
         marketingContent = `New Rip Curl Pro Series Wetsuit - Ultimate Performance Meets Sustainability. Made from 100% recycled neoprene and ocean plastics. Features: Advanced thermal technology, seamless paddle zones, and eco-friendly water-based glue. Join the movement - protect what you love.`;
-        console.log('Using fallback content');
+        console.log('Using fallback content due to analysis error');
       }
     } else {
       console.log('=== TEXT INPUT DETECTED ===');
