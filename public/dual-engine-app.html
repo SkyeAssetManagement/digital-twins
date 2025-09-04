@@ -268,18 +268,26 @@
                             console.error('API returned error:', result);
                             document.getElementById('imageText').innerHTML = 
                                 '<span class="text-red-600">❌ ' + (result.error || 'Analysis failed') + '<br><small>' + (result.details || '') + '</small></span>';
-                        } else if (result.extractedContent && result.extractedContent !== 'NA - Image analysis failed') {
-                            console.log('Analysis successful, extracted content:', result.extractedContent);
-                            // Show modal with extracted content
-                            const content = result.contentAnalyzed || result.extractedContent || 'Failed to extract content';
-                            document.getElementById('extractedContent').value = content.replace('Claude analyzed your image and extracted: "', '').replace('"', '');
-                            document.getElementById('contentModal').classList.add('show');
-                            document.getElementById('imageText').innerHTML = 
-                                '<span class="text-green-600">✅ Analysis complete! Review the extracted content in the popup.</span>';
+                        } else if (result.success || result.contentAnalyzed || result.extractedContent) {
+                            // Check if we got real content or placeholder
+                            const content = result.contentAnalyzed || result.extractedContent || '';
+                            
+                            if (content.includes('[Image analysis would occur here') || content.includes('NA -') || !content) {
+                                console.error('Got placeholder content, analysis failed');
+                                document.getElementById('imageText').innerHTML = 
+                                    '<span class="text-red-600">❌ Image analysis failed - Claude API may not be configured properly on server</span>';
+                            } else {
+                                console.log('Analysis successful, extracted content:', content);
+                                // Show modal with extracted content
+                                document.getElementById('extractedContent').value = content.replace('Claude analyzed your image and extracted: "', '').replace('"', '');
+                                document.getElementById('contentModal').classList.add('show');
+                                document.getElementById('imageText').innerHTML = 
+                                    '<span class="text-green-600">✅ Analysis complete! Review the extracted content in the popup.</span>';
+                            }
                         } else {
                             console.error('Analysis failed with result:', result);
                             document.getElementById('imageText').innerHTML = 
-                                '<span class="text-red-600">❌ Analysis failed. Response: ' + JSON.stringify(result).substring(0, 200) + '</span>';
+                                '<span class="text-red-600">❌ Analysis failed. Check console for details.</span>';
                         }
                     } catch (error) {
                         console.error('Image analysis error:', error);
