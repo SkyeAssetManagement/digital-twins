@@ -243,6 +243,10 @@
                     document.getElementById('imageText').innerHTML = '<span class="text-blue-600">🔍 Analyzing image with Claude Opus 4.1...</span>';
                     
                     try {
+                        console.log('Starting image analysis...');
+                        console.log('Image data length:', uploadedImageData.length);
+                        console.log('Image data preview:', uploadedImageData.substring(0, 50));
+                        
                         // Call the dual-engine API with special analyze-only flag
                         const response = await fetch('/api/dual-engine-response', {
                             method: 'POST',
@@ -256,12 +260,16 @@
                             })
                         });
                         
+                        console.log('Response status:', response.status);
                         const result = await response.json();
+                        console.log('Full API response:', result);
                         
                         if (result.error) {
+                            console.error('API returned error:', result);
                             document.getElementById('imageText').innerHTML = 
-                                '<span class="text-red-600">❌ ' + (result.error || 'Analysis failed') + '</span>';
+                                '<span class="text-red-600">❌ ' + (result.error || 'Analysis failed') + '<br><small>' + (result.details || '') + '</small></span>';
                         } else if (result.extractedContent && result.extractedContent !== 'NA - Image analysis failed') {
+                            console.log('Analysis successful, extracted content:', result.extractedContent);
                             // Show modal with extracted content
                             const content = result.contentAnalyzed || result.extractedContent || 'Failed to extract content';
                             document.getElementById('extractedContent').value = content.replace('Claude analyzed your image and extracted: "', '').replace('"', '');
@@ -269,8 +277,9 @@
                             document.getElementById('imageText').innerHTML = 
                                 '<span class="text-green-600">✅ Analysis complete! Review the extracted content in the popup.</span>';
                         } else {
+                            console.error('Analysis failed with result:', result);
                             document.getElementById('imageText').innerHTML = 
-                                '<span class="text-red-600">❌ Analysis failed. Please try again with a different image.</span>';
+                                '<span class="text-red-600">❌ Analysis failed. Response: ' + JSON.stringify(result).substring(0, 200) + '</span>';
                         }
                     } catch (error) {
                         console.error('Image analysis error:', error);
