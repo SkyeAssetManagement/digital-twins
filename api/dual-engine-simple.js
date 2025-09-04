@@ -129,10 +129,26 @@ export default async function handler(req, res) {
         console.log('Media type detected:', mediaType);
         console.log('Base64 data extracted, length:', base64Data ? base64Data.length : 0);
         
+        // Validate base64 data
+        try {
+          const buffer = Buffer.from(base64Data, 'base64');
+          console.log('Base64 validation successful, buffer size:', buffer.length);
+          
+          // Check file size (Claude has a 5MB limit for images)
+          const sizeMB = buffer.length / (1024 * 1024);
+          console.log('Image size:', sizeMB.toFixed(2), 'MB');
+          if (sizeMB > 5) {
+            throw new Error('Image too large. Maximum size is 5MB');
+          }
+        } catch (err) {
+          console.error('Base64 validation failed:', err);
+          throw new Error('Invalid base64 image data: ' + err.message);
+        }
+        
         console.log('Calling Claude API with image...');
-        // Analyze image with Claude
+        // Analyze image with Claude (using Sonnet which has vision capabilities)
         const imageAnalysis = await anthropic.messages.create({
-          model: 'claude-3-opus-20240229',
+          model: 'claude-3-5-sonnet-20241022',
           max_tokens: 300,
           messages: [{
             role: 'user',

@@ -31,7 +31,7 @@ export default async function handler(req, res) {
 
     // Use Claude to analyze the image
     const response = await anthropic.messages.create({
-      model: 'claude-3-opus-20240229',
+      model: 'claude-3-5-sonnet-20241022',
       max_tokens: 500,
       messages: [{
         role: 'user',
