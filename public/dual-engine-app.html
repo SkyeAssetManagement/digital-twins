@@ -16,11 +16,11 @@
             height: 100%;
             background-color: rgba(0,0,0,0.5);
             animation: fadeIn 0.3s;
-        }
-        .modal.show {
-            display: flex;
             align-items: center;
             justify-content: center;
+        }
+        .modal.show {
+            display: flex !important;
         }
         .modal-content {
             background-color: white;
@@ -529,20 +529,39 @@
         let extractedMarketingContent = '';
         
         function showExtractedContent() {
+            console.log('showExtractedContent called');
+            console.log('extractedMarketingContent:', extractedMarketingContent);
+            
             // Show modal with the stored extracted content
             const textarea = document.getElementById('extractedContent');
             const modal = document.getElementById('contentModal');
             
-            if (textarea && modal && extractedMarketingContent) {
-                textarea.value = extractedMarketingContent;
-                modal.classList.add('show');
-            } else {
+            console.log('Elements found:', {textarea: !!textarea, modal: !!modal});
+            
+            if (!extractedMarketingContent) {
                 alert('No extracted content available. Please wait for analysis to complete.');
+                return;
             }
+            
+            if (!textarea || !modal) {
+                alert('Modal elements not found in the page');
+                console.error('Missing elements:', {textarea, modal});
+                return;
+            }
+            
+            // Set the content and show modal
+            textarea.value = extractedMarketingContent;
+            modal.style.display = 'flex';  // Force display
+            modal.classList.add('show');
+            console.log('Modal display set to flex and show class added');
         }
         
         function closeContentModal() {
-            document.getElementById('contentModal').classList.remove('show');
+            const modal = document.getElementById('contentModal');
+            if (modal) {
+                modal.classList.remove('show');
+                modal.style.display = 'none';
+            }
         }
         
         async function proceedWithContent() {
