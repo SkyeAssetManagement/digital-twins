@@ -88,13 +88,19 @@ export default async function handler(req, res) {
     if (contentType === 'image') {
       console.log('=== IMAGE UPLOAD DETECTED ===');
       console.log('Analyzing image with Claude Opus 4.1...');
+      console.log('ANTHROPIC_API_KEY exists:', !!process.env.ANTHROPIC_API_KEY);
+      console.log('API Key length:', process.env.ANTHROPIC_API_KEY?.length || 0);
+      console.log('API Key prefix:', process.env.ANTHROPIC_API_KEY?.substring(0, 10) || 'NOT SET');
       
       try {
         // Import Anthropic for image analysis
         const Anthropic = (await import('@anthropic-ai/sdk')).default;
+        console.log('Anthropic SDK imported successfully');
+        
         const anthropic = new Anthropic({
           apiKey: process.env.ANTHROPIC_API_KEY
         });
+        console.log('Anthropic client created');
         
         // Extract base64 data and media type
         let base64Data, mediaType = 'image/jpeg';
@@ -113,6 +119,7 @@ export default async function handler(req, res) {
         console.log('Media type detected:', mediaType);
         console.log('Base64 data extracted, length:', base64Data ? base64Data.length : 0);
         
+        console.log('Calling Claude API with image...');
         // Analyze image with Claude
         const imageAnalysis = await anthropic.messages.create({
           model: 'claude-3-opus-20240229',
@@ -141,6 +148,10 @@ Be concise but specific. Focus on what's actually shown/written in the ad.`
             ]
           }]
         });
+        
+        console.log('Claude API response received');
+        console.log('Response type:', typeof imageAnalysis);
+        console.log('Response content array length:', imageAnalysis.content?.length);
         
         marketingContent = imageAnalysis.content[0].text;
         console.log('Claude extracted content:', marketingContent);
