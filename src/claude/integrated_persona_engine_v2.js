@@ -45,6 +45,19 @@ export class IntegratedPersonaEngineV2 {
     const numRespondents = options.numRespondents || 10;
     const seedOffset = options.seedOffset || 0;
     const temperature = options.temperature || 0.7;
+    
+    // Alternate between Opus 4.1 and Sonnet 4.0 for variety
+    const models = [
+      'claude-opus-4-1-20250805',      // Opus 4.1
+      'claude-sonnet-4-20250514'        // Sonnet 4.0 (latest)
+    ];
+    
+    // Use seedOffset to select model for variety
+    const modelIndex = (seedOffset + (options.modelVariation || 0)) % models.length;
+    const selectedModel = models[modelIndex];
+    
+    console.log(`[Claude] Using ${selectedModel.includes('opus') ? 'Opus 4.1' : 'Sonnet 4.0'} for ${segment}`);
+    
     const systemPrompt = await this.enhancedPersona.createDataDrivenPersona(segment, numRespondents, seedOffset);
     
     // Step 2: Get similar real respondents for context (with seed variation)
@@ -53,13 +66,19 @@ export class IntegratedPersonaEngineV2 {
     // Step 3: Build user prompt with proper structure
     const userPrompt = this.buildStructuredPrompt(marketingContent, respondents, segment);
     
-    // Step 4: Get prefill for character reinforcement
-    const prefill = this.enhancedPersona.generatePrefill(segment, marketingContent);
+    // Step 4: Use minimal prefill - just a light touch to set tone
+    const prefillOptions = {
+      'Leader': 'Looking at this, ',
+      'Leaning': 'This seems ',
+      'Learner': 'Hmm, ',
+      'Laggard': 'So '
+    };
+    const prefill = prefillOptions[segment] || '';
     
     try {
       // Step 5: Generate response with Claude
       const response = await this.client.messages.create({
-        model: 'claude-opus-4-1-20250805',
+        model: selectedModel,
         max_tokens: 300,
         temperature: temperature,
         system: systemPrompt,
@@ -70,7 +89,7 @@ export class IntegratedPersonaEngineV2 {
           },
           {
             role: 'assistant',
-            content: prefill  // Prefilling to maintain character
+            content: prefill  // Minimal prefilling
           }
         ]
       });
