@@ -288,10 +288,11 @@
                 calculateStatistics(data);
             } catch (error) {
                 console.error('Error generating responses:', error);
+                const errorMsg = error.message || 'Error generating responses';
                 document.getElementById('semanticResponses').innerHTML = 
-                    '<p class="text-red-500">Error generating responses</p>';
+                    `<p class="text-red-500 p-4 border border-red-300 rounded bg-red-50">❌ ${errorMsg}</p>`;
                 document.getElementById('claudeResponses').innerHTML = 
-                    '<p class="text-red-500">Error generating responses</p>';
+                    `<p class="text-red-500 p-4 border border-red-300 rounded bg-red-50">❌ ${errorMsg}</p>`;
             }
         }
 

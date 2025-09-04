@@ -45,15 +45,15 @@ async function generateMultipleResponses(engine, content, segment, count, engine
     } catch (error) {
       console.error(`Error generating ${engineType} response ${i+1} for ${segment}:`, error);
       
-      // Use sophisticated fallbacks that maintain value alignment
-      const fallbackResponse = getFallbackResponse(segment, engineType, i);
+      // NO FALLBACKS - Return NA
       responses.push({
         segment: segment,
-        text: fallbackResponse,
-        sentiment: getSegmentSentiment(segment),
-        purchaseIntent: getSegmentIntent(segment) + (i % 2 === 0 ? 0 : 1),
-        responseTime: engineType === 'semantic' ? 1600 : 6000,
-        index: i + 1
+        text: 'NA - Response generation failed',
+        sentiment: 'NA',
+        purchaseIntent: 0,
+        responseTime: 0,
+        index: i + 1,
+        error: true
       });
     }
   }
@@ -154,9 +154,14 @@ Be concise but specific. Focus on what's actually shown/written in the ad.`
         console.error('API Key present:', !!process.env.ANTHROPIC_API_KEY);
         console.error('===========================');
         
-        // Fallback to placeholder if analysis fails
-        marketingContent = `New Rip Curl Pro Series Wetsuit - Ultimate Performance Meets Sustainability. Made from 100% recycled neoprene and ocean plastics. Features: Advanced thermal technology, seamless paddle zones, and eco-friendly water-based glue. Join the movement - protect what you love.`;
-        console.log('Using fallback content due to analysis error');
+        // NO FALLBACKS - Return error
+        return res.status(500).json({
+          error: 'Image analysis failed',
+          details: error.message,
+          semantic: [],
+          claude: [],
+          extractedContent: 'NA - Image analysis failed'
+        });
       }
     } else {
       console.log('=== TEXT INPUT DETECTED ===');
@@ -206,15 +211,16 @@ Be concise but specific. Focus on what's actually shown/written in the ad.`
         );
         semanticResponses.push(...semanticBatch);
       } else {
-        // Fallback semantic responses
+        // NO FALLBACK - Engine not available
         for (let i = 0; i < responseCount; i++) {
           semanticResponses.push({
             segment: segment,
-            text: getFallbackResponse(segment, 'semantic', i),
-            sentiment: getSegmentSentiment(segment),
-            purchaseIntent: getSegmentIntent(segment) + (i % 2 === 0 ? 0 : Math.random() > 0.5 ? 1 : -1),
-            responseTime: 1600,
-            index: i + 1
+            text: 'NA - Semantic engine not available',
+            sentiment: 'NA',
+            purchaseIntent: 0,
+            responseTime: 0,
+            index: i + 1,
+            error: true
           });
         }
       }
@@ -243,15 +249,16 @@ Be concise but specific. Focus on what's actually shown/written in the ad.`
         }
         claudeResponses.push(...claudeBatch);
       } else {
-        // Fallback Claude-style responses
+        // NO FALLBACK - Engine not available
         for (let i = 0; i < responseCount; i++) {
           claudeResponses.push({
             segment: segment,
-            text: getFallbackResponse(segment, 'claude', i),
-            sentiment: getSegmentSentiment(segment),
-            purchaseIntent: getSegmentIntent(segment) + (i % 2 === 0 ? 0 : Math.random() > 0.5 ? 1 : -1),
-            responseTime: 6000,
-            index: i + 1
+            text: 'NA - Claude engine not available',
+            sentiment: 'NA',
+            purchaseIntent: 0,
+            responseTime: 0,
+            index: i + 1,
+            error: true
           });
         }
       }
