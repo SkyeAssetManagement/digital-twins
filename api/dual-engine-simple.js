@@ -146,9 +146,9 @@ export default async function handler(req, res) {
         }
         
         console.log('Calling Claude API with image...');
-        // Analyze image with Claude (using Sonnet which has vision capabilities)
+        // Analyze image with Claude Opus 4.1
         const imageAnalysis = await anthropic.messages.create({
-          model: 'claude-3-5-sonnet-20241022',
+          model: 'claude-opus-4-1-20250805',
           max_tokens: 300,
           messages: [{
             role: 'user',
