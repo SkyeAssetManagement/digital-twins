@@ -125,20 +125,22 @@
                      ondragover="handleDragOver(event)" 
                      ondragenter="handleDragEnter(event)" 
                      ondragleave="handleDragLeave(event)">
-                    <input type="file" id="imageFile" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
+                    <input type="file" id="imageFile" accept="image/*,application/pdf" class="hidden" onchange="handleImageUpload(event)" multiple>
                     <label for="imageFile" class="cursor-pointer">
                         <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
                             <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
                         <p class="mt-2 text-sm text-gray-600">Click to upload or drag and drop</p>
-                        <p class="text-xs text-gray-500">PNG, JPG up to 10MB</p>
+                        <p class="text-xs text-gray-500">PNG, JPG, PDF up to 10MB (multiple files supported)</p>
                     </label>
                 </div>
                 
-                <!-- Image Preview -->
-                <div id="imagePreview" class="hidden">
-                    <h3 class="text-sm font-medium mb-2">Uploaded Image:</h3>
-                    <img id="previewImg" class="max-h-48 rounded-lg shadow-sm" alt="Preview">
+                <!-- Uploaded Content Container -->
+                <div id="uploadedContent" class="hidden">
+                    <h3 class="text-lg font-semibold mb-3">Uploaded Content</h3>
+                    <div id="contentList" class="max-h-96 overflow-y-auto border border-gray-200 rounded-lg p-4 space-y-4">
+                        <!-- Content items will be added here dynamically -->
+                    </div>
                 </div>
             </div>
 
@@ -236,7 +238,7 @@
 
     <script>
         let currentTab = 'text';
-        let uploadedImageData = null;
+        let uploadedItems = [];
         let allResponses = { sonnet: [], opus: [] };
 
         function switchTab(tab) {
@@ -254,17 +256,105 @@
             }
         }
 
-        function handleImageUpload(event) {
-            const file = event.target.files[0];
-            if (file && file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    uploadedImageData = e.target.result;
-                    document.getElementById('previewImg').src = uploadedImageData;
-                    document.getElementById('imagePreview').classList.remove('hidden');
-                };
-                reader.readAsDataURL(file);
+        async function handleImageUpload(event) {
+            const files = event.target.files;
+            for (let i = 0; i < files.length; i++) {
+                processImageFile(files[i]);
             }
+        }
+
+        async function processImageFile(file) {
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const itemId = 'item_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                const imageData = e.target.result;
+                
+                // Create thumbnail and text area
+                const contentItem = document.createElement('div');
+                contentItem.className = 'flex space-x-4 p-3 bg-gray-50 rounded-lg';
+                contentItem.id = itemId;
+                
+                contentItem.innerHTML = `
+                    <div class="flex-shrink-0">
+                        <img src="${imageData}" class="w-24 h-24 object-cover rounded-lg shadow-sm" alt="Uploaded content">
+                    </div>
+                    <div class="flex-1">
+                        <div class="mb-2 text-sm text-gray-600">
+                            <span class="font-medium">${file.name}</span>
+                            <span class="ml-2 text-blue-600">Analyzing with Claude...</span>
+                        </div>
+                        <textarea class="w-full h-32 p-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                                  placeholder="Analysis will appear here..." 
+                                  id="text_${itemId}"></textarea>
+                    </div>
+                `;
+                
+                // Add to container
+                document.getElementById('contentList').appendChild(contentItem);
+                document.getElementById('uploadedContent').classList.remove('hidden');
+                
+                // Store item data
+                uploadedItems.push({
+                    id: itemId,
+                    file: file,
+                    imageData: imageData,
+                    extractedContent: ''
+                });
+                
+                // Analyze image immediately
+                try {
+                    console.log('Starting image analysis for:', file.name);
+                    
+                    // Call the API with analyze-only flag
+                    const response = await fetch('/api/claude-comparison-response', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            content: imageData,
+                            contentType: 'image',
+                            analyzeOnly: true
+                        })
+                    });
+                    
+                    console.log('Response status:', response.status);
+                    const result = await response.json();
+                    console.log('Analysis result:', result);
+                    
+                    const textarea = document.getElementById(`text_${itemId}`);
+                    const statusSpan = contentItem.querySelector('.text-blue-600');
+                    
+                    if (result.extractedContent && !result.extractedContent.includes('NA -')) {
+                        // Update textarea with extracted content
+                        textarea.value = result.extractedContent;
+                        
+                        // Update status
+                        statusSpan.innerHTML = '✅ Analysis complete';
+                        statusSpan.className = 'ml-2 text-green-600';
+                        
+                        // Store the extracted content
+                        const itemIndex = uploadedItems.findIndex(item => item.id === itemId);
+                        if (itemIndex !== -1) {
+                            uploadedItems[itemIndex].extractedContent = result.extractedContent;
+                        }
+                    } else {
+                        statusSpan.innerHTML = '❌ Analysis failed';
+                        statusSpan.className = 'ml-2 text-red-600';
+                        textarea.value = 'Failed to analyze image. Please enter content manually.';
+                    }
+                } catch (error) {
+                    console.error('Image analysis error:', error);
+                    const textarea = document.getElementById(`text_${itemId}`);
+                    const statusSpan = contentItem.querySelector('.text-blue-600, .text-red-600');
+                    if (statusSpan) {
+                        statusSpan.innerHTML = '❌ Error';
+                        statusSpan.className = 'ml-2 text-red-600';
+                    }
+                    if (textarea) {
+                        textarea.value = 'Error: ' + error.message;
+                    }
+                }
+            };
+            reader.readAsDataURL(file);
         }
         
         // Drag and Drop handlers
@@ -291,15 +381,14 @@
             event.stopPropagation();
             document.getElementById('dropzone').classList.remove('border-blue-500', 'bg-blue-50');
             
-            const file = event.dataTransfer.files[0];
-            if (file && file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    uploadedImageData = e.target.result;
-                    document.getElementById('previewImg').src = uploadedImageData;
-                    document.getElementById('imagePreview').classList.remove('hidden');
-                };
-                reader.readAsDataURL(file);
+            const files = event.dataTransfer.files;
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                if (file.type.startsWith('image/') || file.type === 'application/pdf') {
+                    processImageFile(file);
+                } else {
+                    console.warn('Skipping unsupported file:', file.name);
+                }
             }
         }
 
@@ -316,12 +405,24 @@
                     return;
                 }
             } else {
-                if (!uploadedImageData) {
+                // Use the text from uploaded items
+                if (uploadedItems.length === 0) {
                     alert('Please upload an image to analyze');
                     return;
                 }
-                content = uploadedImageData;
-                contentType = 'image';
+                
+                // Get the text from the first item's textarea (user may have edited it)
+                const firstItemId = uploadedItems[0].id;
+                const textarea = document.getElementById(`text_${firstItemId}`);
+                content = textarea ? textarea.value.trim() : uploadedItems[0].extractedContent;
+                
+                if (!content || content.includes('Analyzing...') || content.includes('Error:') || content.includes('Failed to analyze')) {
+                    alert('Please wait for image analysis to complete or enter text manually in the textarea');
+                    return;
+                }
+                
+                // Use text content from the extracted analysis
+                contentType = 'text';
             }
 
             // Show loading state
