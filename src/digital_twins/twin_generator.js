@@ -9,7 +9,7 @@ export class DynamicTwinGenerator {
   
   async generateTwin(segment, variant = 0) {
     // Get segment profile from vector store
-    const segmentProfile = await this.vectorStore.getSegmentProfile(segment);
+    let segmentProfile = await this.vectorStore.getSegmentProfile(segment);
     
     if (!segmentProfile) {
       console.warn(`No segment profile found for ${segment}, using defaults`);
