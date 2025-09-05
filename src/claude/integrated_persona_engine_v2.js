@@ -172,7 +172,15 @@ export class IntegratedPersonaEngineV2 {
       
     } catch (error) {
       console.error('Claude API error:', error);
-      return this.generateAuthenticFallback(respondents, marketingContent, segment);
+      // NO FALLBACKS - Return NA
+      return {
+        text: 'NA - Claude API failed',
+        sentiment: 'NA',
+        purchaseIntent: 0,
+        error: true,
+        errorMessage: error.message,
+        timestamp: new Date().toISOString()
+      };
     }
   }
   
@@ -276,54 +284,8 @@ End with: [Sentiment: positive/neutral/negative] [Intent: X/10]
     return Math.min(10, Math.max(1, intents[segment] || 5));
   }
   
-  generateAuthenticFallback(respondents, marketingContent, segment) {
-    // Create authentic fallback based on real survey data
-    const avgScores = this.calculateAverageScores(respondents);
-    
-    let response = '';
-    
-    // Generate response based on segment characteristics
-    if (segment === 'Leader') {
-      if (marketingContent.toLowerCase().includes('sustain') || marketingContent.toLowerCase().includes('eco')) {
-        response = `This aligns perfectly with my values - I need brands that genuinely care about environmental impact. Tell me more about your supply chain transparency and carbon footprint.`;
-      } else {
-        response = `Where's the sustainability story here? I need to see real commitment to environmental responsibility, not just lifestyle marketing. Show me your B-Corp certification or carbon neutral shipping.`;
-      }
-    } else if (segment === 'Leaning') {
-      response = `This looks interesting, but I need to understand the balance between quality and environmental impact. Is it worth the premium? I'd pay 10-15% more if the sustainability credentials are genuine.`;
-    } else if (segment === 'Learner') {
-      response = `Cool product, but what's the actual price? I'm interested but need to compare with other options first. Maybe if there's a sale or bundle deal I'd consider it.`;
-    } else if (segment === 'Laggard') {
-      response = `More expensive surf gear with fancy marketing. I can get the same functionality at Walmart for a fraction of the price. Unless it's significantly better quality, I'm not interested.`;
-    }
-    
-    // Determine sentiment and intent based on segment
-    const sentiments = {
-      'Leader': marketingContent.includes('sustain') ? 'positive' : 'negative',
-      'Leaning': 'neutral',
-      'Learner': 'neutral',
-      'Laggard': 'negative'
-    };
-    
-    const intents = {
-      'Leader': marketingContent.includes('sustain') ? 8 : 3,
-      'Leaning': 5,
-      'Learner': 4,
-      'Laggard': 2
-    };
-    
-    return {
-      text: response,
-      sentiment: sentiments[segment],
-      purchaseIntent: intents[segment],
-      basedOn: {
-        method: 'authentic-survey-fallback',
-        surveyRespondents: respondents.map(r => r.respondentId).slice(0, 5),
-        segment: segment
-      },
-      timestamp: new Date().toISOString()
-    };
-  }
+  // REMOVED: generateAuthenticFallback - NO FALLBACKS ALLOWED
+  // When API fails, we return NA, not fallback data
   
   calculateAverageScores(respondents) {
     const scores = {

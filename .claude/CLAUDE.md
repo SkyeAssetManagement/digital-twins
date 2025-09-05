@@ -3,6 +3,7 @@
 ## CRITICAL INSTRUCTIONS
 - **NEVER use demo, sample, or placeholder data** - Always use real, production-ready data unless explicitly requested
 - **NEVER simplify or work around errors** - When code fails, preserve the exact implementation and wait for user approval before simplifying
+- **NEVER use fallback responses** - When API calls fail, return "NA" instead of fallback data. NO EXCEPTIONS!
 - **Follow these instructions exactly** - Do not deviate from these standards
 - **NEVER Claim completion of job or stop working until key outcome as defined by user at the start is achieved.  Keep working.  Keep debugging. Keep testing until outcome is achieved with FULL FUNCTIONALITY AS REQUESTED and no simplificaitons**
 - **If you think you have completed and achieved the outcome, you need to provide data and proof eg date modified for file created, result of a database query showing populated records etc etc.  Do NOT CLAIM COMPLETION WITHOUT PROOF!**
@@ -104,3 +105,4 @@ npm run format       # Auto-format code
 - Production-first mindset: No demos, no placeholders
 - Accuracy over simplicity: Preserve complexity when needed
 - Quality over speed: Better to do it right than do it twice
+- NEVER HAVE FALLBACKS!!!!  Have NA if there is no data.  Please add to CLAUDE.md
