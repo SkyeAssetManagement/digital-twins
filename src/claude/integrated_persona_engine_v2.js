@@ -45,6 +45,7 @@ export class IntegratedPersonaEngineV2 {
     const numRespondents = options.numRespondents || 10;
     const seedOffset = options.seedOffset || 0;
     const temperature = options.temperature || 0.7;
+    const maxRetries = 3; // Try up to 3 times on failure
     
     // Use only Opus 4.1 for now
     const selectedModel = 'claude-opus-4-1-20250805';
@@ -137,9 +138,11 @@ export class IntegratedPersonaEngineV2 {
       '', '', '', '', '', // Some empty for no prefill occasionally
     ];
     
-    // Randomly select a prefill starter
+    // Randomly select a prefill starter and ensure no trailing whitespace
     const randomIndex = Math.floor(Math.random() * prefillStarters.length);
-    const prefill = prefillStarters[randomIndex];
+    const selectedPrefill = prefillStarters[randomIndex];
+    // CRITICAL: Remove trailing whitespace to avoid Claude API error
+    const prefill = selectedPrefill.trimEnd();
     
     // Log which prefill was selected for debugging
     if (prefill) {
@@ -148,48 +151,80 @@ export class IntegratedPersonaEngineV2 {
       console.log(`[Prefill] No prefill for ${segment}`);
     }
     
-    try {
-      // Step 5: Generate response with Claude
-      const response = await this.client.messages.create({
-        model: selectedModel,
-        max_tokens: 300,
-        temperature: temperature,
-        system: systemPrompt,
-        messages: [
-          {
-            role: 'user',
-            content: userPrompt
-          },
-          {
-            role: 'assistant',
-            content: prefill  // Minimal prefilling
+    // Implement retry logic for API calls
+    let lastError = null;
+    
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        console.log(`[Claude] Attempt ${attempt}/${maxRetries} for ${segment}`);
+        
+        // Add exponential backoff for retries
+        if (attempt > 1) {
+          const delay = Math.min(1000 * Math.pow(2, attempt - 1), 10000); // Max 10 seconds
+          console.log(`[Claude] Waiting ${delay}ms before retry...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+        }
+        
+        // Step 5: Generate response with Claude
+        const response = await this.client.messages.create({
+          model: selectedModel,
+          max_tokens: 300,
+          temperature: temperature,
+          system: systemPrompt,
+          messages: [
+            {
+              role: 'user',
+              content: userPrompt
+            },
+            {
+              role: 'assistant',
+              content: prefill  // Minimal prefilling
+            }
+          ]
+        });
+        
+        // Step 6: Parse and structure response
+        console.log(`[Claude] Success on attempt ${attempt} for ${segment}`);
+        return this.parseEnhancedResponse(response, respondents, segment);
+        
+      } catch (error) {
+        lastError = error;
+        console.error(`[Claude] Attempt ${attempt} failed for ${segment}:`, error.message || error);
+        
+        // Check for rate limit error
+        if (error.status === 429) {
+          console.error('[Claude] RATE LIMIT HIT - Implementing longer backoff');
+          // Wait longer for rate limits
+          if (attempt < maxRetries) {
+            const rateLimitDelay = 5000 * attempt; // 5s, 10s, 15s
+            console.log(`[Claude] Rate limit delay: ${rateLimitDelay}ms`);
+            await new Promise(resolve => setTimeout(resolve, rateLimitDelay));
           }
-        ]
-      });
-      
-      // Step 6: Parse and structure response
-      return this.parseEnhancedResponse(response, respondents, segment);
-      
-    } catch (error) {
-      console.error('Claude API error:', error.message || error);
-      console.error('Full error details:', JSON.stringify(error, null, 2));
-      
-      // Check for rate limit error
-      if (error.status === 429) {
-        console.error('RATE LIMIT HIT - Too many requests to Claude API');
+        }
+        
+        // Don't retry on certain errors
+        if (error.status === 400 || error.status === 401) {
+          console.error('[Claude] Non-retryable error, stopping attempts');
+          break;
+        }
       }
-      
-      // NO FALLBACKS - Return NA with detailed error
-      return {
-        text: `NA - Claude API failed: ${error.message || 'Unknown error'}`,
-        sentiment: 'NA',
-        purchaseIntent: 0,
-        error: true,
-        errorCode: error.status || error.code,
-        errorMessage: error.message,
-        timestamp: new Date().toISOString()
-      };
     }
+    
+    // All retries failed
+    console.error('[Claude] All retry attempts exhausted');
+    console.error('Final error details:', JSON.stringify(lastError, null, 2));
+    
+    // NO FALLBACKS - Return NA with detailed error
+    return {
+      text: `NA - Claude API failed after ${maxRetries} attempts: ${lastError?.message || 'Unknown error'}`,
+      sentiment: 'NA',
+      purchaseIntent: 0,
+      error: true,
+      errorCode: lastError?.status || lastError?.code,
+      errorMessage: lastError?.message,
+      attemptsUsed: maxRetries,
+      timestamp: new Date().toISOString()
+    };
   }
   
   buildStructuredPrompt(marketingContent, respondents, segment) {

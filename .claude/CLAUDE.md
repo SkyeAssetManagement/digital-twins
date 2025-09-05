@@ -30,6 +30,7 @@
 - Include unit, integration, and e2e tests where applicable
 - **Performance testing for array operations:**
 - Verify all tests pass before marking complete
+- **ALWAYS test API integrations before committing** - Create test scripts to verify external API calls work correctly
 
 ### Code Quality Checklist
 Before completing any task, verify:

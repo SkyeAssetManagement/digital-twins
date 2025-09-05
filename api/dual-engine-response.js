@@ -27,7 +27,7 @@ async function generateMultipleResponses(engine, content, segment, count, engine
       } else {
         // Add delay to avoid rate limiting (Claude has strict limits)
         if (i > 0) {
-          await new Promise(resolve => setTimeout(resolve, 1000)); // 1 second delay between requests
+          await new Promise(resolve => setTimeout(resolve, 2000)); // 2 second delay between requests to avoid rate limits
         }
         
         // Generate unique Claude response with different respondents
@@ -252,7 +252,15 @@ Be concise but specific. Focus on what's actually shown/written in the ad.`
     const semanticResponses = [];
     const claudeResponses = [];
     
-    for (const segment of segments) {
+    for (let segmentIndex = 0; segmentIndex < segments.length; segmentIndex++) {
+      const segment = segments[segmentIndex];
+      
+      // Add delay between segments to avoid rate limiting
+      if (segmentIndex > 0) {
+        console.log(`Waiting 3 seconds before processing ${segment} to avoid rate limits...`);
+        await new Promise(resolve => setTimeout(resolve, 3000));
+      }
+      
       console.log(`Generating ${responseCount} responses for ${segment}...`);
       
       // Generate semantic responses
