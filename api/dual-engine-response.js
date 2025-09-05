@@ -27,9 +27,9 @@ async function generateMultipleResponses(engine, content, segment, count, engine
       } else {
         // Generate unique Claude response with different respondents
         response = await engine.generateEnhancedResponse(content, segment, {
-          numRespondents: 8 + (i * 2), // Vary respondent count
-          temperature: 0.8 + (i * 0.05), // Slight temperature variation
-          seedOffset: i * 100 // Use different seed for variety
+          numRespondents: 10 + i, // More granular variation (10, 11, 12, 13...)
+          temperature: 0.7 + (i * 0.02), // Lower base temp, smaller increments
+          seedOffset: i * 1000 + Math.floor(Math.random() * 100) // Much more variation
         });
       }
       
@@ -275,28 +275,15 @@ Be concise but specific. Focus on what's actually shown/written in the ad.`
         }
       }
       
-      // Generate Claude responses
+      // Generate Claude responses - ALL UNIQUE, NO REUSE
       if (claudeEngine) {
         const claudeBatch = await generateMultipleResponses(
           claudeEngine,
           marketingContent,
           segment,
-          Math.min(responseCount, 3), // Limit for cost management
+          responseCount, // Generate ALL requested responses uniquely
           'claude'
         );
-        
-        // If more than 3 requested, reuse with slight variations
-        if (responseCount > 3) {
-          for (let i = 3; i < responseCount; i++) {
-            const baseIdx = i % 3;
-            const base = claudeBatch[baseIdx];
-            claudeResponses.push({
-              ...base,
-              text: base.text,
-              index: i + 1
-            });
-          }
-        }
         claudeResponses.push(...claudeBatch);
       } else {
         // NO FALLBACK - Engine not available
@@ -321,7 +308,7 @@ Be concise but specific. Focus on what's actually shown/written in the ad.`
       avgClaudeTime: claudeResponses.reduce((sum, r) => sum + (r.responseTime || 0), 0) / claudeResponses.length,
       estimatedCost: {
         semantic: semanticResponses.length * 0.002,
-        claude: Math.min(responseCount * segments.length, segments.length * 3) * 0.03
+        claude: claudeResponses.filter(r => !r.error).length * 0.03 // Actual responses generated
       }
     };
     
