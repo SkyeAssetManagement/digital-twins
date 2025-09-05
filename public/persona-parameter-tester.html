@@ -429,6 +429,9 @@
                 segment: config.segment,
                 model: config.model,
                 temperature: config.temperature,
+                temperatureMin: config.tempMin,
+                temperatureMax: config.tempMax,
+                randomizeTemperature: config.randomizeTemp,
                 topP: config.topP,
                 maxTokens: config.maxTokens,
                 usePrefill: config.usePrefill,
@@ -463,6 +466,7 @@
                 columnId: config.id,
                 config: config,
                 responses: segmentData.responses || [segmentData.response] || [],
+                responseTemperatures: segmentData.responseTemperatures || [], // Temperatures for each response
                 sentiment: segmentData.sentiment,
                 purchaseIntent: segmentData.purchaseIntent,
                 marketSize: segmentData.marketSize,
@@ -504,12 +508,19 @@
                         <div class="mb-4">
                             <h5 class="font-medium text-gray-700 mb-2">Responses (${result.responses.length}):</h5>
                             <div class="space-y-2 max-h-64 overflow-y-auto">
-                                ${result.responses.map((resp, idx) => `
+                                ${result.responses.map((resp, idx) => {
+                                    const temp = result.responseTemperatures && result.responseTemperatures[idx] 
+                                        ? result.responseTemperatures[idx].toFixed(3) 
+                                        : result.config.temperature.toFixed(3);
+                                    return `
                                     <div class="p-3 bg-gray-50 rounded text-sm text-gray-700 border-l-4 border-indigo-400">
-                                        <span class="font-medium text-xs text-gray-500">Response ${idx + 1}:</span>
+                                        <div class="flex justify-between items-start mb-1">
+                                            <span class="font-medium text-xs text-gray-500">Response ${idx + 1}</span>
+                                            <span class="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded">Temp: ${temp}</span>
+                                        </div>
                                         <p class="mt-1">${resp}</p>
                                     </div>
-                                `).join('')}
+                                `}).join('')}
                             </div>
                         </div>
 

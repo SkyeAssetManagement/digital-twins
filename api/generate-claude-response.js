@@ -36,6 +36,9 @@ export default async function handler(req, res) {
       // New parameters for testing
       model = 'claude-opus-4-1-20250805',
       temperature = 0.7,
+      temperatureMin,  // If provided with temperatureMax, randomize between them
+      temperatureMax,
+      randomizeTemperature = false,
       topP = 0.9,
       maxTokens = 150,
       usePrefill = true,
@@ -161,9 +164,23 @@ export default async function handler(req, res) {
           
           // Generate multiple responses if requested
           const generatedResponses = [];
+          const responseTemperatures = [];
           for (let i = 0; i < responseCount; i++) {
-            // Vary temperature slightly for each response if randomizing
-            const responseTemp = Math.min(1, Math.max(0, temperature + (Math.random() - 0.5) * 0.1));
+            // Calculate temperature for this response
+            let responseTemp;
+            if (randomizeTemperature && temperatureMin !== undefined && temperatureMax !== undefined) {
+              // Randomize between min and max for each response
+              responseTemp = temperatureMin + Math.random() * (temperatureMax - temperatureMin);
+            } else if (temperatureMin !== undefined && temperatureMax !== undefined) {
+              // Use different temps across the range even if not "randomized"
+              const step = (temperatureMax - temperatureMin) / Math.max(1, responseCount - 1);
+              responseTemp = temperatureMin + (step * i);
+            } else {
+              // Use provided temperature with slight variation
+              responseTemp = temperature + (Math.random() - 0.5) * 0.1;
+            }
+            responseTemp = Math.min(1, Math.max(0, responseTemp));
+            responseTemperatures.push(responseTemp);
             
             const response = await generateClaudeResponse({
               systemPrompt,
@@ -184,6 +201,7 @@ export default async function handler(req, res) {
           segmentResponse = {
             segment: targetSegment,
             responses: generatedResponses,
+            responseTemperatures: responseTemperatures, // Temperature used for each response
             response: bestResponse, // Primary response for backward compatibility
             sentiment: analyzeSentiment(bestResponse),
             purchaseIntent: calculatePurchaseIntent(targetSegment, bestResponse),
