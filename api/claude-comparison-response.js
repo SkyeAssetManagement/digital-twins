@@ -26,7 +26,7 @@ const RETRY_CONFIG = {
 /**
  * Generate response using Claude models with retry logic
  */
-async function generateClaudeResponse(content, segment, modelType, responseIndex = 0) {
+async function generateClaudeResponse(content, segment, modelType, responseIndex = 0, options = {}) {
   const startTime = Date.now();
   
   // Select model based on type
@@ -53,6 +53,96 @@ Your response should be authentic, natural, and reflect your segment's character
 Give a brief, authentic response (2-3 sentences) that reflects your segment's typical reaction.
 Include subtle hints about your purchase intent without explicitly stating numbers.`;
 
+  // Randomized prefill starters - large pool for variety
+  const prefillStarters = [
+    // Observational starters
+    'Looking at this, ', 'Seeing this, ', 'Noticing that ', 'Observing the ', 
+    'Considering this, ', 'Examining the ', 'Reviewing this, ', 'Checking out ',
+    'Glancing at ', 'Studying this, ', 'Analyzing the ', 'Inspecting this, ',
+    
+    // Thoughtful/reflective
+    'Hmm, ', 'Well, ', 'Actually, ', 'Honestly, ', 'Frankly, ', 'Personally, ',
+    'Realistically, ', 'Truthfully, ', 'Genuinely, ', 'Seriously, ', 'Really, ',
+    'Basically, ', 'Essentially, ', 'Fundamentally, ', 'Ultimately, ', 'Generally, ',
+    
+    // Initial reactions
+    'Oh, ', 'Ah, ', 'Okay, ', 'Right, ', 'Sure, ', 'Yeah, ', 'Yes, ', 'No, ',
+    'Wait, ', 'Hold on, ', 'Hang on, ', 'Listen, ', 'Look, ', 'See, ',
+    
+    // Evaluative starters
+    'This seems ', 'This looks ', 'This appears ', 'This feels ', 'This sounds ',
+    'That seems ', 'That looks ', 'That appears ', 'That feels ', 'That sounds ',
+    'It seems ', 'It looks ', 'It appears ', 'It feels ', 'It sounds ',
+    
+    // Questioning/curious
+    'So ', 'Now ', 'But ', 'And ', 'Yet ', 'Still, ', 'Though, ', 'Although, ',
+    'While ', 'Whereas ', 'However, ', 'Nevertheless, ', 'Nonetheless, ', 'Meanwhile, ',
+    
+    // Direct address
+    'You know, ', 'I mean, ', 'I think ', 'I feel ', 'I believe ', 'I suppose ',
+    'I guess ', 'I imagine ', 'I wonder ', 'I notice ', 'I see ', 'I find ',
+    
+    // Contextual/situational
+    'At first glance, ', 'On one hand, ', 'To be fair, ', 'In my view, ',
+    'From my perspective, ', 'In my experience, ', 'As someone who ', 'Having seen ',
+    'After seeing ', 'Upon viewing ', 'When I see ', 'Whenever I see ',
+    
+    // Emotional/attitudinal
+    'Interesting, ', 'Fascinating, ', 'Curious, ', 'Strange, ', 'Odd, ', 'Weird, ',
+    'Cool, ', 'Nice, ', 'Great, ', 'Good, ', 'Fine, ', 'Alright, ', 'Decent, ',
+    
+    // Comparative/relative
+    'Compared to ', 'Unlike ', 'Similar to ', 'Like ', 'As with ', 'Just like ',
+    'Much like ', 'Rather than ', 'Instead of ', 'Versus ', 'Against ',
+    
+    // Temporal
+    'Initially, ', 'First off, ', 'To start, ', 'Right away, ', 'Immediately, ',
+    'Currently, ', 'Now, ', 'Today, ', 'These days, ', 'Lately, ', 'Recently, ',
+    
+    // Conditional/hypothetical
+    'If ', 'Unless ', 'Assuming ', 'Supposing ', 'Provided ', 'Given that ',
+    'Considering ', 'Taking into account ', 'Bearing in mind ', 'Keeping in mind ',
+    
+    // Emphasis/intensity
+    'Definitely ', 'Certainly ', 'Absolutely ', 'Totally ', 'Completely ', 'Entirely ',
+    'Quite ', 'Rather ', 'Pretty ', 'Fairly ', 'Somewhat ', 'Slightly ', 'Barely ',
+    
+    // Narrative/sequential
+    'First, ', 'Second, ', 'Next, ', 'Then, ', 'Finally, ', 'Lastly, ',
+    'Additionally, ', 'Furthermore, ', 'Moreover, ', 'Also, ', 'Plus, ',
+    
+    // Casual/conversational
+    'Man, ', 'Dude, ', 'Folks, ', 'Hey, ', 'Yo, ', 'Gosh, ', 'Wow, ', 'Whoa, ',
+    'Yikes, ', 'Sheesh, ', 'Geez, ', 'Boy, ', 'Girl, ',
+    
+    // Professional/formal
+    'Indeed, ', 'Certainly, ', 'Undoubtedly, ', 'Evidently, ', 'Clearly, ',
+    'Obviously, ', 'Apparently, ', 'Presumably, ', 'Arguably, ', 'Potentially, ',
+    
+    // Skeptical/questioning
+    'Supposedly ', 'Allegedly ', 'Seemingly ', 'Purportedly ', 'Ostensibly ',
+    'Questionably ', 'Dubiously ', 'Debatably ', 'Perhaps ', 'Maybe ',
+    
+    // Agreement/disagreement
+    'Agreed, ', 'Disagree, ', 'True, ', 'False, ', 'Correct, ', 'Wrong, ',
+    'Right, ', 'Exactly, ', 'Precisely, ', 'Indeed, ', 'Absolutely, ',
+    
+    // Minimal starters (1-2 chars)
+    '', '', '', '', '', // Some empty for no prefill occasionally
+  ];
+  
+  // Randomly select a prefill starter
+  const randomIndex = Math.floor(Math.random() * prefillStarters.length);
+  const selectedPrefill = prefillStarters[randomIndex];
+  const prefill = selectedPrefill.trimEnd(); // Remove trailing spaces
+  
+  // Randomize temperature for this response
+  const baseTemp = options.temperature || 0.7;
+  const tempRange = options.temperatureRange || 0.3;
+  const temperature = Math.max(0, Math.min(1, baseTemp + (Math.random() - 0.5) * tempRange));
+  
+  console.log(`[${modelType}] Response ${responseIndex + 1} for ${segment}: Temp=${temperature.toFixed(2)}, Prefill="${prefill}"`);
+
   // Implement retry logic
   let lastError = null;
   for (let attempt = 0; attempt <= RETRY_CONFIG.maxRetries; attempt++) {
@@ -63,16 +153,26 @@ Include subtle hints about your purchase intent without explicitly stating numbe
         await new Promise(resolve => setTimeout(resolve, delay));
       }
       
+      const messages = [
+        {
+          role: 'user',
+          content: userPrompt
+        }
+      ];
+      
+      // Add assistant prefill if we have one
+      if (prefill) {
+        messages.push({
+          role: 'assistant',
+          content: prefill
+        });
+      }
+      
       const response = await anthropic.messages.create({
         model: model,
         max_tokens: 150,
-        temperature: 0.7 + (responseIndex * 0.05), // Vary temperature for diversity
-        messages: [
-          {
-            role: 'user',
-            content: userPrompt
-          }
-        ],
+        temperature: temperature,
+        messages: messages,
         system: systemPrompt
       });
       
@@ -90,7 +190,9 @@ Include subtle hints about your purchase intent without explicitly stating numbe
         responseTime: responseTime,
         model: modelType,
         index: responseIndex + 1,
-        attempts: attempt + 1
+        attempts: attempt + 1,
+        temperature: temperature.toFixed(2),
+        prefill: prefill || '(none)'
       };
       
     } catch (error) {
@@ -104,19 +206,21 @@ Include subtle hints about your purchase intent without explicitly stating numbe
     }
   }
   
-  // All retries failed
+  // All retries failed - NO FALLBACK
   console.error(`All retries failed for ${modelType} response for ${segment}:`, lastError);
   
   return {
     segment: segment,
-    text: 'NA - Response generation failed after retries',
+    text: 'NA',
     sentiment: 'NA',
     purchaseIntent: 0,
     responseTime: Date.now() - startTime,
     model: modelType,
     index: responseIndex + 1,
     error: true,
-    errorMessage: lastError?.message || 'Unknown error'
+    errorMessage: lastError?.message || 'Unknown error',
+    temperature: temperature.toFixed(2),
+    prefill: prefill || '(none)'
   };
 }
 
@@ -254,7 +358,7 @@ function analyzeResponse(text, segment) {
 /**
  * Generate multiple responses for a segment and model with concurrency control
  */
-async function generateMultipleResponses(content, segment, count, modelType) {
+async function generateMultipleResponses(content, segment, count, modelType, options = {}) {
   const responses = [];
   const promises = [];
   
@@ -269,8 +373,8 @@ async function generateMultipleResponses(content, segment, count, modelType) {
         await new Promise(resolve => setTimeout(resolve, staggerDelay));
       }
       
-      // Generate the response
-      return await generateClaudeResponse(content, segment, modelType, i);
+      // Generate the response with options
+      return await generateClaudeResponse(content, segment, modelType, i, options);
     })();
     
     promises.push(promise);
@@ -405,7 +509,9 @@ export default async function handler(req, res) {
     contentType = 'text', 
     segments = ['Leader', 'Leaning', 'Learner', 'Laggard'],
     responseCount = 10,
-    analyzeOnly = false 
+    analyzeOnly = false,
+    temperature = 0.7,
+    temperatureRange = 0.3 
   } = req.body;
   
   if (!content) {
@@ -448,6 +554,12 @@ export default async function handler(req, res) {
     const sonnetResponses = [];
     const opusResponses = [];
     
+    // Options for temperature randomization
+    const options = {
+      temperature: temperature,
+      temperatureRange: temperatureRange
+    };
+    
     for (const segment of segments) {
       console.log(`Processing segment: ${segment}`);
       
@@ -457,7 +569,8 @@ export default async function handler(req, res) {
         marketingContent, 
         segment, 
         responseCount, 
-        'sonnet'
+        'sonnet',
+        options
       );
       const sonnetSuccess = sonnetSegmentResponses.filter(r => !r.error).length;
       console.log(`Sonnet ${segment}: ${sonnetSuccess}/${responseCount} successful`);
@@ -469,7 +582,8 @@ export default async function handler(req, res) {
         marketingContent, 
         segment, 
         responseCount, 
-        'opus'
+        'opus',
+        options
       );
       const opusSuccess = opusSegmentResponses.filter(r => !r.error).length;
       console.log(`Opus ${segment}: ${opusSuccess}/${responseCount} successful`);

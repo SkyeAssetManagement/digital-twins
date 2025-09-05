@@ -467,6 +467,7 @@
                 config: config,
                 responses: segmentData.responses || [segmentData.response] || [],
                 responseTemperatures: segmentData.responseTemperatures || [], // Temperatures for each response
+                responsePrefills: segmentData.responsePrefills || [], // Prefills used for each response
                 sentiment: segmentData.sentiment,
                 purchaseIntent: segmentData.purchaseIntent,
                 marketSize: segmentData.marketSize,
@@ -512,11 +513,17 @@
                                     const temp = result.responseTemperatures && result.responseTemperatures[idx] 
                                         ? result.responseTemperatures[idx].toFixed(3) 
                                         : result.config.temperature.toFixed(3);
+                                    const prefill = result.responsePrefills && result.responsePrefills[idx]
+                                        ? result.responsePrefills[idx]
+                                        : '';
                                     return `
                                     <div class="p-3 bg-gray-50 rounded text-sm text-gray-700 border-l-4 border-indigo-400">
-                                        <div class="flex justify-between items-start mb-1">
+                                        <div class="flex justify-between items-start mb-2">
                                             <span class="font-medium text-xs text-gray-500">Response ${idx + 1}</span>
-                                            <span class="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded">Temp: ${temp}</span>
+                                            <div class="flex gap-2">
+                                                <span class="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded">Temp: ${temp}</span>
+                                                ${prefill ? `<span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded" title="${prefill.replace(/"/g, '&quot;')}">Prefill: "${prefill.length > 15 ? prefill.substring(0, 15) + '...' : prefill}"</span>` : '<span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">No prefill</span>'}
+                                            </div>
                                         </div>
                                         <p class="mt-1">${resp}</p>
                                     </div>
