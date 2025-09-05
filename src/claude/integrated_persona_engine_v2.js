@@ -46,17 +46,10 @@ export class IntegratedPersonaEngineV2 {
     const seedOffset = options.seedOffset || 0;
     const temperature = options.temperature || 0.7;
     
-    // Alternate between Opus 4.1 and Sonnet 4.0 for variety
-    const models = [
-      'claude-opus-4-1-20250805',      // Opus 4.1
-      'claude-sonnet-4-20250514'        // Sonnet 4.0 (latest)
-    ];
+    // Use only Opus 4.1 for now
+    const selectedModel = 'claude-opus-4-1-20250805';
     
-    // Use seedOffset to select model for variety
-    const modelIndex = (seedOffset + (options.modelVariation || 0)) % models.length;
-    const selectedModel = models[modelIndex];
-    
-    console.log(`[Claude] Using ${selectedModel.includes('opus') ? 'Opus 4.1' : 'Sonnet 4.0'} for ${segment}`);
+    console.log(`[Claude] Using Opus 4.1 for ${segment}`);
     
     const systemPrompt = await this.enhancedPersona.createDataDrivenPersona(segment, numRespondents, seedOffset);
     
@@ -66,14 +59,94 @@ export class IntegratedPersonaEngineV2 {
     // Step 3: Build user prompt with proper structure
     const userPrompt = this.buildStructuredPrompt(marketingContent, respondents, segment);
     
-    // Step 4: Use minimal prefill - just a light touch to set tone
-    const prefillOptions = {
-      'Leader': 'Looking at this, ',
-      'Leaning': 'This seems ',
-      'Learner': 'Hmm, ',
-      'Laggard': 'So '
-    };
-    const prefill = prefillOptions[segment] || '';
+    // Step 4: Use randomized prefill from large pool - not category specific
+    const prefillStarters = [
+      // Observational starters
+      'Looking at this, ', 'Seeing this, ', 'Noticing that ', 'Observing the ', 
+      'Considering this, ', 'Examining the ', 'Reviewing this, ', 'Checking out ',
+      'Glancing at ', 'Studying this, ', 'Analyzing the ', 'Inspecting this, ',
+      
+      // Thoughtful/reflective
+      'Hmm, ', 'Well, ', 'Actually, ', 'Honestly, ', 'Frankly, ', 'Personally, ',
+      'Realistically, ', 'Truthfully, ', 'Genuinely, ', 'Seriously, ', 'Really, ',
+      'Basically, ', 'Essentially, ', 'Fundamentally, ', 'Ultimately, ', 'Generally, ',
+      
+      // Initial reactions
+      'Oh, ', 'Ah, ', 'Okay, ', 'Right, ', 'Sure, ', 'Yeah, ', 'Yes, ', 'No, ',
+      'Wait, ', 'Hold on, ', 'Hang on, ', 'Listen, ', 'Look, ', 'See, ',
+      
+      // Evaluative starters
+      'This seems ', 'This looks ', 'This appears ', 'This feels ', 'This sounds ',
+      'That seems ', 'That looks ', 'That appears ', 'That feels ', 'That sounds ',
+      'It seems ', 'It looks ', 'It appears ', 'It feels ', 'It sounds ',
+      
+      // Questioning/curious
+      'So ', 'Now ', 'But ', 'And ', 'Yet ', 'Still, ', 'Though, ', 'Although, ',
+      'While ', 'Whereas ', 'However, ', 'Nevertheless, ', 'Nonetheless, ', 'Meanwhile, ',
+      
+      // Direct address
+      'You know, ', 'I mean, ', 'I think ', 'I feel ', 'I believe ', 'I suppose ',
+      'I guess ', 'I imagine ', 'I wonder ', 'I notice ', 'I see ', 'I find ',
+      
+      // Contextual/situational
+      'At first glance, ', 'On one hand, ', 'To be fair, ', 'In my view, ',
+      'From my perspective, ', 'In my experience, ', 'As someone who ', 'Having seen ',
+      'After seeing ', 'Upon viewing ', 'When I see ', 'Whenever I see ',
+      
+      // Emotional/attitudinal
+      'Interesting, ', 'Fascinating, ', 'Curious, ', 'Strange, ', 'Odd, ', 'Weird, ',
+      'Cool, ', 'Nice, ', 'Great, ', 'Good, ', 'Fine, ', 'Alright, ', 'Decent, ',
+      
+      // Comparative/relative
+      'Compared to ', 'Unlike ', 'Similar to ', 'Like ', 'As with ', 'Just like ',
+      'Much like ', 'Rather than ', 'Instead of ', 'Versus ', 'Against ',
+      
+      // Temporal
+      'Initially, ', 'First off, ', 'To start, ', 'Right away, ', 'Immediately, ',
+      'Currently, ', 'Now, ', 'Today, ', 'These days, ', 'Lately, ', 'Recently, ',
+      
+      // Conditional/hypothetical
+      'If ', 'Unless ', 'Assuming ', 'Supposing ', 'Provided ', 'Given that ',
+      'Considering ', 'Taking into account ', 'Bearing in mind ', 'Keeping in mind ',
+      
+      // Emphasis/intensity
+      'Definitely ', 'Certainly ', 'Absolutely ', 'Totally ', 'Completely ', 'Entirely ',
+      'Quite ', 'Rather ', 'Pretty ', 'Fairly ', 'Somewhat ', 'Slightly ', 'Barely ',
+      
+      // Narrative/sequential
+      'First, ', 'Second, ', 'Next, ', 'Then, ', 'Finally, ', 'Lastly, ',
+      'Additionally, ', 'Furthermore, ', 'Moreover, ', 'Also, ', 'Plus, ',
+      
+      // Casual/conversational
+      'Man, ', 'Dude, ', 'Folks, ', 'Hey, ', 'Yo, ', 'Gosh, ', 'Wow, ', 'Whoa, ',
+      'Yikes, ', 'Sheesh, ', 'Geez, ', 'Boy, ', 'Girl, ',
+      
+      // Professional/formal
+      'Indeed, ', 'Certainly, ', 'Undoubtedly, ', 'Evidently, ', 'Clearly, ',
+      'Obviously, ', 'Apparently, ', 'Presumably, ', 'Arguably, ', 'Potentially, ',
+      
+      // Skeptical/questioning
+      'Supposedly ', 'Allegedly ', 'Seemingly ', 'Purportedly ', 'Ostensibly ',
+      'Questionably ', 'Dubiously ', 'Debatably ', 'Perhaps ', 'Maybe ',
+      
+      // Agreement/disagreement
+      'Agreed, ', 'Disagree, ', 'True, ', 'False, ', 'Correct, ', 'Wrong, ',
+      'Right, ', 'Exactly, ', 'Precisely, ', 'Indeed, ', 'Absolutely, ',
+      
+      // Minimal starters (1-2 chars)
+      '', '', '', '', '', // Some empty for no prefill occasionally
+    ];
+    
+    // Randomly select a prefill starter
+    const randomIndex = Math.floor(Math.random() * prefillStarters.length);
+    const prefill = prefillStarters[randomIndex];
+    
+    // Log which prefill was selected for debugging
+    if (prefill) {
+      console.log(`[Prefill] Using: "${prefill}" for ${segment}`);
+    } else {
+      console.log(`[Prefill] No prefill for ${segment}`);
+    }
     
     try {
       // Step 5: Generate response with Claude
