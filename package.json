@@ -11,7 +11,14 @@
     "build-twins": "node src/digital_twins/build-twins.js",
     "start": "npm run dev",
     "deploy": "vercel",
-    "deploy-prod": "vercel --prod"
+    "deploy-prod": "vercel --prod",
+    "test": "node test/run-all-tests.js",
+    "test:unit": "node test/unit/test-logger.js && node test/unit/test-error-handler.js",
+    "test:integration": "node test/integration/test-api-integration.js",
+    "test:pipeline": "node test/test-pipeline-basic.js",
+    "test:coverage": "node test/run-all-tests.js --coverage",
+    "lint": "echo 'Linting not configured yet'",
+    "format": "echo 'Formatting not configured yet'"
   },
   "keywords": [
     "digital-twin",
