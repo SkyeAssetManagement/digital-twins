@@ -126,35 +126,13 @@ const handler = async (req, res) => {
       } catch (error) {
       logger.error('Error generating response for segment', error, { segment });
         
-        // Enhanced fallback responses based on actual survey data
-        let fallbackResponse = `As a ${segment.toLowerCase()} consumer, I would need more information to evaluate this product.`;
-        let purchaseIntent = 5;
-        let sentiment = 'neutral';
-        
-        if (segment === 'Leader') {
-          fallbackResponse = `As a sustainability-focused consumer (12.4% of market), I prioritize environmental impact and ethical sourcing. I'm willing to pay 25% more for genuinely sustainable products. This product needs to demonstrate clear environmental benefits and transparency in its supply chain.`;
-          purchaseIntent = 7;
-          sentiment = 'positive';
-        } else if (segment === 'Leaning') {
-          fallbackResponse = `As someone who values sustainability but balances it with practicality (22.6% of market), I'm interested in sustainable options that offer good value. I'd pay 10-15% more for products that align with my values while maintaining quality.`;
-          purchaseIntent = 6;
-          sentiment = 'neutral';
-        } else if (segment === 'Learner') {
-          fallbackResponse = `As a price-conscious consumer open to learning about sustainability (37.5% of market), I need to understand how this product compares to standard options. Price is still my primary factor, but I'm interested in sustainable benefits if they don't significantly increase cost.`;
-          purchaseIntent = 4;
-          sentiment = 'neutral';
-        } else if (segment === 'Laggard') {
-          fallbackResponse = `As someone primarily focused on price and functionality (27.5% of market), I evaluate products based on immediate practical benefits and cost. Sustainability claims don't significantly influence my purchasing decisions.`;
-          purchaseIntent = 3;
-          sentiment = 'neutral';
-        }
-        
+        // NO FALLBACK RESPONSES - Return NA as per requirements
         responses.push({
           segment: segment,
           persona: { name: `${segment} Consumer` },
-          response: fallbackResponse,
-          sentiment: sentiment,
-          purchaseIntent: purchaseIntent,
+          response: 'NA',
+          sentiment: 'NA',
+          purchaseIntent: 0,
           keyFactors: [],
           valueSystem: {}
         });

@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Persona Parameter Testing - Digital Twin System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .column-container {
+            transition: all 0.3s ease;
+        }
+        .parameter-group {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+        }
+        .control-panel {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .active-column {
+            border: 2px solid #4f46e5;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <div class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <h1 class="text-2xl font-bold text-gray-900">Persona Parameter Testing</h1>
+                <div class="flex items-center space-x-4">
+                    <label class="text-sm font-medium text-gray-700">Layout:</label>
+                    <select id="layoutSelector" class="border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                        <option value="1">1 Column</option>
+                        <option value="2" selected>2 Columns</option>
+                        <option value="3">3 Columns</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <!-- Ad Content Input -->
+        <div class="bg-white rounded-lg shadow mb-6 p-6">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Marketing Content to Test:</label>
+            <textarea id="adContent" 
+                      class="w-full p-3 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500" 
+                      rows="3"
+                      placeholder="Enter your marketing message here...">Discover our new eco-friendly surf gear collection. Made from 100% recycled ocean plastics, our boards and wetsuits combine performance with sustainability.</textarea>
+        </div>
+
+        <!-- Testing Columns Container -->
+        <div id="columnsContainer" class="grid grid-cols-2 gap-6">
+            <!-- Columns will be dynamically generated here -->
+        </div>
+
+        <!-- Generate Button -->
+        <div class="mt-6 flex justify-center">
+            <button onclick="generateAllResponses()" 
+                    class="px-8 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all">
+                Generate Responses
+            </button>
+        </div>
+
+        <!-- Results Container -->
+        <div id="resultsContainer" class="mt-8 grid gap-6">
+            <!-- Results will be displayed here -->
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const LOHAS_SEGMENTS = ['Leader', 'Leaning', 'Learner', 'Laggard'];
+        let currentLayout = 2;
+        let columnConfigs = [];
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            setupLayout(2);
+            document.getElementById('layoutSelector').addEventListener('change', (e) => {
+                setupLayout(parseInt(e.target.value));
+            });
+        });
+
+        function setupLayout(columns) {
+            currentLayout = columns;
+            columnConfigs = [];
+            const container = document.getElementById('columnsContainer');
+            container.className = `grid gap-6 ${columns === 1 ? 'grid-cols-1' : columns === 2 ? 'grid-cols-2' : 'grid-cols-3'}`;
+            container.innerHTML = '';
+
+            for (let i = 0; i < columns; i++) {
+                columnConfigs.push({
+                    id: i,
+                    usePrefill: true,
+                    randomizeTemp: false,
+                    tempMin: 0.7,
+                    tempMax: 1.0,
+                    temperature: 0.7,
+                    model: 'claude-opus-4-1-20250805',
+                    segment: 'Leader',
+                    topP: 0.9,
+                    maxTokens: 150,
+                    systemPromptStyle: 'detailed'
+                });
+                container.appendChild(createColumnPanel(i));
+            }
+        }
+
+        function createColumnPanel(columnId) {
+            const panel = document.createElement('div');
+            panel.className = 'bg-white rounded-lg shadow-lg p-6 control-panel';
+            panel.innerHTML = `
+                <h3 class="text-lg font-semibold mb-4 text-gray-800">Scenario ${columnId + 1}</h3>
+                
+                <!-- Model Selection -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Model:</label>
+                    <select id="model-${columnId}" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                        <option value="claude-opus-4-1-20250805">Claude Opus 4.1</option>
+                        <option value="claude-sonnet-4-20250514">Claude Sonnet 4.0</option>
+                    </select>
+                </div>
+
+                <!-- Segment Selection -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">LOHAS Segment:</label>
+                    <select id="segment-${columnId}" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                        ${LOHAS_SEGMENTS.map(seg => `<option value="${seg}">${seg}</option>`).join('')}
+                    </select>
+                </div>
+
+                <!-- Prefill Control -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Use Prefill:</label>
+                    <div class="flex space-x-4">
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="prefill-${columnId}" value="true" checked 
+                                   class="form-radio text-indigo-600" onchange="updateConfig(${columnId}, 'usePrefill', true)">
+                            <span class="ml-2">Yes</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="prefill-${columnId}" value="false" 
+                                   class="form-radio text-indigo-600" onchange="updateConfig(${columnId}, 'usePrefill', false)">
+                            <span class="ml-2">No</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Temperature Controls -->
+                <div class="mb-4 border-t pt-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Temperature Settings:</label>
+                    
+                    <!-- Randomize Temperature -->
+                    <div class="mb-3">
+                        <div class="flex space-x-4">
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="randomTemp-${columnId}" value="false" checked 
+                                       class="form-radio text-indigo-600" onchange="toggleRandomTemp(${columnId}, false)">
+                                <span class="ml-2">Fixed</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="randomTemp-${columnId}" value="true" 
+                                       class="form-radio text-indigo-600" onchange="toggleRandomTemp(${columnId}, true)">
+                                <span class="ml-2">Randomized</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Temperature Range -->
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="text-xs text-gray-600">Min/Fixed:</label>
+                            <input type="number" id="tempMin-${columnId}" value="0.7" min="0" max="2" step="0.1"
+                                   class="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                                   onchange="updateConfig(${columnId}, 'tempMin', parseFloat(this.value))">
+                        </div>
+                        <div id="tempMaxContainer-${columnId}">
+                            <label class="text-xs text-gray-600">Max:</label>
+                            <input type="number" id="tempMax-${columnId}" value="1.0" min="0" max="2" step="0.1"
+                                   class="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                                   onchange="updateConfig(${columnId}, 'tempMax', parseFloat(this.value))" disabled>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">When fixed, uses the Min value</p>
+                </div>
+
+                <!-- Advanced Parameters -->
+                <div class="mb-4 border-t pt-4">
+                    <details class="cursor-pointer">
+                        <summary class="text-sm font-medium text-gray-700 mb-2">Advanced Parameters</summary>
+                        <div class="mt-3 space-y-3">
+                            <!-- Top P -->
+                            <div>
+                                <label class="text-xs text-gray-600">Top P (0-1):</label>
+                                <input type="number" id="topP-${columnId}" value="0.9" min="0" max="1" step="0.1"
+                                       class="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                                       onchange="updateConfig(${columnId}, 'topP', parseFloat(this.value))">
+                            </div>
+                            
+                            <!-- Max Tokens -->
+                            <div>
+                                <label class="text-xs text-gray-600">Max Tokens:</label>
+                                <input type="number" id="maxTokens-${columnId}" value="150" min="50" max="500" step="10"
+                                       class="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                                       onchange="updateConfig(${columnId}, 'maxTokens', parseInt(this.value))">
+                            </div>
+                            
+                            <!-- System Prompt Style -->
+                            <div>
+                                <label class="text-xs text-gray-600">Prompt Style:</label>
+                                <select id="promptStyle-${columnId}" 
+                                        class="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                                        onchange="updateConfig(${columnId}, 'systemPromptStyle', this.value)">
+                                    <option value="detailed">Detailed Persona</option>
+                                    <option value="minimal">Minimal Persona</option>
+                                    <option value="values">Values-Focused</option>
+                                    <option value="demographic">Demographic-Focused</option>
+                                </select>
+                            </div>
+                        </div>
+                    </details>
+                </div>
+
+                <!-- Response Count -->
+                <div class="mb-4">
+                    <label class="text-xs text-gray-600">Responses to Generate:</label>
+                    <input type="number" id="responseCount-${columnId}" value="3" min="1" max="10"
+                           class="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                           onchange="updateConfig(${columnId}, 'responseCount', parseInt(this.value))">
+                </div>
+            `;
+            
+            // Add event listeners for model and segment changes
+            setTimeout(() => {
+                document.getElementById(`model-${columnId}`).addEventListener('change', (e) => {
+                    updateConfig(columnId, 'model', e.target.value);
+                });
+                document.getElementById(`segment-${columnId}`).addEventListener('change', (e) => {
+                    updateConfig(columnId, 'segment', e.target.value);
+                });
+            }, 0);
+            
+            return panel;
+        }
+
+        function updateConfig(columnId, key, value) {
+            columnConfigs[columnId][key] = value;
+            console.log(`Updated column ${columnId} - ${key}:`, value);
+        }
+
+        function toggleRandomTemp(columnId, randomize) {
+            columnConfigs[columnId].randomizeTemp = randomize;
+            const maxInput = document.getElementById(`tempMax-${columnId}`);
+            maxInput.disabled = !randomize;
+            
+            if (!randomize) {
+                // When switching to fixed, use the min value as temperature
+                columnConfigs[columnId].temperature = columnConfigs[columnId].tempMin;
+            }
+        }
+
+        async function generateAllResponses() {
+            const adContent = document.getElementById('adContent').value;
+            if (!adContent) {
+                alert('Please enter marketing content to test');
+                return;
+            }
+
+            const resultsContainer = document.getElementById('resultsContainer');
+            resultsContainer.innerHTML = '<div class="text-center py-8"><div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div><p class="mt-4 text-gray-600">Generating responses...</p></div>';
+            resultsContainer.className = `mt-8 grid gap-6 ${currentLayout === 1 ? 'grid-cols-1' : currentLayout === 2 ? 'grid-cols-2' : 'grid-cols-3'}`;
+
+            const results = [];
+            
+            for (let i = 0; i < currentLayout; i++) {
+                const config = columnConfigs[i];
+                
+                // Calculate actual temperature
+                let temperature = config.tempMin;
+                if (config.randomizeTemp) {
+                    temperature = config.tempMin + Math.random() * (config.tempMax - config.tempMin);
+                }
+                
+                try {
+                    const response = await generateResponse(adContent, {
+                        ...config,
+                        temperature: temperature,
+                        columnId: i
+                    });
+                    results.push(response);
+                } catch (error) {
+                    console.error(`Error generating response for column ${i}:`, error);
+                    results.push({
+                        columnId: i,
+                        error: error.message,
+                        config: config
+                    });
+                }
+            }
+
+            displayResults(results);
+        }
+
+        async function generateResponse(adContent, config) {
+            const payload = {
+                adContent: adContent,
+                segment: config.segment,
+                model: config.model,
+                temperature: config.temperature,
+                topP: config.topP,
+                maxTokens: config.maxTokens,
+                usePrefill: config.usePrefill,
+                systemPromptStyle: config.systemPromptStyle,
+                responseCount: config.responseCount || 3,
+                datasetId: 'surf-clothing'
+            };
+
+            console.log(`Generating response for column ${config.columnId}:`, payload);
+
+            const response = await fetch('/api/generate-claude-response', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to generate response');
+            }
+
+            // Handle the response from the API
+            const segmentData = data.segments && data.segments[0] || {};
+            
+            return {
+                columnId: config.columnId,
+                config: config,
+                responses: segmentData.responses || [segmentData.response] || [],
+                sentiment: segmentData.sentiment,
+                purchaseIntent: segmentData.purchaseIntent,
+                marketSize: segmentData.marketSize,
+                metadata: data.metadata
+            };
+        }
+
+        function displayResults(results) {
+            const container = document.getElementById('resultsContainer');
+            container.innerHTML = '';
+
+            results.forEach(result => {
+                const resultDiv = document.createElement('div');
+                resultDiv.className = 'bg-white rounded-lg shadow-lg p-6';
+                
+                if (result.error) {
+                    resultDiv.innerHTML = `
+                        <h4 class="font-semibold text-red-600 mb-2">Scenario ${result.columnId + 1} - Error</h4>
+                        <p class="text-gray-600">${result.error}</p>
+                    `;
+                } else {
+                    const actualTemp = result.config.randomizeTemp 
+                        ? `${result.config.temperature.toFixed(2)} (randomized)`
+                        : result.config.temperature.toFixed(2);
+                    
+                    resultDiv.innerHTML = `
+                        <h4 class="font-semibold text-gray-800 mb-3">Scenario ${result.columnId + 1}</h4>
+                        <div class="mb-4 p-3 bg-gray-50 rounded text-sm">
+                            <div class="grid grid-cols-2 gap-2 text-gray-600">
+                                <div><span class="font-medium">Model:</span> ${result.config.model.includes('opus') ? 'Opus 4.1' : 'Sonnet 4.0'}</div>
+                                <div><span class="font-medium">Segment:</span> ${result.config.segment}</div>
+                                <div><span class="font-medium">Temperature:</span> ${actualTemp}</div>
+                                <div><span class="font-medium">Prefill:</span> ${result.config.usePrefill ? 'Yes' : 'No'}</div>
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            ${result.responses.map((resp, idx) => `
+                                <div class="p-3 bg-indigo-50 rounded-lg">
+                                    <p class="text-sm font-medium text-indigo-700 mb-1">Response ${idx + 1}:</p>
+                                    <p class="text-gray-700">${typeof resp === 'string' ? resp : resp.text || resp.response}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+                
+                container.appendChild(resultDiv);
+            });
+        }
+    </script>
+</body>
+</html>

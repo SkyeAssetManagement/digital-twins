@@ -135,7 +135,7 @@ export default async function handler(req, res) {
           
           segmentResponse = {
             segment: targetSegment,
-            response: result.responses[0]?.response || 'Unable to generate response',
+            response: result.responses[0]?.response || 'NA',
             sentiment: analyzeSentiment(result.responses[0]?.response),
             purchaseIntent: calculatePurchaseIntent(targetSegment, result.responses[0]?.response),
             consistency: result.validation?.consistencyScore || 0,
@@ -163,13 +163,13 @@ export default async function handler(req, res) {
           const generatedResponses = [];
           for (let i = 0; i < responseCount; i++) {
             // Vary temperature slightly for each response if randomizing
-            const responseTemp = temperature + (Math.random() - 0.5) * 0.1;
+            const responseTemp = Math.min(1, Math.max(0, temperature + (Math.random() - 0.5) * 0.1));
             
             const response = await generateClaudeResponse({
               systemPrompt,
               userMessage: content,
               model,
-              temperature: Math.min(2, Math.max(0, responseTemp)),
+              temperature: responseTemp,
               topP,
               maxTokens,
               usePrefill
@@ -202,7 +202,8 @@ export default async function handler(req, res) {
 
         // Add image analysis if provided
         if (imageData) {
-          segmentResponse.imageAnalysis = `As a ${targetSegment} consumer, I would evaluate the visual appeal based on my values.`;
+          // TODO: Implement real image analysis with Claude vision
+          segmentResponse.imageAnalysis = 'NA'; // No fallback responses
         }
 
         responses.push(segmentResponse);
@@ -281,20 +282,30 @@ async function generateClaudeResponse(params) {
       });
     }
     
-    const response = await anthropic.messages.create({
+    // Only use temperature OR top_p, not both
+    const apiParams = {
       model: model,
       max_tokens: maxTokens,
-      temperature: temperature,
-      top_p: topP,
       system: systemPrompt,
       messages: messages
-    });
+    };
+    
+    // Use temperature if defined, otherwise use top_p
+    if (temperature !== undefined && temperature !== null) {
+      apiParams.temperature = temperature;
+    } else if (topP !== undefined && topP !== null) {
+      apiParams.top_p = topP;
+    } else {
+      apiParams.temperature = 0.7; // Default
+    }
+    
+    const response = await anthropic.messages.create(apiParams);
     
     const responseText = usePrefill 
       ? 'As a' + response.content[0]?.text 
       : response.content[0]?.text;
       
-    return responseText || 'Unable to generate response';
+    return responseText || 'NA';
   } catch (error) {
     console.error('Claude generation error:', error);
     throw error;
@@ -409,15 +420,6 @@ function getMarketSize(segment) {
  * Generate fallback response for segment
  */
 function getFallbackResponse(segment, content) {
-  const fallbacks = {
-    'Leader': `As a sustainability-focused consumer (12.4% of market), I'm very interested in products that demonstrate genuine environmental commitment. I need to see certifications and transparent sustainability practices. I'm willing to pay 20-25% more for truly sustainable options. ${content ? 'Looking at this offering, I would want to know more about its environmental impact and ethical sourcing.' : ''}`,
-    
-    'Leaning': `As a conscientious consumer (22.6% of market), I balance sustainability with practicality. I appreciate eco-friendly products when they offer good overall value. I'm willing to pay 10-15% more for sustainable options if the quality justifies it. ${content ? 'This product would need to demonstrate both environmental benefits and practical value.' : ''}`,
-    
-    'Learner': `As a curious but price-conscious consumer (37.5% of market), I'm open to learning about sustainable products but need clear value propositions. Price is still my primary consideration, though I might pay 0-5% more if convinced of the benefits. ${content ? 'I would need more information about how this product balances cost with benefits.' : ''}`,
-    
-    'Laggard': `As a traditional consumer (27.5% of market), I focus primarily on price and functionality. Environmental claims don't significantly influence my purchasing decisions. I need products that offer practical value at competitive prices. ${content ? 'I would evaluate this based on its price-to-value ratio rather than sustainability claims.' : ''}`
-  };
-  
-  return fallbacks[segment] || 'Unable to generate specific response for this segment.';
+  // Return NA instead of fallback responses per requirements
+  return 'NA';
 }

@@ -20,6 +20,60 @@
         .active-column {
             border: 2px solid #4f46e5;
         }
+        .info-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            background-color: #6b7280;
+            color: white;
+            border-radius: 50%;
+            font-size: 10px;
+            font-weight: bold;
+            cursor: help;
+            margin-left: 4px;
+            position: relative;
+        }
+        .info-icon:hover .tooltip {
+            display: block;
+        }
+        .tooltip {
+            display: none;
+            position: absolute;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #1f2937;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            z-index: 1000;
+            width: 200px;
+            white-space: normal;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid #1f2937;
+        }
+        .image-preview {
+            max-width: 100%;
+            max-height: 200px;
+            object-fit: contain;
+            margin-top: 10px;
+            border-radius: 8px;
+            border: 2px solid #e5e7eb;
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -49,6 +103,25 @@
                       class="w-full p-3 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500" 
                       rows="3"
                       placeholder="Enter your marketing message here...">Discover our new eco-friendly surf gear collection. Made from 100% recycled ocean plastics, our boards and wetsuits combine performance with sustainability.</textarea>
+            
+            <!-- Image Upload Section -->
+            <div class="mt-4 border-t pt-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Optional: Upload Image for Analysis</label>
+                <div class="flex items-center space-x-4">
+                    <input type="file" 
+                           id="imageUpload" 
+                           accept="image/*" 
+                           onchange="handleImageUpload(event)"
+                           class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                    <button onclick="clearImage()" 
+                            id="clearImageBtn" 
+                            style="display:none;"
+                            class="px-4 py-2 text-sm bg-red-50 text-red-700 rounded-md hover:bg-red-100">
+                        Clear Image
+                    </button>
+                </div>
+                <div id="imagePreviewContainer"></div>
+            </div>
         </div>
 
         <!-- Testing Columns Container -->
@@ -75,6 +148,17 @@
         const LOHAS_SEGMENTS = ['Leader', 'Leaning', 'Learner', 'Laggard'];
         let currentLayout = 2;
         let columnConfigs = [];
+        let uploadedImageData = null;
+
+        // Parameter explanations
+        const PARAM_EXPLANATIONS = {
+            prefill: "Prefill technique provides Claude with the beginning of its response to guide output format and style",
+            temperature: "Controls randomness: 0.0 = deterministic, 1.0 = very creative. Higher values produce more varied responses",
+            randomizeTemp: "When enabled, randomly selects a temperature value between min and max for each generation",
+            topP: "Nucleus sampling: Only considers tokens with cumulative probability up to P. Lower values = more focused",
+            maxTokens: "Maximum length of the response in tokens. Approximately 1 token = 0.75 words",
+            systemPromptStyle: "Different approaches to persona description: detailed, minimal, values-focused, or demographic-focused"
+        };
 
         // Initialize on load
         document.addEventListener('DOMContentLoaded', () => {
@@ -102,11 +186,23 @@
                     model: 'claude-opus-4-1-20250805',
                     segment: 'Leader',
                     topP: 0.9,
-                    maxTokens: 150,
+                    maxTokens: 1000,  // Default to 1000 to prevent streaming
                     systemPromptStyle: 'detailed'
                 });
                 container.appendChild(createColumnPanel(i));
             }
+        }
+
+        function createInfoIcon(paramKey) {
+            if (!PARAM_EXPLANATIONS[paramKey]) return '';
+            return `
+                <span class="info-icon">
+                    ?
+                    <div class="tooltip">
+                        ${PARAM_EXPLANATIONS[paramKey]}
+                    </div>
+                </span>
+            `;
         }
 
         function createColumnPanel(columnId) {
@@ -134,7 +230,10 @@
 
                 <!-- Prefill Control -->
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Use Prefill:</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Use Prefill
+                        ${createInfoIcon('prefill')}
+                    </label>
                     <div class="flex space-x-4">
                         <label class="inline-flex items-center">
                             <input type="radio" name="prefill-${columnId}" value="true" checked 
@@ -149,91 +248,89 @@
                     </div>
                 </div>
 
-                <!-- Temperature Controls -->
-                <div class="mb-4 border-t pt-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Temperature Settings:</label>
-                    
-                    <!-- Randomize Temperature -->
-                    <div class="mb-3">
+                <!-- Temperature Control -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Temperature
+                        ${createInfoIcon('temperature')}
+                    </label>
+                    <div class="space-y-2">
                         <div class="flex space-x-4">
                             <label class="inline-flex items-center">
-                                <input type="radio" name="randomTemp-${columnId}" value="false" checked 
-                                       class="form-radio text-indigo-600" onchange="toggleRandomTemp(${columnId}, false)">
+                                <input type="radio" name="tempMode-${columnId}" value="fixed" checked 
+                                       class="form-radio text-indigo-600" onchange="toggleTempMode(${columnId}, false)">
                                 <span class="ml-2">Fixed</span>
                             </label>
                             <label class="inline-flex items-center">
-                                <input type="radio" name="randomTemp-${columnId}" value="true" 
-                                       class="form-radio text-indigo-600" onchange="toggleRandomTemp(${columnId}, true)">
-                                <span class="ml-2">Randomized</span>
+                                <input type="radio" name="tempMode-${columnId}" value="random" 
+                                       class="form-radio text-indigo-600" onchange="toggleTempMode(${columnId}, true)">
+                                <span class="ml-2">
+                                    Randomize
+                                    ${createInfoIcon('randomizeTemp')}
+                                </span>
                             </label>
                         </div>
-                    </div>
-
-                    <!-- Temperature Range -->
-                    <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="text-xs text-gray-600">Min/Fixed:</label>
-                            <input type="number" id="tempMin-${columnId}" value="0.7" min="0" max="2" step="0.1"
-                                   class="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                        <div class="flex space-x-2 items-center">
+                            <span class="text-xs text-gray-500">Min:</span>
+                            <input type="number" id="tempMin-${columnId}" value="0.7" min="0" max="1" step="0.1"
+                                   class="w-20 border-gray-300 rounded-md shadow-sm text-sm"
                                    onchange="updateConfig(${columnId}, 'tempMin', parseFloat(this.value))">
+                            <span class="text-xs text-gray-500">Max:</span>
+                            <input type="number" id="tempMax-${columnId}" value="1.0" min="0" max="1" step="0.1"
+                                   class="w-20 border-gray-300 rounded-md shadow-sm text-sm"
+                                   onchange="updateConfig(${columnId}, 'tempMax', parseFloat(this.value))">
                         </div>
-                        <div id="tempMaxContainer-${columnId}">
-                            <label class="text-xs text-gray-600">Max:</label>
-                            <input type="number" id="tempMax-${columnId}" value="1.0" min="0" max="2" step="0.1"
-                                   class="w-full px-2 py-1 border border-gray-300 rounded text-sm"
-                                   onchange="updateConfig(${columnId}, 'tempMax', parseFloat(this.value))" disabled>
-                        </div>
+                        <p class="text-xs text-gray-400 italic">When fixed, uses the min value</p>
                     </div>
-                    <p class="text-xs text-gray-500 mt-1">When fixed, uses the Min value</p>
                 </div>
 
                 <!-- Advanced Parameters -->
-                <div class="mb-4 border-t pt-4">
-                    <details class="cursor-pointer">
-                        <summary class="text-sm font-medium text-gray-700 mb-2">Advanced Parameters</summary>
-                        <div class="mt-3 space-y-3">
-                            <!-- Top P -->
-                            <div>
-                                <label class="text-xs text-gray-600">Top P (0-1):</label>
-                                <input type="number" id="topP-${columnId}" value="0.9" min="0" max="1" step="0.1"
-                                       class="w-full px-2 py-1 border border-gray-300 rounded text-sm"
-                                       onchange="updateConfig(${columnId}, 'topP', parseFloat(this.value))">
-                            </div>
-                            
-                            <!-- Max Tokens -->
-                            <div>
-                                <label class="text-xs text-gray-600">Max Tokens:</label>
-                                <input type="number" id="maxTokens-${columnId}" value="150" min="50" max="500" step="10"
-                                       class="w-full px-2 py-1 border border-gray-300 rounded text-sm"
-                                       onchange="updateConfig(${columnId}, 'maxTokens', parseInt(this.value))">
-                            </div>
-                            
-                            <!-- System Prompt Style -->
-                            <div>
-                                <label class="text-xs text-gray-600">Prompt Style:</label>
-                                <select id="promptStyle-${columnId}" 
-                                        class="w-full px-2 py-1 border border-gray-300 rounded text-sm"
-                                        onchange="updateConfig(${columnId}, 'systemPromptStyle', this.value)">
-                                    <option value="detailed">Detailed Persona</option>
-                                    <option value="minimal">Minimal Persona</option>
-                                    <option value="values">Values-Focused</option>
-                                    <option value="demographic">Demographic-Focused</option>
-                                </select>
-                            </div>
+                <details class="mb-4">
+                    <summary class="cursor-pointer text-sm font-medium text-gray-700 mb-2">Advanced Parameters</summary>
+                    <div class="mt-2 space-y-3 pl-4">
+                        <div>
+                            <label class="text-xs font-medium text-gray-600">
+                                Top P (Nucleus Sampling)
+                                ${createInfoIcon('topP')}
+                            </label>
+                            <input type="number" id="topP-${columnId}" value="0.9" min="0" max="1" step="0.05"
+                                   class="w-full border-gray-300 rounded-md shadow-sm text-sm"
+                                   onchange="updateConfig(${columnId}, 'topP', parseFloat(this.value))">
                         </div>
-                    </details>
-                </div>
-
-                <!-- Response Count -->
-                <div class="mb-4">
-                    <label class="text-xs text-gray-600">Responses to Generate:</label>
-                    <input type="number" id="responseCount-${columnId}" value="3" min="1" max="10"
-                           class="w-full px-2 py-1 border border-gray-300 rounded text-sm"
-                           onchange="updateConfig(${columnId}, 'responseCount', parseInt(this.value))">
-                </div>
+                        <div>
+                            <label class="text-xs font-medium text-gray-600">
+                                Max Tokens
+                                ${createInfoIcon('maxTokens')}
+                            </label>
+                            <input type="number" id="maxTokens-${columnId}" value="1000" min="50" max="4000" step="50"
+                                   class="w-full border-gray-300 rounded-md shadow-sm text-sm"
+                                   onchange="updateConfig(${columnId}, 'maxTokens', parseInt(this.value))">
+                        </div>
+                        <div>
+                            <label class="text-xs font-medium text-gray-600">
+                                System Prompt Style
+                                ${createInfoIcon('systemPromptStyle')}
+                            </label>
+                            <select id="promptStyle-${columnId}" 
+                                    class="w-full border-gray-300 rounded-md shadow-sm text-sm"
+                                    onchange="updateConfig(${columnId}, 'systemPromptStyle', this.value)">
+                                <option value="detailed">Detailed</option>
+                                <option value="minimal">Minimal</option>
+                                <option value="values-focused">Values-focused</option>
+                                <option value="demographic-focused">Demographic-focused</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-xs font-medium text-gray-600">Response Count:</label>
+                            <input type="number" id="responseCount-${columnId}" value="3" min="1" max="10"
+                                   class="w-full border-gray-300 rounded-md shadow-sm text-sm"
+                                   onchange="updateConfig(${columnId}, 'responseCount', parseInt(this.value))">
+                        </div>
+                    </div>
+                </details>
             `;
-            
-            // Add event listeners for model and segment changes
+
+            // Set up event listeners for inputs
             setTimeout(() => {
                 document.getElementById(`model-${columnId}`).addEventListener('change', (e) => {
                     updateConfig(columnId, 'model', e.target.value);
@@ -242,61 +339,83 @@
                     updateConfig(columnId, 'segment', e.target.value);
                 });
             }, 0);
-            
+
             return panel;
         }
 
         function updateConfig(columnId, key, value) {
             columnConfigs[columnId][key] = value;
-            console.log(`Updated column ${columnId} - ${key}:`, value);
+            
+            // Update temperature if needed
+            if (key === 'tempMin' && !columnConfigs[columnId].randomizeTemp) {
+                columnConfigs[columnId].temperature = value;
+            }
         }
 
-        function toggleRandomTemp(columnId, randomize) {
+        function toggleTempMode(columnId, randomize) {
             columnConfigs[columnId].randomizeTemp = randomize;
-            const maxInput = document.getElementById(`tempMax-${columnId}`);
-            maxInput.disabled = !randomize;
-            
             if (!randomize) {
-                // When switching to fixed, use the min value as temperature
                 columnConfigs[columnId].temperature = columnConfigs[columnId].tempMin;
             }
         }
 
+        // Image handling functions
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    uploadedImageData = e.target.result;
+                    displayImagePreview(uploadedImageData);
+                    document.getElementById('clearImageBtn').style.display = 'inline-block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function displayImagePreview(imageData) {
+            const container = document.getElementById('imagePreviewContainer');
+            container.innerHTML = `
+                <img src="${imageData}" class="image-preview" alt="Uploaded image for analysis">
+            `;
+        }
+
+        function clearImage() {
+            uploadedImageData = null;
+            document.getElementById('imageUpload').value = '';
+            document.getElementById('imagePreviewContainer').innerHTML = '';
+            document.getElementById('clearImageBtn').style.display = 'none';
+        }
+
         async function generateAllResponses() {
             const adContent = document.getElementById('adContent').value;
-            if (!adContent) {
+            if (!adContent.trim()) {
                 alert('Please enter marketing content to test');
                 return;
             }
 
             const resultsContainer = document.getElementById('resultsContainer');
-            resultsContainer.innerHTML = '<div class="text-center py-8"><div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div><p class="mt-4 text-gray-600">Generating responses...</p></div>';
-            resultsContainer.className = `mt-8 grid gap-6 ${currentLayout === 1 ? 'grid-cols-1' : currentLayout === 2 ? 'grid-cols-2' : 'grid-cols-3'}`;
+            resultsContainer.innerHTML = '<div class="text-center py-8"><div class="text-gray-500">Generating responses...</div></div>';
 
             const results = [];
-            
             for (let i = 0; i < currentLayout; i++) {
                 const config = columnConfigs[i];
                 
-                // Calculate actual temperature
-                let temperature = config.tempMin;
+                // Handle temperature randomization
                 if (config.randomizeTemp) {
-                    temperature = config.tempMin + Math.random() * (config.tempMax - config.tempMin);
+                    config.temperature = config.tempMin + Math.random() * (config.tempMax - config.tempMin);
+                } else {
+                    config.temperature = config.tempMin;
                 }
                 
                 try {
-                    const response = await generateResponse(adContent, {
-                        ...config,
-                        temperature: temperature,
-                        columnId: i
-                    });
-                    results.push(response);
+                    const result = await generateResponse(adContent, config);
+                    results.push(result);
                 } catch (error) {
-                    console.error(`Error generating response for column ${i}:`, error);
                     results.push({
-                        columnId: i,
-                        error: error.message,
-                        config: config
+                        columnId: config.id,
+                        config: config,
+                        error: error.message
                     });
                 }
             }
@@ -318,7 +437,12 @@
                 datasetId: 'surf-clothing'
             };
 
-            console.log(`Generating response for column ${config.columnId}:`, payload);
+            // Add image data if uploaded
+            if (uploadedImageData) {
+                payload.imageData = uploadedImageData;
+            }
+
+            console.log(`Generating response for column ${config.id}:`, payload);
 
             const response = await fetch('/api/generate-claude-response', {
                 method: 'POST',
@@ -336,57 +460,81 @@
             const segmentData = data.segments && data.segments[0] || {};
             
             return {
-                columnId: config.columnId,
+                columnId: config.id,
                 config: config,
                 responses: segmentData.responses || [segmentData.response] || [],
                 sentiment: segmentData.sentiment,
                 purchaseIntent: segmentData.purchaseIntent,
                 marketSize: segmentData.marketSize,
+                imageAnalysis: segmentData.imageAnalysis,
                 metadata: data.metadata
             };
         }
 
         function displayResults(results) {
             const container = document.getElementById('resultsContainer');
-            container.innerHTML = '';
-
-            results.forEach(result => {
-                const resultDiv = document.createElement('div');
-                resultDiv.className = 'bg-white rounded-lg shadow-lg p-6';
-                
+            container.className = `mt-8 grid gap-6 ${currentLayout === 1 ? 'grid-cols-1' : currentLayout === 2 ? 'grid-cols-2' : 'grid-cols-3'}`;
+            
+            container.innerHTML = results.map(result => {
                 if (result.error) {
-                    resultDiv.innerHTML = `
-                        <h4 class="font-semibold text-red-600 mb-2">Scenario ${result.columnId + 1} - Error</h4>
-                        <p class="text-gray-600">${result.error}</p>
-                    `;
-                } else {
-                    const actualTemp = result.config.randomizeTemp 
-                        ? `${result.config.temperature.toFixed(2)} (randomized)`
-                        : result.config.temperature.toFixed(2);
-                    
-                    resultDiv.innerHTML = `
-                        <h4 class="font-semibold text-gray-800 mb-3">Scenario ${result.columnId + 1}</h4>
-                        <div class="mb-4 p-3 bg-gray-50 rounded text-sm">
-                            <div class="grid grid-cols-2 gap-2 text-gray-600">
-                                <div><span class="font-medium">Model:</span> ${result.config.model.includes('opus') ? 'Opus 4.1' : 'Sonnet 4.0'}</div>
-                                <div><span class="font-medium">Segment:</span> ${result.config.segment}</div>
-                                <div><span class="font-medium">Temperature:</span> ${actualTemp}</div>
-                                <div><span class="font-medium">Prefill:</span> ${result.config.usePrefill ? 'Yes' : 'No'}</div>
-                            </div>
-                        </div>
-                        <div class="space-y-3">
-                            ${result.responses.map((resp, idx) => `
-                                <div class="p-3 bg-indigo-50 rounded-lg">
-                                    <p class="text-sm font-medium text-indigo-700 mb-1">Response ${idx + 1}:</p>
-                                    <p class="text-gray-700">${typeof resp === 'string' ? resp : resp.text || resp.response}</p>
-                                </div>
-                            `).join('')}
+                    return `
+                        <div class="bg-red-50 rounded-lg p-6 border border-red-200">
+                            <h4 class="font-semibold text-red-800 mb-2">Scenario ${result.columnId + 1} - Error</h4>
+                            <p class="text-red-600 text-sm">${result.error}</p>
                         </div>
                     `;
                 }
-                
-                container.appendChild(resultDiv);
-            });
+
+                const sentimentColor = result.sentiment === 'positive' ? 'green' : 
+                                      result.sentiment === 'negative' ? 'red' : 'gray';
+                const purchaseIntentPercent = Math.round((result.purchaseIntent || 0) * 100);
+
+                return `
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <div class="mb-4">
+                            <h4 class="font-semibold text-gray-800 mb-2">Scenario ${result.columnId + 1} Results</h4>
+                            <div class="text-sm text-gray-600 space-y-1">
+                                <p><span class="font-medium">Model:</span> ${result.config.model.includes('opus') ? 'Opus 4.1' : 'Sonnet 4.0'}</p>
+                                <p><span class="font-medium">Segment:</span> ${result.config.segment} (${result.marketSize})</p>
+                                <p><span class="font-medium">Temperature:</span> ${result.config.temperature.toFixed(2)}</p>
+                                <p><span class="font-medium">Prefill:</span> ${result.config.usePrefill ? 'Yes' : 'No'}</p>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="font-medium text-gray-700 mb-2">Responses (${result.responses.length}):</h5>
+                            <div class="space-y-2 max-h-64 overflow-y-auto">
+                                ${result.responses.map((resp, idx) => `
+                                    <div class="p-3 bg-gray-50 rounded text-sm text-gray-700 border-l-4 border-indigo-400">
+                                        <span class="font-medium text-xs text-gray-500">Response ${idx + 1}:</span>
+                                        <p class="mt-1">${resp}</p>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        ${result.imageAnalysis ? `
+                            <div class="mb-4">
+                                <h5 class="font-medium text-gray-700 mb-2">Image Analysis:</h5>
+                                <p class="text-sm text-gray-600 p-3 bg-blue-50 rounded">${result.imageAnalysis}</p>
+                            </div>
+                        ` : ''}
+
+                        <div class="flex justify-between items-center pt-4 border-t">
+                            <div class="text-sm">
+                                <span class="font-medium">Sentiment:</span>
+                                <span class="ml-2 px-2 py-1 rounded text-xs font-medium bg-${sentimentColor}-100 text-${sentimentColor}-800">
+                                    ${result.sentiment}
+                                </span>
+                            </div>
+                            <div class="text-sm">
+                                <span class="font-medium">Purchase Intent:</span>
+                                <span class="ml-2 font-bold text-indigo-600">${purchaseIntentPercent}%</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
     </script>
 </body>
