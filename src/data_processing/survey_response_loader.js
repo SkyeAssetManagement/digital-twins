@@ -1,103 +1,169 @@
-import fs from 'fs/promises';
 import path from 'path';
-import Papa from 'papaparse';
+import { createLogger } from '../utils/logger.js';
+import { parseCSVFile } from '../utils/file-operations.js';
+import { parseScore, calculateFieldStatistics } from '../utils/data-normalizer.js';
+import { LOHAS_SEGMENTS, generateSegmentProfile } from '../utils/segment-analyzer.js';
+import { DataPipeline } from '../utils/data-pipeline.js';
+import { AppError } from '../utils/error-handler.js';
+
+const logger = createLogger('SurveyResponseLoader');
 
 export class SurveyResponseLoader {
   constructor() {
-    this.segmentResponses = {
-      'Leader': [],
-      'Leaning': [],
-      'Learner': [],
-      'Laggard': []
-    };
+    // Initialize with LOHAS segments
+    this.segmentResponses = {};
+    Object.keys(LOHAS_SEGMENTS).forEach(segment => {
+      this.segmentResponses[segment] = [];
+    });
     this.loaded = false;
+    this.cache = new Map();
+    this.pipeline = null;
   }
 
   async loadResponses() {
-    if (this.loaded) return this.segmentResponses;
+    if (this.loaded) {
+      logger.debug('Using cached responses');
+      return this.segmentResponses;
+    }
+    
+    logger.info('Loading survey responses');
     
     try {
-      // Load the refined LOHAS classification with all survey data
-      const csvPath = path.join(process.cwd(), 'data', 'datasets', 'surf-clothing', 'refined-lohas-classification.csv');
-      const csvContent = await fs.readFile(csvPath, 'utf8');
-      
-      // Parse CSV
-      const parsed = Papa.parse(csvContent, {
-        header: true,
-        skipEmptyLines: true
+      // Create pipeline for loading responses
+      this.pipeline = new DataPipeline('survey-loader', {
+        stopOnError: false,
+        cacheResults: true
       });
       
-      if (!parsed.data || parsed.data.length === 0) {
-        console.error('No data found in CSV');
+      this.pipeline
+        .stage('load-csv', async () => {
+          const csvPath = path.join(process.cwd(), 'data', 'datasets', 'surf-clothing', 'refined-lohas-classification.csv');
+          logger.info(`Loading CSV from ${csvPath}`);
+          
+          const data = await parseCSVFile(csvPath, {
+            header: true,
+            skipEmptyLines: true,
+            dynamicTyping: true
+          });
+          
+          if (!data || data.length === 0) {
+            throw new AppError('No data found in CSV file');
+          }
+          
+          logger.info(`Loaded ${data.length} responses`);
+          return data;
+        })
+        .stage('process-responses', async (data) => {
+          return this.processResponses(data);
+        })
+        .stage('calculate-statistics', async (responses) => {
+          return this.calculateStatistics(responses);
+        });
+      
+      // Track progress
+      this.pipeline.on('progress', (progress) => {
+        logger.debug(`Loading progress: ${progress.stage} (${progress.percentage}%)`);
+      });
+      
+      const data = await this.pipeline.execute();
+      
+      if (!data || data.length === 0) {
+        logger.warn('No data loaded from CSV');
         return this.segmentResponses;
       }
       
-      // Group responses by segment
-      parsed.data.forEach(row => {
-        const segment = row['LOHAS Segment'];
-        if (!segment) return;
-        
-        // Extract key survey responses that reveal personality
-        const response = {
-          respondentId: row['Respondent ID'],
-          segment: segment,
-          
-          // Purchase behavior responses
-          actualPurchase: this.parseScore(row['Actual Purchase (1-5)']),
-          willingnessToPay: this.parseScore(row['Willingness to Pay 25% (1-5)']),
-          
-          // Value responses
-          brandValues: this.parseScore(row['Brand Values (1-5)']),
-          sustainability: this.parseScore(row['Sustainability (1-5)']),
-          envEvangelist: this.parseScore(row['Env Evangelist (1-5)']),
-          activism: this.parseScore(row['Activism (1-5)']),
-          priceSensitivity: this.parseScore(row['Price Sensitivity (1-5)']),
-          
-          // Detailed scores
-          compositeScore: parseFloat(row['Composite Score']) || 0,
-          propensityScore: parseFloat(row['Propensity Score']) || 0,
-          
-          // Example responses based on scores
-          exampleResponses: this.generateExampleResponses(row)
-        };
-        
-        // Add to appropriate segment
-        const segmentKey = segment.replace('LOHAS ', '');
-        if (this.segmentResponses[segmentKey]) {
-          this.segmentResponses[segmentKey].push(response);
-        }
-      });
+      // Process was handled in pipeline
+      this.segmentResponses = data;
       
       this.loaded = true;
       
       // Log statistics
-      console.log('Loaded survey responses:');
+      logger.info('Survey response statistics:');
       Object.entries(this.segmentResponses).forEach(([segment, responses]) => {
-        console.log(`  ${segment}: ${responses.length} respondents`);
+        logger.info(`  ${segment}: ${responses.length} respondents`);
       });
       
       return this.segmentResponses;
       
     } catch (error) {
-      console.error('Error loading survey responses:', error);
-      return this.segmentResponses;
+      logger.error('Failed to load survey responses', error);
+      throw new AppError(`Failed to load responses: ${error.message}`);
     }
   }
   
-  parseScore(value) {
-    if (!value || value === 'N/A') return null;
-    const parsed = parseFloat(value);
-    return isNaN(parsed) ? null : parsed;
+  processResponses(data) {
+    const processed = {};
+    
+    // Initialize segments
+    Object.keys(LOHAS_SEGMENTS).forEach(segment => {
+      processed[segment] = [];
+    });
+    
+    data.forEach(row => {
+      const segment = row['LOHAS Segment'];
+      if (!segment) return;
+      
+      // Extract key survey responses using data-normalizer
+      const response = {
+        respondentId: row['Respondent ID'],
+        segment: segment,
+        
+        // Purchase behavior responses
+        actualPurchase: parseScore(row['Actual Purchase (1-5)']),
+        willingnessToPay: parseScore(row['Willingness to Pay 25% (1-5)']),
+        
+        // Value responses
+        brandValues: parseScore(row['Brand Values (1-5)']),
+        sustainability: parseScore(row['Sustainability (1-5)']),
+        envEvangelist: parseScore(row['Env Evangelist (1-5)']),
+        activism: parseScore(row['Activism (1-5)']),
+        priceSensitivity: parseScore(row['Price Sensitivity (1-5)']),
+        
+        // Detailed scores
+        compositeScore: parseScore(row['Composite Score'], 0),
+        propensityScore: parseScore(row['Propensity Score'], 0),
+        
+        // Example responses based on scores
+        exampleResponses: this.generateExampleResponses(row)
+      };
+      
+      // Add to appropriate segment
+      const segmentKey = segment.replace('LOHAS ', '');
+      if (processed[segmentKey]) {
+        processed[segmentKey].push(response);
+      }
+    });
+    
+    return processed;
+  }
+  
+  calculateStatistics(responses) {
+    // Calculate field statistics for each segment
+    Object.entries(responses).forEach(([segment, segmentResponses]) => {
+      if (segmentResponses.length > 0) {
+        const stats = {
+          actualPurchase: calculateFieldStatistics(segmentResponses, 'actualPurchase'),
+          willingnessToPay: calculateFieldStatistics(segmentResponses, 'willingnessToPay'),
+          sustainability: calculateFieldStatistics(segmentResponses, 'sustainability'),
+          priceSensitivity: calculateFieldStatistics(segmentResponses, 'priceSensitivity')
+        };
+        
+        // Cache statistics
+        this.cache.set(`stats:${segment}`, stats);
+      }
+    });
+    
+    return responses;
   }
   
   generateExampleResponses(row) {
     const responses = [];
     
-    // Generate responses based on actual survey scores
-    const sustainability = this.parseScore(row['Sustainability (1-5)']);
-    const priceSensitivity = this.parseScore(row['Price Sensitivity (1-5)']);
-    const brandValues = this.parseScore(row['Brand Values (1-5)']);
-    const willingnessToPay = this.parseScore(row['Willingness to Pay 25% (1-5)']);
+    // Generate responses based on actual survey scores using data-normalizer
+    const sustainability = parseScore(row['Sustainability (1-5)']);
+    const priceSensitivity = parseScore(row['Price Sensitivity (1-5)']);
+    const brandValues = parseScore(row['Brand Values (1-5)']);
+    const willingnessToPay = parseScore(row['Willingness to Pay 25% (1-5)']);
     
     // Sustainability response
     if (sustainability !== null) {
@@ -205,44 +271,40 @@ export class SurveyResponseLoader {
   
   getAverageScores(segment) {
     const segmentKey = segment.replace('LOHAS ', '');
-    const responses = this.segmentResponses[segmentKey] || [];
     
+    // Check cache first
+    const cachedStats = this.cache.get(`stats:${segmentKey}`);
+    if (cachedStats) {
+      const averages = {};
+      Object.entries(cachedStats).forEach(([field, stats]) => {
+        if (stats.mean !== null) {
+          averages[field] = stats.mean.toFixed(2);
+        }
+      });
+      return averages;
+    }
+    
+    // Fallback to manual calculation
+    const responses = this.segmentResponses[segmentKey] || [];
     if (responses.length === 0) return {};
     
-    const totals = {
-      actualPurchase: 0,
-      willingnessToPay: 0,
-      brandValues: 0,
-      sustainability: 0,
-      envEvangelist: 0,
-      activism: 0,
-      priceSensitivity: 0,
-      count: 0
-    };
+    const fields = ['actualPurchase', 'willingnessToPay', 'brandValues', 
+                   'sustainability', 'envEvangelist', 'activism', 'priceSensitivity'];
     
-    responses.forEach(r => {
-      if (r.actualPurchase !== null) {
-        totals.actualPurchase += r.actualPurchase;
-        totals.count++;
+    const averages = {};
+    fields.forEach(field => {
+      const stats = calculateFieldStatistics(responses, field);
+      if (stats.mean !== null) {
+        averages[field] = stats.mean.toFixed(2);
       }
-      if (r.willingnessToPay !== null) totals.willingnessToPay += r.willingnessToPay;
-      if (r.brandValues !== null) totals.brandValues += r.brandValues;
-      if (r.sustainability !== null) totals.sustainability += r.sustainability;
-      if (r.envEvangelist !== null) totals.envEvangelist += r.envEvangelist;
-      if (r.activism !== null) totals.activism += r.activism;
-      if (r.priceSensitivity !== null) totals.priceSensitivity += r.priceSensitivity;
     });
     
-    const count = totals.count || 1;
-    return {
-      actualPurchase: (totals.actualPurchase / count).toFixed(2),
-      willingnessToPay: (totals.willingnessToPay / count).toFixed(2),
-      brandValues: (totals.brandValues / count).toFixed(2),
-      sustainability: (totals.sustainability / count).toFixed(2),
-      envEvangelist: (totals.envEvangelist / count).toFixed(2),
-      activism: (totals.activism / count).toFixed(2),
-      priceSensitivity: (totals.priceSensitivity / count).toFixed(2)
-    };
+    return averages;
+  }
+  
+  clearCache() {
+    this.cache.clear();
+    logger.info('Cleared response loader cache');
   }
 }
 

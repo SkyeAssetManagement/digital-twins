@@ -1,161 +1,282 @@
-import * as XLSX from 'xlsx';
-import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import { createLogger } from '../utils/logger.js';
+import { 
+  readJSONConfig, 
+  parseExcelSheet, 
+  writeJSONData 
+} from '../utils/file-operations.js';
+import { 
+  normalizeResponse, 
+  convertCategoricalToNumeric,
+  extractNumericFeatures,
+  calculateFieldStatistics
+} from '../utils/data-normalizer.js';
+import {
+  getSegmentDefinition,
+  mapSegmentCharacteristics,
+  generateValueSystemScores
+} from '../utils/segment-analyzer.js';
+import { DataPipeline } from '../utils/data-pipeline.js';
+import { AppError, ValidationError } from '../utils/error-handler.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+const logger = createLogger('UniversalProcessor');
 
 export class UniversalProcessor {
   constructor(datasetId) {
     this.datasetId = datasetId;
     this.basePath = path.join(process.cwd(), 'data', 'datasets', datasetId);
+    this.pipeline = null;
+    this.cache = new Map();
   }
   
   async loadConfig() {
     const configPath = path.join(this.basePath, 'config.json');
-    const config = await fs.readFile(configPath, 'utf8');
-    return JSON.parse(config);
+    logger.info(`Loading config from ${configPath}`);
+    
+    try {
+      const config = await readJSONConfig(configPath);
+      logger.info('Config loaded successfully');
+      return config;
+    } catch (error) {
+      logger.error('Failed to load config', error);
+      throw error;
+    }
   }
   
   async processDataset() {
-    const config = await this.loadConfig();
+    logger.info(`Starting dataset processing for ${this.datasetId}`);
     
-    // Process survey data
-    const surveyData = await this.processSurveyFile(
-      path.join(this.basePath, 'raw', config.dataFiles.survey),
-      config
-    );
-    
-    // Extract insights from PDFs
-    const pdfInsights = await this.extractPDFInsights(
-      config.dataFiles.research.map(f => path.join(this.basePath, 'raw', f))
-    );
-    
-    // Auto-discover segments if needed
-    const segments = config.segmentationMethod === 'auto' 
-      ? await this.discoverSegments(surveyData, pdfInsights)
-      : this.mapPredefinedSegments(config.predefinedSegments, surveyData);
-    
-    // Save processed data
-    await this.saveProcessedData({
-      config,
-      surveyData,
-      pdfInsights,
-      segments,
-      timestamp: new Date().toISOString()
+    // Create processing pipeline
+    this.pipeline = new DataPipeline(`dataset-${this.datasetId}`, {
+      stopOnError: false,
+      cacheResults: true
     });
     
-    return { surveyData, pdfInsights, segments };
+    // Setup pipeline stages
+    this.pipeline
+      .stage('load-config', async () => {
+        return await this.loadConfig();
+      })
+      .stage('process-survey', async (config) => {
+        const surveyPath = path.join(this.basePath, 'raw', config.dataFiles.survey);
+        return await this.processSurveyFile(surveyPath, config);
+      })
+      .stage('extract-insights', async (data) => {
+        const config = this.pipeline.context.config || data;
+        const pdfPaths = config.dataFiles.research?.map(f => 
+          path.join(this.basePath, 'raw', f)
+        ) || [];
+        const insights = await this.extractPDFInsights(pdfPaths);
+        return { ...data, pdfInsights: insights };
+      })
+      .stage('discover-segments', async (data) => {
+        const config = this.pipeline.context.config || data;
+        const segments = config.segmentationMethod === 'auto' 
+          ? await this.discoverSegments(data, data.pdfInsights)
+          : this.mapPredefinedSegments(config.predefinedSegments, data);
+        return { ...data, segments };
+      })
+      .stage('save-results', async (data) => {
+        const config = this.pipeline.context.config || data;
+        await this.saveProcessedData({
+          config,
+          surveyData: data,
+          pdfInsights: data.pdfInsights,
+          segments: data.segments,
+          timestamp: new Date().toISOString()
+        });
+        return data;
+      });
+    
+    // Track progress
+    this.pipeline.on('progress', (progress) => {
+      logger.info(`Pipeline progress: ${progress.stage} (${progress.percentage}%)`);
+    });
+    
+    this.pipeline.on('error', (error) => {
+      logger.error(`Pipeline error in stage ${error.stage}`, error.error);
+    });
+    
+    try {
+      const config = await this.loadConfig();
+      this.pipeline.context.config = config;
+      const result = await this.pipeline.execute(config);
+      
+      logger.info('Dataset processing completed successfully');
+      return {
+        surveyData: result,
+        pdfInsights: result.pdfInsights,
+        segments: result.segments
+      };
+    } catch (error) {
+      logger.error('Dataset processing failed', error);
+      throw error;
+    }
   }
   
   async processSurveyFile(filePath, config) {
-    const fileContent = await fs.readFile(filePath);
-    const workbook = XLSX.read(fileContent, {
-      cellStyles: true,
-      cellDates: true,
-      cellNF: true
-    });
+    logger.info(`Processing survey file: ${filePath}`);
     
-    const sheet = workbook.Sheets[workbook.SheetNames[0]];
-    const range = XLSX.utils.decode_range(sheet['!ref']);
-    
-    // Dynamic question extraction based on config
-    const questions = this.extractQuestionsUniversal(sheet, range, config);
-    const responses = this.extractResponsesUniversal(sheet, range, config, questions);
-    
-    return { questions, responses };
+    try {
+      // Use parseExcelSheet from file-operations
+      const rawData = await parseExcelSheet(filePath, null, {
+        raw: false,
+        header: 1  // Get as array of arrays
+      });
+      
+      if (!rawData || rawData.length === 0) {
+        throw new ValidationError('Survey file is empty or invalid');
+      }
+      
+      // Extract questions and responses
+      const questions = this.extractQuestionsFromArray(rawData, config);
+      const responses = this.extractResponsesFromArray(rawData, config, questions);
+      
+      // Calculate statistics
+      const stats = this.calculateSurveyStatistics(responses);
+      
+      logger.info(`Processed ${responses.length} responses with ${questions.length} questions`);
+      
+      return { questions, responses, statistics: stats };
+    } catch (error) {
+      logger.error('Failed to process survey file', error);
+      throw new AppError(`Survey processing failed: ${error.message}`);
+    }
   }
   
-  extractQuestionsUniversal(sheet, range, config) {
+  extractQuestionsFromArray(data, config) {
     const questions = [];
     const { questionRowIndex, subQuestionRowIndex, startColumn } = config.responseColumns;
     
+    if (questionRowIndex >= data.length) {
+      throw new ValidationError(`Question row ${questionRowIndex} exceeds data length ${data.length}`);
+    }
+    
+    const mainRow = data[questionRowIndex] || [];
+    const subRow = data[subQuestionRowIndex] || [];
     let currentMainQuestion = null;
     
-    for (let col = startColumn; col <= range.e.c; col++) {
-      const mainCell = sheet[XLSX.utils.encode_cell({ r: questionRowIndex, c: col })];
-      const subCell = sheet[XLSX.utils.encode_cell({ r: subQuestionRowIndex, c: col })];
+    for (let col = startColumn; col < mainRow.length; col++) {
+      const mainCell = mainRow[col];
+      const subCell = subRow[col];
       
-      if (mainCell?.v) {
+      if (mainCell) {
         currentMainQuestion = {
-          text: mainCell.v,
+          text: mainCell,
           column: col,
-          type: this.detectQuestionType(mainCell.v),
+          type: this.detectQuestionType(mainCell),
           subQuestions: []
         };
         questions.push(currentMainQuestion);
       }
       
-      if (subCell?.v && currentMainQuestion) {
+      if (subCell && currentMainQuestion) {
         const subQuestion = {
-          text: subCell.v,
+          text: subCell,
           column: col,
-          fullQuestion: `${currentMainQuestion.text} - ${subCell.v}`,
+          fullQuestion: `${currentMainQuestion.text} - ${subCell}`,
           parentType: currentMainQuestion.type
         };
         currentMainQuestion.subQuestions.push(subQuestion);
       }
     }
     
+    logger.debug(`Extracted ${questions.length} main questions`);
     return questions;
   }
   
-  extractResponsesUniversal(sheet, range, config, questions) {
+  extractResponsesFromArray(data, config, questions) {
     const responses = [];
     const { identifierColumn, startColumn } = config.responseColumns;
     
     // Start from row 2 (assuming 0 and 1 are headers)
-    for (let row = 2; row <= range.e.r; row++) {
-      const idCell = sheet[XLSX.utils.encode_cell({ r: row, c: identifierColumn })];
+    for (let rowIndex = 2; rowIndex < data.length; rowIndex++) {
+      const row = data[rowIndex];
+      if (!row || !row[identifierColumn]) continue;
       
-      if (idCell?.v) {
-        const respondent = {
-          respondentId: idCell.v.toString(),
-          row: row,
-          responses: {}
-        };
-        
-        // Extract responses for each question
-        for (const question of questions) {
-          if (question.subQuestions.length > 0) {
-            // Handle sub-questions
-            for (const subQ of question.subQuestions) {
-              const cell = sheet[XLSX.utils.encode_cell({ r: row, c: subQ.column })];
-              if (cell?.v !== undefined) {
-                respondent.responses[subQ.fullQuestion] = this.normalizeResponse(cell.v);
+      const respondent = {
+        respondentId: row[identifierColumn].toString(),
+        row: rowIndex,
+        responses: {},
+        numericFeatures: []
+      };
+      
+      // Extract responses for each question
+      for (const question of questions) {
+        if (question.subQuestions.length > 0) {
+          // Handle sub-questions
+          for (const subQ of question.subQuestions) {
+            const value = row[subQ.column];
+            if (value !== undefined && value !== null && value !== '') {
+              // Use data-normalizer functions
+              const normalized = normalizeResponse(value);
+              respondent.responses[subQ.fullQuestion] = normalized;
+              
+              // Convert categorical if needed
+              const numeric = convertCategoricalToNumeric(subQ.fullQuestion, value);
+              if (numeric !== null) {
+                respondent.numericFeatures.push(numeric);
               }
             }
-          } else {
-            // Handle main question without sub-questions
-            const cell = sheet[XLSX.utils.encode_cell({ r: row, c: question.column })];
-            if (cell?.v !== undefined) {
-              respondent.responses[question.text] = this.normalizeResponse(cell.v);
+          }
+        } else {
+          // Handle main question without sub-questions
+          const value = row[question.column];
+          if (value !== undefined && value !== null && value !== '') {
+            const normalized = normalizeResponse(value);
+            respondent.responses[question.text] = normalized;
+            
+            const numeric = convertCategoricalToNumeric(question.text, value);
+            if (numeric !== null) {
+              respondent.numericFeatures.push(numeric);
             }
           }
         }
-        
-        responses.push(respondent);
       }
+      
+      responses.push(respondent);
     }
     
+    logger.debug(`Extracted ${responses.length} responses`);
     return responses;
   }
   
-  normalizeResponse(value) {
-    if (value === null || value === undefined) return null;
-    if (typeof value === 'number') return value;
-    if (typeof value === 'boolean') return value ? 1 : 0;
+  calculateSurveyStatistics(responses) {
+    const stats = {
+      totalResponses: responses.length,
+      fields: {},
+      completionRate: 0
+    };
     
-    const strValue = value.toString().trim();
+    if (responses.length === 0) return stats;
     
-    // Try to parse as number
-    const numValue = parseFloat(strValue);
-    if (!isNaN(numValue)) return numValue;
+    // Get all unique fields
+    const allFields = new Set();
+    responses.forEach(r => {
+      Object.keys(r.responses).forEach(field => allFields.add(field));
+    });
     
-    // Return as string
-    return strValue;
+    // Calculate stats for each field
+    allFields.forEach(field => {
+      stats.fields[field] = calculateFieldStatistics(responses.map(r => ({ 
+        [field]: r.responses[field] 
+      })), field);
+    });
+    
+    // Calculate completion rate
+    const totalFields = allFields.size;
+    let totalCompleted = 0;
+    responses.forEach(r => {
+      const completed = Object.keys(r.responses).length;
+      totalCompleted += completed / totalFields;
+    });
+    stats.completionRate = (totalCompleted / responses.length) * 100;
+    
+    return stats;
   }
   
   detectQuestionType(questionText) {
@@ -199,88 +320,40 @@ export class UniversalProcessor {
   }
   
   mapPredefinedSegments(predefinedSegments, surveyData) {
-    return predefinedSegments.map((segmentName, index) => ({
-      id: `segment_${segmentName.toLowerCase()}`,
-      name: segmentName.charAt(0).toUpperCase() + segmentName.slice(1),
-      characteristics: this.getSegmentCharacteristics(segmentName),
-      valueSystem: this.getSegmentValueSystem(segmentName),
-      size: Math.floor(surveyData.responses.length / predefinedSegments.length),
-      percentage: 100 / predefinedSegments.length
-    }));
+    if (!predefinedSegments || predefinedSegments.length === 0) {
+      logger.warn('No predefined segments provided');
+      return [];
+    }
+    
+    return predefinedSegments.map((segmentName, index) => {
+      const segment = getSegmentDefinition(segmentName);
+      const characteristics = mapSegmentCharacteristics(segmentName);
+      const valueSystem = generateValueSystemScores(segmentName);
+      
+      return {
+        id: `segment_${segmentName.toLowerCase()}`,
+        name: segment?.name || segmentName.charAt(0).toUpperCase() + segmentName.slice(1),
+        characteristics,
+        valueSystem,
+        size: Math.floor((surveyData.responses || surveyData).length / predefinedSegments.length),
+        percentage: segment?.percentage || (100 / predefinedSegments.length),
+        definition: segment
+      };
+    });
   }
   
-  getSegmentCharacteristics(segmentName) {
-    const characteristics = {
-      leader: {
-        sustainability: "Highly committed to sustainable practices",
-        innovation: "Early adopter of eco-friendly products",
-        influence: "Influences others' purchasing decisions",
-        price: "Willing to pay premium for sustainability"
-      },
-      leaning: {
-        sustainability: "Interested in sustainable options",
-        innovation: "Open to trying eco-friendly alternatives",
-        influence: "Moderately influences peer choices",
-        price: "Balances price with sustainability"
-      },
-      learner: {
-        sustainability: "Learning about sustainability",
-        innovation: "Cautiously exploring eco options",
-        influence: "Follows trends set by others",
-        price: "Price-conscious but curious"
-      },
-      laggard: {
-        sustainability: "Minimal interest in sustainability",
-        innovation: "Prefers traditional products",
-        influence: "Not influenced by eco trends",
-        price: "Primarily price-driven decisions"
-      }
-    };
-    
-    return characteristics[segmentName.toLowerCase()] || {};
-  }
-  
-  getSegmentValueSystem(segmentName) {
-    const valueSystems = {
-      leader: {
-        sustainability: 0.95,
-        priceConsciousness: 0.3,
-        brandLoyalty: 0.7,
-        environmentalConcern: 0.9,
-        socialInfluence: 0.8
-      },
-      leaning: {
-        sustainability: 0.7,
-        priceConsciousness: 0.5,
-        brandLoyalty: 0.6,
-        environmentalConcern: 0.7,
-        socialInfluence: 0.6
-      },
-      learner: {
-        sustainability: 0.4,
-        priceConsciousness: 0.7,
-        brandLoyalty: 0.5,
-        environmentalConcern: 0.4,
-        socialInfluence: 0.5
-      },
-      laggard: {
-        sustainability: 0.1,
-        priceConsciousness: 0.9,
-        brandLoyalty: 0.3,
-        environmentalConcern: 0.1,
-        socialInfluence: 0.2
-      }
-    };
-    
-    return valueSystems[segmentName.toLowerCase()] || {};
-  }
+  // Segment characteristics and value systems now handled by segment-analyzer.js
   
   async saveProcessedData(data) {
     const processedPath = path.join(this.basePath, 'processed', 'processed_data.json');
-    await fs.mkdir(path.dirname(processedPath), { recursive: true });
-    await fs.writeFile(processedPath, JSON.stringify(data, null, 2));
     
-    console.log(`Processed data saved to ${processedPath}`);
-    return processedPath;
+    try {
+      await writeJSONData(processedPath, data, true);
+      logger.info(`Processed data saved to ${processedPath}`);
+      return processedPath;
+    } catch (error) {
+      logger.error('Failed to save processed data', error);
+      throw new AppError(`Failed to save data: ${error.message}`);
+    }
   }
 }

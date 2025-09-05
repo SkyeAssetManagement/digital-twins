@@ -30,26 +30,27 @@ const handler = async (req, res) => {
   logger.info('Generating responses', { datasetId, segments: segments.length });
   
   // Initialize unified vector store with proper configuration
-  const vectorStore = await createUnifiedVectorStore(datasetId, {
-    embeddingProvider: appConfig.openai.apiKey ? 'openai-small' : 'local-minilm'
-  });
+  try {
+    const vectorStore = await createUnifiedVectorStore(datasetId, {
+      embeddingProvider: appConfig.openai.apiKey ? 'openai-small' : 'local-minilm'
+    });
 
     // Load dataset config
     const configPath = path.join(process.cwd(), 'data', 'datasets', datasetId, 'config.json');
     let config;
     
-  try {
-    const configData = await fs.readFile(configPath, 'utf8');
-    config = JSON.parse(configData);
-  } catch (error) {
-    logger.warn('Config not found, using defaults', { datasetId });
-    config = {
-      id: datasetId,
-      name: datasetId,
-      description: 'Custom dataset',
-      predefinedSegments: segments
-    };
-  }
+    try {
+      const configData = await fs.readFile(configPath, 'utf8');
+      config = JSON.parse(configData);
+    } catch (error) {
+      logger.warn('Config not found, using defaults', { datasetId });
+      config = {
+        id: datasetId,
+        name: datasetId,
+        description: 'Custom dataset',
+        predefinedSegments: segments
+      };
+    }
 
     // Load our survey-based digital twins if using surf-clothing dataset
     let digitalTwins = null;
@@ -174,8 +175,9 @@ const handler = async (req, res) => {
       timestamp: new Date().toISOString()
     });
   } catch (error) {
-  // Note: Error handling is managed by asyncHandler wrapper
-  throw error;
+    // Note: Error handling is managed by asyncHandler wrapper
+    throw error;
+  }
 };
 
 // Export with error handling wrapper

@@ -1,13 +1,29 @@
-import fs from 'fs/promises';
-import pdfParse from 'pdf-parse';
+import { createLogger } from '../utils/logger.js';
+import { readPDFContent } from '../utils/file-operations.js';
+import { LOHAS_SEGMENTS } from '../utils/segment-analyzer.js';
+import { DataPipeline } from '../utils/data-pipeline.js';
+import { appConfig } from '../config/app-config.js';
+import { withRetry, ExternalServiceError } from '../utils/error-handler.js';
 import fetch from 'node-fetch';
+
+const logger = createLogger('PDFInsightExtractor');
 
 export class PDFInsightExtractor {
   constructor() {
     this.claudeApiUrl = "https://api.anthropic.com/v1/messages";
+    this.cache = new Map();
+    this.pipeline = null;
   }
 
   async extractInsights(pdfPaths) {
+    logger.info(`Extracting insights from ${pdfPaths.length} PDFs`);
+    
+    // Create pipeline for PDF processing
+    this.pipeline = new DataPipeline('pdf-extraction', {
+      stopOnError: false,
+      cacheResults: true
+    });
+    
     const insights = {
       segmentDescriptions: {},
       keyFindings: [],
@@ -15,12 +31,46 @@ export class PDFInsightExtractor {
       behavioralIndicators: []
     };
     
-    for (const pdfPath of pdfPaths) {
-      try {
-        const content = await this.extractPDFContent(pdfPath);
-        const analysis = await this.analyzeWithClaude(content);
-        
-        // Merge insights
+    // Process PDFs in batches for efficiency
+    this.pipeline.batch('process-pdfs', async (batch) => {
+      const results = [];
+      
+      for (const pdfPath of batch) {
+        try {
+          // Check cache first
+          const cacheKey = `pdf:${pdfPath}`;
+          if (this.cache.has(cacheKey)) {
+            logger.debug(`Using cached analysis for ${pdfPath}`);
+            results.push(this.cache.get(cacheKey));
+            continue;
+          }
+          
+          const content = await this.extractPDFContent(pdfPath);
+          const analysis = await this.analyzeWithClaude(content, pdfPath);
+          
+          // Cache the result
+          this.cache.set(cacheKey, analysis);
+          results.push(analysis);
+          
+        } catch (error) {
+          logger.error(`Error processing PDF ${pdfPath}`, error);
+          results.push(this.getFallbackAnalysis({ text: '' }));
+        }
+      }
+      
+      return results;
+    }, 3);
+    
+    // Track progress
+    this.pipeline.on('batch-progress', (progress) => {
+      logger.info(`PDF processing progress: ${progress.processed}/${progress.total}`);
+    });
+    
+    try {
+      const batchResults = await this.pipeline.execute(pdfPaths);
+      
+      // Merge all insights
+      for (const analysis of batchResults) {
         Object.assign(insights.segmentDescriptions, analysis.segments || {});
         insights.keyFindings.push(...(analysis.findings || []));
         insights.behavioralIndicators.push(...(analysis.behaviors || []));
@@ -28,36 +78,42 @@ export class PDFInsightExtractor {
         if (analysis.valueFramework) {
           Object.assign(insights.valueFrameworks, analysis.valueFramework);
         }
-      } catch (error) {
-        console.error(`Error processing PDF ${pdfPath}:`, error);
       }
+      
+      logger.info('PDF insight extraction completed', {
+        segments: Object.keys(insights.segmentDescriptions).length,
+        findings: insights.keyFindings.length,
+        behaviors: insights.behavioralIndicators.length
+      });
+      
+      return insights;
+    } catch (error) {
+      logger.error('PDF extraction pipeline failed', error);
+      throw error;
     }
-    
-    return insights;
   }
   
   async extractPDFContent(pdfPath) {
+    logger.debug(`Extracting content from ${pdfPath}`);
+    
     try {
-      const dataBuffer = await fs.readFile(pdfPath);
-      const data = await pdfParse(dataBuffer);
+      // Use file-operations utility
+      const pdfContent = await readPDFContent(pdfPath);
       
-      return {
-        text: data.text,
-        pages: data.numpages,
-        info: data.info,
-        metadata: data.metadata
-      };
+      logger.debug(`Extracted ${pdfContent.numpages} pages from PDF`);
+      return pdfContent;
     } catch (error) {
-      console.error(`Error extracting content from ${pdfPath}:`, error);
-      return { text: '', pages: 0, info: {}, metadata: {} };
+      logger.error(`Failed to extract PDF content from ${pdfPath}`, error);
+      return { text: '', numpages: 0, info: {}, metadata: {} };
     }
   }
   
-  async analyzeWithClaude(pdfContent) {
+  async analyzeWithClaude(pdfContent, pdfPath) {
     // If no API key or content is empty, return structured fallback
-    const apiKey = process.env.ANTHROPIC_API_KEY;
+    const apiKey = appConfig.anthropic.apiKey;
     
     if (!apiKey || apiKey === 'your_api_key_here' || !pdfContent.text) {
+      logger.warn('No API key or empty content, using fallback analysis');
       return this.getFallbackAnalysis(pdfContent);
     }
     
@@ -67,83 +123,91 @@ export class PDFInsightExtractor {
 3. Value systems and decision factors
 4. Purchase propensity patterns
 
+Focus on LOHAS (Lifestyles of Health and Sustainability) segments if mentioned:
+- Leader (highly committed to sustainability)
+- Leaning (balancing sustainability with practicality)
+- Learner (price-conscious but curious)
+- Laggard (price and functionality focused)
+
 Format as JSON with segments, findings, behaviors, and valueFramework keys.
 
-Document content (first 10000 characters):
+Document: ${pdfPath}
+Content (first 10000 characters):
 ${pdfContent.text.substring(0, 10000)}`;
     
     try {
-      const response = await fetch(this.claudeApiUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": apiKey,
-          "anthropic-version": "2023-06-01"
-        },
-        body: JSON.stringify({
-          model: "claude-3-sonnet-20240229",
-          max_tokens: 2000,
-          messages: [{ role: "user", content: prompt }]
-        })
-      });
-      
-      if (!response.ok) {
-        throw new Error(`API request failed: ${response.status}`);
-      }
+      // Use retry logic for API calls
+      const response = await withRetry(async () => {
+        const res = await fetch(this.claudeApiUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-api-key": apiKey,
+            "anthropic-version": "2023-06-01"
+          },
+          body: JSON.stringify({
+            model: appConfig.anthropic.model,
+            max_tokens: 2000,
+            messages: [{ role: "user", content: prompt }]
+          })
+        });
+        
+        if (!res.ok) {
+          throw new ExternalServiceError('Claude', `API request failed: ${res.status}`);
+        }
+        
+        return res;
+      }, 3, 1000);
       
       const data = await response.json();
-      return JSON.parse(data.content[0].text);
+      const analysis = JSON.parse(data.content[0].text);
+      
+      logger.info(`Successfully analyzed PDF: ${pdfPath}`);
+      return analysis;
     } catch (error) {
-      console.error("Claude API error:", error);
+      logger.error(`Claude API error for ${pdfPath}`, error);
       return this.getFallbackAnalysis(pdfContent);
     }
   }
   
   getFallbackAnalysis(pdfContent) {
+    logger.debug('Using fallback analysis');
+    
     // Extract key patterns from PDF text
-    const text = pdfContent.text.toLowerCase();
+    const text = pdfContent.text?.toLowerCase() || '';
     
     // Look for LOHAS segments
     const hasLOHAS = text.includes('lohas') || text.includes('leader') || text.includes('leaning');
     const hasSustainability = text.includes('sustain') || text.includes('eco') || text.includes('environment');
     const hasPrice = text.includes('price') || text.includes('cost') || text.includes('value');
     
-    // Build fallback analysis based on content patterns
-    const segments = hasLOHAS ? {
-      "Leader": {
-        characteristics: ["Early adopter", "Sustainability focused", "Premium buyer"],
-        percentage: 16
-      },
-      "Leaning": {
-        characteristics: ["Sustainability aware", "Value conscious", "Mainstream"],
-        percentage: 25
-      },
-      "Learner": {
-        characteristics: ["Price sensitive", "Following trends", "Cautious"],
-        percentage: 31
-      },
-      "Laggard": {
-        characteristics: ["Traditional", "Price focused", "Skeptical"],
-        percentage: 28
-      }
-    } : {
-      "Segment_1": {
-        characteristics: ["Primary segment"],
-        percentage: 25
-      },
-      "Segment_2": {
-        characteristics: ["Secondary segment"],
-        percentage: 25
-      },
-      "Segment_3": {
-        characteristics: ["Tertiary segment"],
-        percentage: 25
-      },
-      "Segment_4": {
-        characteristics: ["Quaternary segment"],
-        percentage: 25
-      }
-    };
+    // Use LOHAS_SEGMENTS from segment-analyzer if LOHAS patterns found
+    const segments = hasLOHAS ? 
+      Object.entries(LOHAS_SEGMENTS).reduce((acc, [key, segment]) => {
+        acc[key] = {
+          characteristics: Object.values(segment.characteristics),
+          percentage: segment.percentage,
+          valueSystem: segment.valueSystem
+        };
+        return acc;
+      }, {}) : {
+        "Segment_1": {
+          characteristics: ["Primary segment"],
+          percentage: 25
+        },
+        "Segment_2": {
+          characteristics: ["Secondary segment"],
+          percentage: 25
+        },
+        "Segment_3": {
+          characteristics: ["Tertiary segment"],
+          percentage: 25
+        },
+        "Segment_4": {
+          characteristics: ["Quaternary segment"],
+          percentage: 25
+        }
+      };
     
     const findings = [];
     if (hasSustainability) {
@@ -188,5 +252,11 @@ ${pdfContent.text.substring(0, 10000)}`;
       behaviors,
       valueFramework
     };
+  }
+  
+  clearCache() {
+    const cacheSize = this.cache.size;
+    this.cache.clear();
+    logger.info(`Cleared PDF analysis cache (${cacheSize} entries)`);
   }
 }

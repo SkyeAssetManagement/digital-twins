@@ -1,11 +1,24 @@
 # Digital Twin Consumer Response System - Complete Code Documentation
 
-## Last Updated: 2025-09-05 - Major Refactoring Phase 2 Complete (Vector Store Consolidation)
+## Last Updated: 2025-09-05 - Major Refactoring Phase 4 Complete (Data Processing & Analytics)
 
 ## Project Overview
 An advanced AI-powered system that generates authentic consumer responses to marketing content, based on real survey data from 1,006 respondents segmented into LOHAS (Lifestyles of Health and Sustainability) categories. The system features dual-engine response generation combining OpenAI's advanced semantic embeddings with Anthropic's Claude Opus 4.1.
 
 ### Major Updates - September 2025
+
+#### Phase 4: Data Processing & Analytics Consolidation (Completed)
+Successfully refactored all data processing modules with:
+1. **Data Pipeline Framework**: EventEmitter-based orchestration with progress tracking
+2. **Shared Utilities**: 4 new utility modules for common operations
+3. **Standardized Processing**: All processors now use consistent patterns
+4. **Enhanced Caching**: Multi-level caching for expensive operations
+
+Key files created:
+- `src/utils/data-pipeline.js` - Pipeline orchestration framework
+- `src/utils/data-normalizer.js` - Data transformation utilities  
+- `src/utils/file-operations.js` - Centralized file I/O operations
+- `src/utils/segment-analyzer.js` - LOHAS segment management
 
 #### Multi-Response Generation System
 Successfully implemented dual-engine system with multiple response variations:
@@ -90,12 +103,36 @@ digital-twins/
 ├── .claude/                      # Project documentation
 │   ├── CLAUDE.md                # Development standards
 │   ├── CODE DOCUMENTATION.md    # This file
-│   └── *.md                     # Other docs
-├── api/                         # API endpoints
+│   └── REFACTOR-GUIDE.md       # Phased refactor roadmap
+├── api/                         # API endpoints (Standardized in Phase 3)
 │   ├── generate-response.js    # Main response generation
-│   ├── generate-claude-response.js # Claude-enhanced responses [NEW]
+│   ├── generate-claude-response.js # Claude-enhanced responses
 │   ├── digital-twin-service.js # Digital twin management
 │   └── *.js                     # Other endpoints
+├── src/
+│   ├── config/                 # Configuration (Phase 1)
+│   │   └── app-config.js       # Centralized app configuration
+│   ├── services/               # Service layer (Phase 3)
+│   │   ├── base.service.js     # Abstract base service
+│   │   ├── dataset.service.js  # Dataset operations
+│   │   ├── response.service.js # Response generation
+│   │   └── image.service.js    # Image analysis
+│   ├── middleware/             # Middleware (Phase 3)
+│   │   └── validation.middleware.js # Request validation
+│   ├── utils/                  # Utilities (Enhanced in Phase 4)
+│   │   ├── logger.js           # Structured logging
+│   │   ├── error-handler.js    # Custom error types
+│   │   ├── data-pipeline.js    # Pipeline framework [NEW]
+│   │   ├── data-normalizer.js  # Data transformations [NEW]
+│   │   ├── file-operations.js  # File I/O utilities [NEW]
+│   │   └── segment-analyzer.js # LOHAS segments [NEW]
+│   ├── vector_db/              # Vector database (Phase 2)
+│   │   └── unified_vector_store.js # Consolidated vector store
+│   ├── data_processing/        # Data processors (Phase 4)
+│   │   ├── universal_processor.js # [REFACTORED]
+│   │   ├── pdf_extractor.js      # [REFACTORED]
+│   │   ├── segment_discovery.js  # [REFACTORED]
+│   │   └── survey_response_loader.js # [REFACTORED]
 ├── data/                        # Data storage
 │   ├── datasets/               
 │   │   └── surf-clothing/      
