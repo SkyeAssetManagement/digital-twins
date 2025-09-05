@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Twin Response System - Claude Model Comparison</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.show {
+            display: flex !important;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideIn 0.3s;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .response-card {
+            transition: all 0.3s ease;
+        }
+        .response-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 3px solid #3498db;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .engine-column {
+            min-height: 600px;
+        }
+        .sentiment-positive { background-color: #d4edda; }
+        .sentiment-neutral { background-color: #fff3cd; }
+        .sentiment-negative { background-color: #f8d7da; }
+        .model-badge-sonnet {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .model-badge-opus {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+    </style>
+</head>
+<body style="background-color: #FAF9F7;">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">Claude Model Comparison System</h1>
+                    <p class="text-sm text-gray-600">Compare Claude 4.0 Sonnet vs Claude 4.1 Opus Responses</p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-500">Real consumer segment responses</span>
+                    <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
+                        Live System
+                    </span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        <!-- Input Section -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-lg font-semibold mb-4">Marketing Content Input</h2>
+            
+            <!-- Input Tabs -->
+            <div class="flex space-x-4 mb-4">
+                <button id="textTab" class="px-4 py-2 bg-blue-500 text-white rounded-md" onclick="switchTab('text')">
+                    Text Input
+                </button>
+                <button id="imageTab" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md" onclick="switchTab('image')">
+                    Image Upload
+                </button>
+            </div>
+
+            <!-- Text Input -->
+            <div id="textInput" class="space-y-4">
+                <textarea id="marketingContent" 
+                    class="w-full h-32 p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Paste marketing content, ad copy, or product description here..."></textarea>
+            </div>
+
+            <!-- Image Input (Hidden by default) -->
+            <div id="imageInput" class="space-y-4 hidden">
+                <div id="dropzone" class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center" 
+                     ondrop="handleDrop(event)" 
+                     ondragover="handleDragOver(event)" 
+                     ondragenter="handleDragEnter(event)" 
+                     ondragleave="handleDragLeave(event)">
+                    <input type="file" id="imageFile" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
+                    <label for="imageFile" class="cursor-pointer">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <p class="mt-2 text-sm text-gray-600">Click to upload or drag and drop</p>
+                        <p class="text-xs text-gray-500">PNG, JPG up to 10MB</p>
+                    </label>
+                </div>
+                
+                <!-- Image Preview -->
+                <div id="imagePreview" class="hidden">
+                    <h3 class="text-sm font-medium mb-2">Uploaded Image:</h3>
+                    <img id="previewImg" class="max-h-48 rounded-lg shadow-sm" alt="Preview">
+                </div>
+            </div>
+
+            <!-- Category Filter and Generate Button -->
+            <div class="flex items-center justify-between mt-6">
+                <div class="flex items-center space-x-4">
+                    <label class="text-sm font-medium text-gray-700">Filter by Segment:</label>
+                    <select id="segmentFilter" class="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="all">All Segments</option>
+                        <option value="Leader">Leader (Early Adopter)</option>
+                        <option value="Leaning">Leaning (Aspirational)</option>
+                        <option value="Learner">Learner (Curious)</option>
+                        <option value="Laggard">Laggard (Skeptical)</option>
+                    </select>
+                    <label class="text-sm font-medium text-gray-700">Responses per segment:</label>
+                    <select id="responseCount" class="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="3">3 responses</option>
+                        <option value="5" selected>5 responses</option>
+                        <option value="10">10 responses</option>
+                    </select>
+                </div>
+                <button onclick="generateResponses()" 
+                    class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                    Generate Responses
+                </button>
+            </div>
+        </div>
+
+        <!-- Response Columns -->
+        <div class="grid grid-cols-2 gap-8">
+            <!-- Claude Sonnet 4.0 Column (Left) -->
+            <div class="bg-white rounded-lg shadow-md p-6 engine-column">
+                <div class="mb-4 pb-4 border-b">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold">Claude 4.0 Sonnet</h3>
+                        <span class="model-badge-sonnet px-3 py-1 rounded-full text-xs font-medium">
+                            Fast & Efficient
+                        </span>
+                    </div>
+                    <p class="text-sm text-gray-600 mt-1">Latest Sonnet model - Optimized for speed</p>
+                    <div class="flex justify-between text-xs text-gray-500 mt-2">
+                        <span>~2-3 seconds/response</span>
+                        <span>$0.003/1K tokens</span>
+                    </div>
+                </div>
+                <div id="sonnetResponses" class="space-y-4">
+                    <p class="text-gray-400 text-center py-8">Responses will appear here...</p>
+                </div>
+            </div>
+
+            <!-- Claude Opus 4.1 Column (Right) -->
+            <div class="bg-white rounded-lg shadow-md p-6 engine-column">
+                <div class="mb-4 pb-4 border-b">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold">Claude 4.1 Opus</h3>
+                        <span class="model-badge-opus px-3 py-1 rounded-full text-xs font-medium">
+                            Most Capable
+                        </span>
+                    </div>
+                    <p class="text-sm text-gray-600 mt-1">Most advanced model - Maximum intelligence</p>
+                    <div class="flex justify-between text-xs text-gray-500 mt-2">
+                        <span>~4-5 seconds/response</span>
+                        <span>$0.015/1K tokens</span>
+                    </div>
+                </div>
+                <div id="opusResponses" class="space-y-4">
+                    <p class="text-gray-400 text-center py-8">Responses will appear here...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Section -->
+        <div id="statistics" class="mt-8 bg-white rounded-lg shadow-md p-6 hidden">
+            <h3 class="text-lg font-semibold mb-4">Response Analysis</h3>
+            <div class="grid grid-cols-4 gap-4">
+                <div class="text-center">
+                    <p class="text-sm text-gray-600">Leader Avg Intent</p>
+                    <p class="text-2xl font-bold" id="leaderIntent">-</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-sm text-gray-600">Leaning Avg Intent</p>
+                    <p class="text-2xl font-bold" id="leaningIntent">-</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-sm text-gray-600">Learner Avg Intent</p>
+                    <p class="text-2xl font-bold" id="learnerIntent">-</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-sm text-gray-600">Laggard Avg Intent</p>
+                    <p class="text-2xl font-bold" id="laggardIntent">-</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let currentTab = 'text';
+        let uploadedImageData = null;
+        let allResponses = { sonnet: [], opus: [] };
+
+        function switchTab(tab) {
+            currentTab = tab;
+            if (tab === 'text') {
+                document.getElementById('textTab').className = 'px-4 py-2 bg-blue-500 text-white rounded-md';
+                document.getElementById('imageTab').className = 'px-4 py-2 bg-gray-200 text-gray-700 rounded-md';
+                document.getElementById('textInput').classList.remove('hidden');
+                document.getElementById('imageInput').classList.add('hidden');
+            } else {
+                document.getElementById('imageTab').className = 'px-4 py-2 bg-blue-500 text-white rounded-md';
+                document.getElementById('textTab').className = 'px-4 py-2 bg-gray-200 text-gray-700 rounded-md';
+                document.getElementById('imageInput').classList.remove('hidden');
+                document.getElementById('textInput').classList.add('hidden');
+            }
+        }
+
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    uploadedImageData = e.target.result;
+                    document.getElementById('previewImg').src = uploadedImageData;
+                    document.getElementById('imagePreview').classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        // Drag and Drop handlers
+        function handleDragOver(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            event.dataTransfer.dropEffect = 'copy';
+        }
+        
+        function handleDragEnter(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            document.getElementById('dropzone').classList.add('border-blue-500', 'bg-blue-50');
+        }
+        
+        function handleDragLeave(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            document.getElementById('dropzone').classList.remove('border-blue-500', 'bg-blue-50');
+        }
+        
+        function handleDrop(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            document.getElementById('dropzone').classList.remove('border-blue-500', 'bg-blue-50');
+            
+            const file = event.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    uploadedImageData = e.target.result;
+                    document.getElementById('previewImg').src = uploadedImageData;
+                    document.getElementById('imagePreview').classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        async function generateResponses() {
+            const segmentFilter = document.getElementById('segmentFilter').value;
+            const responseCount = parseInt(document.getElementById('responseCount').value);
+            let content = '';
+            let contentType = 'text';
+
+            if (currentTab === 'text') {
+                content = document.getElementById('marketingContent').value.trim();
+                if (!content) {
+                    alert('Please enter marketing content to analyze');
+                    return;
+                }
+            } else {
+                if (!uploadedImageData) {
+                    alert('Please upload an image to analyze');
+                    return;
+                }
+                content = uploadedImageData;
+                contentType = 'image';
+            }
+
+            // Show loading state
+            document.getElementById('sonnetResponses').innerHTML = '<div class="loader mx-auto"></div>';
+            document.getElementById('opusResponses').innerHTML = '<div class="loader mx-auto"></div>';
+            document.getElementById('statistics').classList.add('hidden');
+
+            // Generate responses for selected segments
+            const segments = segmentFilter === 'all' 
+                ? ['Leader', 'Leaning', 'Learner', 'Laggard']
+                : [segmentFilter];
+
+            try {
+                const response = await fetch('/api/claude-comparison-response', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        content: content,
+                        contentType: contentType,
+                        segments: segments,
+                        responseCount: responseCount
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                allResponses = data;
+                
+                // Show extracted content if image was analyzed
+                if (data.wasImageAnalyzed && data.extractedContent) {
+                    const notification = document.createElement('div');
+                    notification.className = 'mb-4 p-4 bg-green-50 border border-green-200 rounded-lg';
+                    notification.innerHTML = `
+                        <div class="font-semibold text-green-800 mb-2">Image Analysis Complete</div>
+                        <div class="text-sm text-green-700">${data.extractedContent}</div>
+                    `;
+                    const container = document.querySelector('main');
+                    const insertBefore = document.querySelector('.grid');
+                    container.insertBefore(notification, insertBefore);
+                    
+                    // Remove after 10 seconds
+                    setTimeout(() => notification.remove(), 10000);
+                }
+                
+                displayResponses(data, segmentFilter);
+                calculateStatistics(data);
+                
+            } catch (error) {
+                console.error('Error generating responses:', error);
+                const errorMsg = `<p class="text-red-500 p-4 text-center">Error: ${error.message}</p>`;
+                document.getElementById('sonnetResponses').innerHTML = errorMsg;
+                document.getElementById('opusResponses').innerHTML = errorMsg;
+            }
+        }
+
+        function displayResponses(data, filter) {
+            // Display Sonnet Responses
+            const sonnetContainer = document.getElementById('sonnetResponses');
+            sonnetContainer.innerHTML = '';
+
+            if (data.sonnet && data.sonnet.length > 0) {
+                data.sonnet.forEach(response => {
+                    if (filter === 'all' || response.segment === filter) {
+                        const card = createResponseCard(response, 'sonnet');
+                        sonnetContainer.appendChild(card);
+                    }
+                });
+            } else {
+                sonnetContainer.innerHTML = '<p class="text-gray-400 text-center py-8">No responses generated</p>';
+            }
+
+            // Display Opus Responses
+            const opusContainer = document.getElementById('opusResponses');
+            opusContainer.innerHTML = '';
+
+            if (data.opus && data.opus.length > 0) {
+                data.opus.forEach(response => {
+                    if (filter === 'all' || response.segment === filter) {
+                        const card = createResponseCard(response, 'opus');
+                        opusContainer.appendChild(card);
+                    }
+                });
+            } else {
+                opusContainer.innerHTML = '<p class="text-gray-400 text-center py-8">No responses generated</p>';
+            }
+        }
+
+        function createResponseCard(response, modelType) {
+            const card = document.createElement('div');
+            const sentimentClass = `sentiment-${response.sentiment || 'neutral'}`;
+            card.className = `response-card p-4 rounded-lg border ${sentimentClass}`;
+            
+            const modelBadge = modelType === 'sonnet' ? 
+                '<span class="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded">Sonnet</span>' :
+                '<span class="text-xs px-2 py-0.5 bg-pink-100 text-pink-700 rounded">Opus</span>';
+            
+            card.innerHTML = `
+                <div class="flex justify-between items-start mb-2">
+                    <div class="flex items-center space-x-2">
+                        <span class="font-semibold text-sm">${response.segment}</span>
+                        ${modelBadge}
+                    </div>
+                    <span class="text-xs px-2 py-1 bg-gray-100 rounded">
+                        ${response.purchaseIntent || 0}/10
+                    </span>
+                </div>
+                <p class="text-sm text-gray-700 mb-2">${response.text}</p>
+                <div class="flex justify-between text-xs text-gray-500">
+                    <span>${response.sentiment || 'neutral'}</span>
+                    <span>${response.responseTime || 0}ms</span>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        function calculateStatistics(data) {
+            const stats = {
+                Leader: [],
+                Leaning: [],
+                Learner: [],
+                Laggard: []
+            };
+
+            // Collect all purchase intents by segment
+            const allData = [...(data.sonnet || []), ...(data.opus || [])];
+            allData.forEach(response => {
+                if (stats[response.segment]) {
+                    stats[response.segment].push(response.purchaseIntent || 0);
+                }
+            });
+
+            // Calculate averages and display
+            Object.keys(stats).forEach(segment => {
+                const intents = stats[segment];
+                if (intents.length > 0) {
+                    const avg = (intents.reduce((a, b) => a + b, 0) / intents.length).toFixed(1);
+                    const elementId = segment.toLowerCase() + 'Intent';
+                    const element = document.getElementById(elementId);
+                    if (element) {
+                        element.textContent = avg;
+                    }
+                }
+            });
+
+            document.getElementById('statistics').classList.remove('hidden');
+        }
+        
+        // Filter responses when dropdown changes
+        document.getElementById('segmentFilter').addEventListener('change', (e) => {
+            displayResponses(allResponses, e.target.value);
+        });
+
+        // Load example on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('marketingContent').value = 
+`Experience the Future of Sustainable Fashion
+
+Our new eco-luxury collection combines cutting-edge sustainable materials 
+with timeless design. Each piece is crafted from recycled ocean plastics 
+and organic cotton, featuring:
+
+- Zero carbon footprint manufacturing
+- Lifetime warranty on all products
+- 1% of sales donated to ocean cleanup
+- Limited edition designs by renowned artists
+
+Starting at $189. Available exclusively online.`;
+        });
+    </script>
+</body>
+</html>

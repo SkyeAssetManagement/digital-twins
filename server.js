@@ -48,6 +48,12 @@ app.post('/api/dual-engine-response', async (req, res) => {
   await dualEngineHandler(req, res);
 });
 
+// Claude Comparison API - Sonnet 4.0 vs Opus 4.1
+import claudeComparisonHandler from './api/claude-comparison-response.js';
+app.post('/api/claude-comparison-response', async (req, res) => {
+  await claudeComparisonHandler(req, res);
+});
+
 // Digital Twin Routes
 app.get('/api/digital-twins/personas', async (req, res) => {
   try {
