@@ -1,62 +1,114 @@
 import fs from 'fs/promises';
 import path from 'path';
+import { appConfig } from '../src/config/app-config.js';
+import { createLogger } from '../src/utils/logger.js';
+import { 
+  ValidationError, 
+  NotFoundError, 
+  handleApiError, 
+  asyncHandler 
+} from '../src/utils/error-handler.js';
 
-export default async function handler(req, res) {
+const logger = createLogger('DatasetStatus');
+
+/**
+ * Get dataset processing status
+ * GET /api/dataset-status/:datasetId
+ */
+async function getDatasetStatus(req, res) {
+  // Validate HTTP method
   if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    throw new ValidationError('Method not allowed', { allowedMethods: ['GET'] });
   }
 
-  try {
-    const { datasetId } = req.params || {};
-    
-    if (!datasetId) {
-      return res.status(400).json({ error: 'Dataset ID is required' });
-    }
+  // Extract and validate datasetId
+  const { datasetId } = req.params || {};
+  if (!datasetId || typeof datasetId !== 'string' || datasetId.trim() === '') {
+    throw new ValidationError('Dataset ID is required and must be a non-empty string');
+  }
 
-    const datasetPath = path.join(process.cwd(), 'data', 'datasets', datasetId);
-    const processedPath = path.join(datasetPath, 'processed', 'processed_data.json');
+  logger.info('Checking dataset status', { datasetId });
+
+  // Build file paths using centralized config
+  const datasetPath = path.join(process.cwd(), appConfig.paths.datasets, datasetId);
+  const processedPath = path.join(
+    datasetPath, 
+    appConfig.paths.processed, 
+    appConfig.paths.processedDataFile
+  );
+  const errorPath = path.join(
+    datasetPath, 
+    appConfig.paths.processed, 
+    appConfig.paths.errorFile
+  );
+
+  // Check if dataset directory exists
+  try {
+    await fs.access(datasetPath);
+    logger.debug('Dataset directory found', { datasetPath });
+  } catch {
+    logger.warn('Dataset not found', { datasetId, datasetPath });
+    throw new NotFoundError('Dataset', datasetId);
+  }
+
+  // Initialize response data
+  const statusResponse = {
+    datasetId,
+    isComplete: false,
+    error: null,
+    segments: 0,
+    responses: 0,
+    timestamp: null,
+    processingStarted: null
+  };
+
+  // Check for processed data
+  try {
+    const data = await fs.readFile(processedPath, 'utf8');
+    const processedData = JSON.parse(data);
     
-    // Check if dataset exists
+    statusResponse.isComplete = true;
+    statusResponse.segments = processedData?.segments?.length || 0;
+    statusResponse.responses = processedData?.surveyData?.responses?.length || 0;
+    statusResponse.timestamp = processedData?.timestamp || null;
+    
+    logger.info('Dataset processing complete', {
+      datasetId,
+      segments: statusResponse.segments,
+      responses: statusResponse.responses
+    });
+    
+  } catch (processedError) {
+    logger.debug('No processed data found, checking for errors', { datasetId });
+    
+    // Check for error file
     try {
-      await fs.access(datasetPath);
-    } catch {
-      return res.status(404).json({ error: 'Dataset not found' });
-    }
-    
-    // Check if processing is complete
-    let isComplete = false;
-    let processedData = null;
-    let error = null;
-    
-    try {
-      const data = await fs.readFile(processedPath, 'utf8');
-      processedData = JSON.parse(data);
-      isComplete = true;
-    } catch (err) {
-      // Check for error file
-      const errorPath = path.join(datasetPath, 'processed', 'error.json');
+      const errorData = await fs.readFile(errorPath, 'utf8');
+      const errorInfo = JSON.parse(errorData);
+      statusResponse.error = errorInfo.message || 'Processing failed';
+      statusResponse.timestamp = errorInfo.timestamp || null;
+      
+      logger.warn('Dataset processing failed', {
+        datasetId,
+        error: statusResponse.error
+      });
+      
+    } catch (errorFileError) {
+      // No error file found - still processing
+      logger.debug('No error file found, dataset still processing', { datasetId });
+      
+      // Try to determine when processing started
       try {
-        const errorData = await fs.readFile(errorPath, 'utf8');
-        const errorInfo = JSON.parse(errorData);
-        error = errorInfo.message || 'Processing failed';
+        const stats = await fs.stat(datasetPath);
+        statusResponse.processingStarted = stats.mtime.toISOString();
       } catch {
-        // No error file, still processing
+        // Ignore stat errors
       }
     }
-    
-    res.json({
-      datasetId,
-      isComplete,
-      error,
-      segments: processedData?.segments?.length || 0,
-      responses: processedData?.surveyData?.responses?.length || 0,
-      timestamp: processedData?.timestamp || null
-    });
-  } catch (error) {
-    console.error('Error checking dataset status:', error);
-    res.status(500).json({ 
-      error: 'Failed to check dataset status',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
   }
+
+  logger.info('Dataset status retrieved successfully', statusResponse);
+  res.json(statusResponse);
 }
+
+export default asyncHandler(getDatasetStatus);

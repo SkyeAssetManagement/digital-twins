@@ -5,18 +5,30 @@
  */
 
 import Anthropic from '@anthropic-ai/sdk';
+import { appConfig } from '../config/app-config.js';
+import { createLogger } from '../utils/logger.js';
+import { 
+  ExternalServiceError, 
+  ValidationError, 
+  withRetry 
+} from '../utils/error-handler.js';
+
+const logger = createLogger('ClaudePersonaHelper');
 
 /**
  * Configuration for Claude persona integration
+ * @deprecated Use appConfig instead
  */
 export class ClaudePersonaConfig {
   constructor(config = {}) {
-    this.apiKey = config.apiKey || process.env.ANTHROPIC_API_KEY;
-    this.model = config.model || 'claude-opus-4-1-20250805';
-    this.maxTokens = config.maxTokens || 2048;
-    this.temperature = config.temperature || 0.7;
-    this.personaVectorIntensity = config.personaVectorIntensity || 1.0;
-    this.consistencyThreshold = config.consistencyThreshold || 0.8;
+    logger.warn('ClaudePersonaConfig is deprecated, use appConfig instead');
+    
+    this.apiKey = config.apiKey || appConfig.anthropic.apiKey;
+    this.model = config.model || appConfig.anthropic.model;
+    this.maxTokens = config.maxTokens || appConfig.anthropic.maxTokens;
+    this.temperature = config.temperature || appConfig.anthropic.temperature;
+    this.personaVectorIntensity = config.personaVectorIntensity || appConfig.persona.vectorIntensity;
+    this.consistencyThreshold = config.consistencyThreshold || appConfig.persona.consistencyThreshold;
   }
 }
 
@@ -24,12 +36,41 @@ export class ClaudePersonaConfig {
  * Main helper class for Claude persona integration
  */
 export class ClaudePersonaHelper {
-  constructor(config) {
-    this.config = config instanceof ClaudePersonaConfig ? config : new ClaudePersonaConfig(config);
+  constructor(config = {}) {
+    // Use centralized config by default
+    this.config = config instanceof ClaudePersonaConfig 
+      ? config 
+      : this.createConfigFromAppConfig(config);
+    
+    // Validate API key
+    if (!this.config.apiKey) {
+      throw new ValidationError('Anthropic API key is required');
+    }
+    
     this.client = new Anthropic({
       apiKey: this.config.apiKey
     });
     this.personaCache = new Map();
+    
+    logger.info('ClaudePersonaHelper initialized', {
+      model: this.config.model,
+      maxTokens: this.config.maxTokens,
+      temperature: this.config.temperature
+    });
+  }
+
+  /**
+   * Create configuration from centralized app config
+   */
+  createConfigFromAppConfig(overrides = {}) {
+    return {
+      apiKey: overrides.apiKey || appConfig.anthropic.apiKey,
+      model: overrides.model || appConfig.anthropic.model,
+      maxTokens: overrides.maxTokens || appConfig.anthropic.maxTokens,
+      temperature: overrides.temperature || appConfig.anthropic.temperature,
+      personaVectorIntensity: overrides.personaVectorIntensity || appConfig.persona.vectorIntensity,
+      consistencyThreshold: overrides.consistencyThreshold || appConfig.persona.consistencyThreshold
+    };
   }
 
   /**
@@ -272,24 +313,64 @@ IMPORTANT:
    * Generate response using Claude with persona context
    */
   async generateResponse(systemPrompt, userMessage, conversationHistory = []) {
+    // Validate inputs
+    if (!systemPrompt || typeof systemPrompt !== 'string') {
+      throw new ValidationError('System prompt is required and must be a string');
+    }
+    if (!userMessage || typeof userMessage !== 'string') {
+      throw new ValidationError('User message is required and must be a string');
+    }
+    if (!Array.isArray(conversationHistory)) {
+      throw new ValidationError('Conversation history must be an array');
+    }
+
+    logger.debug('Generating Claude response', {
+      systemPromptLength: systemPrompt.length,
+      userMessageLength: userMessage.length,
+      historyLength: conversationHistory.length
+    });
+
     try {
       const messages = [
         ...conversationHistory,
         { role: 'user', content: userMessage }
       ];
 
-      const response = await this.client.messages.create({
-        model: this.config.model,
-        max_tokens: this.config.maxTokens,
-        temperature: this.config.temperature,
-        system: systemPrompt,
-        messages: messages
+      // Use retry logic for API calls
+      const response = await withRetry(async () => {
+        return await this.client.messages.create({
+          model: this.config.model,
+          max_tokens: this.config.maxTokens,
+          temperature: this.config.temperature,
+          system: systemPrompt,
+          messages: messages
+        });
+      }, 3, 1000);
+
+      const responseText = response.content[0]?.text;
+      if (!responseText) {
+        throw new ExternalServiceError('Claude', 'Empty response received');
+      }
+
+      logger.info('Claude response generated successfully', {
+        responseLength: responseText.length,
+        tokensUsed: response.usage?.input_tokens + response.usage?.output_tokens
       });
 
-      return response.content[0].text;
+      return responseText;
+      
     } catch (error) {
-      console.error('Error generating Claude response:', error);
-      throw error;
+      logger.error('Error generating Claude response', error);
+      
+      if (error.status === 401) {
+        throw new ExternalServiceError('Claude', 'Invalid API key', error);
+      } else if (error.status === 429) {
+        throw new ExternalServiceError('Claude', 'Rate limit exceeded', error);
+      } else if (error.status >= 500) {
+        throw new ExternalServiceError('Claude', 'Service temporarily unavailable', error);
+      }
+      
+      throw new ExternalServiceError('Claude', error.message || 'Unknown error', error);
     }
   }
 
@@ -297,17 +378,38 @@ IMPORTANT:
    * Cache persona for performance
    */
   cachePersona(personaId, systemPrompt) {
+    if (!personaId || !systemPrompt) {
+      logger.warn('Invalid cache parameters', { personaId: !!personaId, systemPrompt: !!systemPrompt });
+      return;
+    }
+
     this.personaCache.set(personaId, {
       prompt: systemPrompt,
       timestamp: Date.now()
     });
     
-    // Clear old cache entries (older than 1 hour)
-    const oneHourAgo = Date.now() - 3600000;
+    logger.debug('Persona cached', { personaId, cacheSize: this.personaCache.size });
+    
+    // Clear old cache entries using centralized config
+    this.cleanupCache();
+  }
+
+  /**
+   * Clean up old cache entries
+   */
+  cleanupCache() {
+    const cutoffTime = Date.now() - appConfig.persona.cacheTimeout;
+    let removedCount = 0;
+    
     for (const [key, value] of this.personaCache.entries()) {
-      if (value.timestamp < oneHourAgo) {
+      if (value.timestamp < cutoffTime) {
         this.personaCache.delete(key);
+        removedCount++;
       }
+    }
+    
+    if (removedCount > 0) {
+      logger.debug('Cache cleanup completed', { removedCount, remainingSize: this.personaCache.size });
     }
   }
 
