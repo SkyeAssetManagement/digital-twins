@@ -1,5 +1,5 @@
 import { DatasetAwareResponseEngine } from './src/digital_twins/response_engine.js';
-import { VectorStore } from './src/vector_db/vector_store.js';
+import { createUnifiedVectorStore } from './src/vector_db/unified_vector_store.js';
 
 // Test with the actual Rip Curl ad script
 async function testRipCurlAd() {
@@ -62,8 +62,7 @@ Voiceover (deep, masculine voice): Live the search.`;
     }
   ];
   
-  const vectorStore = new VectorStore('test');
-  await vectorStore.initialize();
+  const vectorStore = await createUnifiedVectorStore('test', { embeddingProvider: 'local-minilm' });
   
   console.log("\nSEGMENT RESPONSES TO RIP CURL AD:");
   console.log("=".repeat(80));

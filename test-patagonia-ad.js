@@ -9,7 +9,7 @@ import dotenv from 'dotenv';
 
 // Import all three engines
 import { SemanticResponseEngine } from './src/digital_twins/semantic_response_engine.js';
-import { VectorStore } from './src/vector_db/vector_store.js';
+import { createUnifiedVectorStore } from './src/vector_db/unified_vector_store.js';
 import { getAdvancedSemanticEngine } from './src/semantic/advanced_semantic_engine.js';
 import { getIntegratedPersonaEngineV2 } from './src/claude/integrated_persona_engine_v2.js';
 
@@ -52,8 +52,7 @@ async function testAllApproaches() {
   // Test 1: Basic Semantic Engine
   console.log('1. BASIC SEMANTIC ENGINE');
   console.log('------------------------');
-  const vectorStore = new VectorStore('patagonia-test');
-  await vectorStore.initialize();
+  const vectorStore = await createUnifiedVectorStore('patagonia-test', { embeddingProvider: 'local-minilm' });
   
   for (const segment of segments) {
     const twin = {

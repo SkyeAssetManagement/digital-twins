@@ -1,4 +1,4 @@
-import { VectorStore } from '../src/vector_db/vector_store.js';
+import { createUnifiedVectorStore } from '../src/vector_db/unified_vector_store.js';
 import { DynamicTwinGenerator } from '../src/digital_twins/twin_generator.js';
 import fs from 'fs/promises';
 import path from 'path';
@@ -28,9 +28,10 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: 'Dataset not found' });
     }
 
-    // Initialize vector store
-    const vectorStore = new VectorStore(datasetId);
-    await vectorStore.initialize();
+    // Initialize unified vector store
+    const vectorStore = await createUnifiedVectorStore(datasetId, {
+      embeddingProvider: config.embeddingProvider || 'openai'
+    });
 
     // Generate twin
     const twinGenerator = new DynamicTwinGenerator(vectorStore, config);

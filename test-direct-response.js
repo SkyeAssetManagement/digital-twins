@@ -1,5 +1,5 @@
 import { DatasetAwareResponseEngine } from './src/digital_twins/response_engine.js';
-import { VectorStore } from './src/vector_db/vector_store.js';
+import { createUnifiedVectorStore } from './src/vector_db/unified_vector_store.js';
 
 // Test the response engine directly without the server
 async function testDirectResponses() {
@@ -37,8 +37,7 @@ async function testDirectResponses() {
     }
   ];
   
-  const vectorStore = new VectorStore('test');
-  await vectorStore.initialize();
+  const vectorStore = await createUnifiedVectorStore('test', { embeddingProvider: 'local-minilm' });
   
   const responses = [];
   

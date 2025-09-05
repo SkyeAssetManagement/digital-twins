@@ -1,5 +1,5 @@
 import { SemanticResponseEngine } from './src/digital_twins/semantic_response_engine.js';
-import { VectorStore } from './src/vector_db/vector_store.js';
+import { createUnifiedVectorStore } from './src/vector_db/unified_vector_store.js';
 
 // Test marketing content samples
 const testContent = {
@@ -61,8 +61,7 @@ async function testSemanticEngine() {
   console.log(`=================================${colors.reset}\n`);
   
   // Initialize vector store
-  const vectorStore = new VectorStore('test-semantic');
-  await vectorStore.initialize();
+  const vectorStore = await createUnifiedVectorStore('test-semantic', { embeddingProvider: 'local-minilm' });
   
   // Test each segment with each content type
   for (const segment of testSegments) {

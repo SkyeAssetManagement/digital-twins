@@ -1,5 +1,5 @@
 import { SemanticResponseEngine } from './src/digital_twins/semantic_response_engine.js';
-import { VectorStore } from './src/vector_db/vector_store.js';
+import { createUnifiedVectorStore } from './src/vector_db/unified_vector_store.js';
 
 // Real Rip Curl marketing content examples
 const ripCurlContent = {
@@ -63,8 +63,7 @@ async function testRipCurlContent() {
   console.log(`=========================================${colors.reset}\n`);
   
   // Initialize vector store
-  const vectorStore = new VectorStore('rip-curl-test');
-  await vectorStore.initialize();
+  const vectorStore = await createUnifiedVectorStore('rip-curl-test', { embeddingProvider: 'local-minilm' });
   
   // Test segments
   const segments = ['Leader', 'Leaning', 'Learner', 'Laggard'];

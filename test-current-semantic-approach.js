@@ -7,7 +7,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { SemanticResponseEngine } from './src/digital_twins/semantic_response_engine.js';
-import { VectorStore } from './src/vector_db/vector_store.js';
+import { createUnifiedVectorStore } from './src/vector_db/unified_vector_store.js';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -48,9 +48,10 @@ async function testCurrentApproach() {
   console.log('Test Ad: Rip Curl "The Search" Commercial');
   console.log('Content preview:', adContent.substring(0, 200) + '...\n');
   
-  // Initialize vector store
-  const vectorStore = new VectorStore('surf-clothing');
-  await vectorStore.initialize();
+  // Initialize unified vector store
+  const vectorStore = await createUnifiedVectorStore('surf-clothing', {
+    embeddingProvider: 'local-minilm'
+  });
   
   // Store results
   const results = {

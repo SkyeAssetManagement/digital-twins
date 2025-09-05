@@ -1,5 +1,5 @@
 import { UniversalProcessor } from '../src/data_processing/universal_processor.js';
-import { VectorStore } from '../src/vector_db/vector_store.js';
+import { createUnifiedVectorStore } from '../src/vector_db/unified_vector_store.js';
 import { PDFInsightExtractor } from '../src/data_processing/pdf_extractor.js';
 import { SegmentDiscovery } from '../src/data_processing/segment_discovery.js';
 import { DynamicTwinGenerator } from '../src/digital_twins/twin_generator.js';
@@ -63,10 +63,11 @@ export async function initializeDataset(datasetId) {
       timestamp: new Date().toISOString()
     });
     
-    // Step 2: Initialize vector store
-    console.log('\nStep 2: Initializing vector store...');
-    const vectorStore = new VectorStore(datasetId);
-    await vectorStore.initialize();
+    // Step 2: Initialize unified vector store
+    console.log('\nStep 2: Initializing unified vector store...');
+    const vectorStore = await createUnifiedVectorStore(datasetId, {
+      embeddingProvider: config.embeddingProvider || 'openai'
+    });
     
     // Step 3: Store segment profiles
     console.log('\nStep 3: Storing segment profiles...');
@@ -147,8 +148,7 @@ export async function initializeDataset(datasetId) {
     
     // Try to update status to failed
     try {
-      const vectorStore = new VectorStore(datasetId);
-      await vectorStore.initialize();
+      const vectorStore = await createUnifiedVectorStore(datasetId);
       await vectorStore.updateDatasetStatus(datasetId, 'failed', error.message);
       await vectorStore.close();
     } catch (e) {
