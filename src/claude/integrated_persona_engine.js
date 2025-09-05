@@ -7,7 +7,7 @@
 import { ClaudePersonaHelper } from './claude_persona_helper.js';
 import { getSurveyPersonaInjector } from './survey_persona_injector.js';
 import { getSurveyResponseLoader } from '../data_processing/survey_response_loader.js';
-import { createEnhancedVectorStore } from '../vector_db/enhanced_vector_store.js';
+import { createUnifiedVectorStore } from '../vector_db/unified_vector_store.js';
 
 export class IntegratedPersonaEngine {
   constructor() {
@@ -33,8 +33,10 @@ export class IntegratedPersonaEngine {
     this.surveyInjector = await getSurveyPersonaInjector();
     this.surveyLoader = await getSurveyResponseLoader();
     
-    // Initialize vector store with OpenAI embeddings for better values understanding
-    this.vectorStore = await createEnhancedVectorStore('surf-clothing', 'openai');
+    // Initialize unified vector store with OpenAI embeddings for better values understanding
+    this.vectorStore = await createUnifiedVectorStore('surf-clothing', {
+      embeddingProvider: 'openai'
+    });
     
     // Pre-load and embed all survey responses
     await this.embedAllSurveyResponses();

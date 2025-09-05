@@ -1,13 +1,16 @@
-import { VectorStore } from '../src/vector_db/vector_store.js';
+import { createUnifiedVectorStore } from '../src/vector_db/unified_vector_store.js';
+import { createLogger } from '../src/utils/logger.js';
+import { asyncHandler, ValidationError } from '../src/utils/error-handler.js';
+import { appConfig } from '../src/config/app-config.js';
 import fs from 'fs/promises';
 import path from 'path';
 
-export default async function handler(req, res) {
-  if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+const logger = createLogger('ListDatasetsAPI');
 
-  try {
+const handler = async (req, res) => {
+  if (req.method !== 'GET') {
+    throw new ValidationError('Method not allowed. Use GET.');
+  }
     // Get datasets from file system
     const datasetsPath = path.join(process.cwd(), 'data', 'datasets');
     const datasets = [];
@@ -43,7 +46,7 @@ export default async function handler(req, res) {
             created_at: config.uploadDate || new Date().toISOString()
           });
         } catch (error) {
-          console.error(`Error reading config for ${dir}:`, error);
+        logger.warn('Error reading config', { dir, error: error.message });
           // Include directory even if config is missing
           datasets.push({
             id: dir,
@@ -57,13 +60,14 @@ export default async function handler(req, res) {
         }
       }
     } catch (error) {
-      console.error('Error reading datasets directory:', error);
+    logger.error('Error reading datasets directory', error);
     }
     
     // Try to get additional info from database
     try {
-      const vectorStore = new VectorStore('system');
-      await vectorStore.initialize();
+    const vectorStore = await createUnifiedVectorStore('system', {
+      embeddingProvider: appConfig.openai.apiKey ? 'openai-small' : 'local-minilm'
+    });
       const dbDatasets = await vectorStore.listDatasets();
       await vectorStore.close();
       
@@ -79,15 +83,11 @@ export default async function handler(req, res) {
         }
       });
     } catch (error) {
-      console.warn('Could not fetch database datasets:', error);
+    logger.warn('Could not fetch database datasets', error);
     }
     
-    res.json(datasets);
-  } catch (error) {
-    console.error('Error listing datasets:', error);
-    res.status(500).json({ 
-      error: 'Failed to list datasets',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
-  }
-}
+  res.json(datasets);
+};
+
+// Export with error handling wrapper
+export default asyncHandler(handler);

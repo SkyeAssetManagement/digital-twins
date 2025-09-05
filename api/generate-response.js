@@ -1,62 +1,66 @@
-import { VectorStore } from '../src/vector_db/vector_store.js';
+import { createUnifiedVectorStore } from '../src/vector_db/unified_vector_store.js';
 import { DynamicTwinGenerator } from '../src/digital_twins/twin_generator.js';
 import { DatasetAwareResponseEngine } from '../src/digital_twins/response_engine.js';
+import { createLogger } from '../src/utils/logger.js';
+import { asyncHandler, ValidationError } from '../src/utils/error-handler.js';
+import { appConfig } from '../src/config/app-config.js';
 import fs from 'fs/promises';
 import path from 'path';
 
 // Cache for twins to avoid regenerating
 const twinCache = new Map();
+const logger = createLogger('GenerateResponseAPI');
 
-export default async function handler(req, res) {
+const handler = async (req, res) => {
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    throw new ValidationError('Method not allowed. Use POST.');
   }
 
-  try {
-    const { 
-      marketingContent, 
-      imageData, 
-      datasetId = 'surf-clothing',
-      segments = ['Leader', 'Leaning', 'Learner', 'Laggard']
-    } = req.body;
+  const { 
+    marketingContent, 
+    imageData, 
+    datasetId = 'surf-clothing',
+    segments = ['Leader', 'Leaning', 'Learner', 'Laggard']
+  } = req.body;
 
-    if (!marketingContent) {
-      return res.status(400).json({ error: 'Marketing content is required' });
-    }
+  if (!marketingContent) {
+    throw new ValidationError('Marketing content is required');
+  }
 
-    console.log(`Generating responses for dataset: ${datasetId}`);
-    
-    // Initialize vector store
-    const vectorStore = new VectorStore(datasetId);
-    await vectorStore.initialize();
+  logger.info('Generating responses', { datasetId, segments: segments.length });
+  
+  // Initialize unified vector store with proper configuration
+  const vectorStore = await createUnifiedVectorStore(datasetId, {
+    embeddingProvider: appConfig.openai.apiKey ? 'openai-small' : 'local-minilm'
+  });
 
     // Load dataset config
     const configPath = path.join(process.cwd(), 'data', 'datasets', datasetId, 'config.json');
     let config;
     
-    try {
-      const configData = await fs.readFile(configPath, 'utf8');
-      config = JSON.parse(configData);
-    } catch (error) {
-      console.warn(`Config not found for ${datasetId}, using defaults`);
-      config = {
-        id: datasetId,
-        name: datasetId,
-        description: 'Custom dataset',
-        predefinedSegments: segments
-      };
-    }
+  try {
+    const configData = await fs.readFile(configPath, 'utf8');
+    config = JSON.parse(configData);
+  } catch (error) {
+    logger.warn('Config not found, using defaults', { datasetId });
+    config = {
+      id: datasetId,
+      name: datasetId,
+      description: 'Custom dataset',
+      predefinedSegments: segments
+    };
+  }
 
     // Load our survey-based digital twins if using surf-clothing dataset
     let digitalTwins = null;
     if (datasetId === 'surf-clothing') {
       try {
         const twinsPath = path.join(process.cwd(), 'data', 'digital-twins', 'surf-clothing-personas.json');
-        const twinsData = await fs.readFile(twinsPath, 'utf8');
-        digitalTwins = JSON.parse(twinsData);
-        console.log('Loaded survey-based digital twins');
+      const twinsData = await fs.readFile(twinsPath, 'utf8');
+      digitalTwins = JSON.parse(twinsData);
+      logger.info('Loaded survey-based digital twins');
       } catch (error) {
-        console.log('Digital twins not found, using generated twins');
+      logger.debug('Digital twins not found, using generated twins');
       }
     }
 
@@ -88,7 +92,7 @@ export default async function handler(req, res) {
               characteristics: twinData.keyCharacteristics,
               exampleResponses: twinData.exampleResponses
             };
-            console.log(`Using survey-based twin for ${segment}: ${twinData.percentage} of market`);
+          logger.debug('Using survey-based twin', { segment, marketShare: twinData.percentage });
           }
         }
         
@@ -119,7 +123,7 @@ export default async function handler(req, res) {
           valueSystem: twin.valueSystem
         });
       } catch (error) {
-        console.error(`Error generating response for segment ${segment}:`, error);
+      logger.error('Error generating response for segment', error, { segment });
         
         // Enhanced fallback responses based on actual survey data
         let fallbackResponse = `As a ${segment.toLowerCase()} consumer, I would need more information to evaluate this product.`;
@@ -170,13 +174,12 @@ export default async function handler(req, res) {
       timestamp: new Date().toISOString()
     });
   } catch (error) {
-    console.error('API error:', error);
-    res.status(500).json({ 
-      error: 'Failed to generate responses',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
-  }
-}
+  // Note: Error handling is managed by asyncHandler wrapper
+  throw error;
+};
+
+// Export with error handling wrapper
+export default asyncHandler(handler);
 
 function calculateAggregateMetrics(responses) {
   const sentimentCounts = { positive: 0, neutral: 0, negative: 0 };
