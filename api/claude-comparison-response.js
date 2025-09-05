@@ -241,6 +241,10 @@ async function generateMultipleResponses(content, segment, count, modelType) {
  */
 async function analyzeImageContent(imageData) {
   try {
+    console.log('=== IMAGE ANALYSIS START ===');
+    console.log('Image data type:', typeof imageData);
+    console.log('Image data starts with:', imageData.substring(0, 50));
+    
     // Extract base64 data and media type
     let base64Data, mediaType;
     
@@ -249,15 +253,46 @@ async function analyzeImageContent(imageData) {
       if (matches) {
         mediaType = `image/${matches[1]}`;
         base64Data = matches[2];
+      } else {
+        // Fallback parsing for data URLs
+        const parts = imageData.split(',');
+        base64Data = parts[1] || imageData;
+        // Try to extract media type from the header
+        if (parts[0] && parts[0].includes('image/')) {
+          const typeMatch = parts[0].match(/image\/(\w+)/);
+          mediaType = typeMatch ? `image/${typeMatch[1]}` : 'image/jpeg';
+        } else {
+          mediaType = 'image/jpeg';
+        }
       }
     } else {
       base64Data = imageData;
       mediaType = 'image/jpeg';
     }
     
+    console.log('Media type detected:', mediaType);
+    console.log('Base64 data length:', base64Data ? base64Data.length : 0);
+    console.log('API Key exists:', !!process.env.ANTHROPIC_API_KEY);
+    
+    // Validate base64 data
+    try {
+      const buffer = Buffer.from(base64Data, 'base64');
+      console.log('Base64 validation successful, buffer size:', buffer.length);
+      const sizeMB = buffer.length / (1024 * 1024);
+      console.log('Image size:', sizeMB.toFixed(2), 'MB');
+      if (sizeMB > 5) {
+        throw new Error('Image too large. Maximum size is 5MB');
+      }
+    } catch (err) {
+      console.error('Base64 validation failed:', err);
+      throw new Error('Invalid base64 image data: ' + err.message);
+    }
+    
+    console.log('Calling Claude API with image...');
+    
     const response = await anthropic.messages.create({
-      model: 'claude-3-5-opus-20241022',
-      max_tokens: 500,
+      model: 'claude-opus-4-1-20250805',
+      max_tokens: 1000,
       messages: [
         {
           role: 'user',
@@ -272,18 +307,33 @@ async function analyzeImageContent(imageData) {
             },
             {
               type: 'text',
-              text: 'Extract and summarize the marketing content from this image. Include key product details, claims, features, and any promotional messaging. Format as a clear marketing description.'
+              text: `Extract the marketing content from this image. Include:
+- Product name and brand
+- Key features and benefits
+- Sustainability/environmental claims
+- Price or value messaging
+- Any specific technologies or materials mentioned
+Be concise but specific. Focus on what's actually shown/written in the ad.`
             }
           ]
         }
       ]
     });
     
-    return response.content[0].text;
+    console.log('Claude API response received');
+    const extractedContent = response.content[0].text;
+    console.log('Extracted content:', extractedContent);
+    console.log('=== IMAGE ANALYSIS END ===');
+    
+    return extractedContent;
     
   } catch (error) {
-    console.error('Error analyzing image:', error);
-    return null;
+    console.error('=== IMAGE ANALYSIS ERROR ===');
+    console.error('Error type:', error.name);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+    console.error('===========================');
+    throw error;
   }
 }
 
@@ -316,11 +366,19 @@ export default async function handler(req, res) {
       console.log('Analyzing image content with Claude...');
       
       if (analyzeOnly) {
-        const extractedContent = await analyzeImageContent(content);
-        return res.status(200).json({
-          success: true,
-          extractedContent: extractedContent || 'NA - Image analysis failed'
-        });
+        try {
+          const extractedContent = await analyzeImageContent(content);
+          return res.status(200).json({
+            success: true,
+            extractedContent: extractedContent
+          });
+        } catch (error) {
+          console.error('Failed to analyze image:', error);
+          return res.status(500).json({
+            error: 'Failed to analyze image',
+            details: error.message
+          });
+        }
       }
       
       marketingContent = await analyzeImageContent(content);
