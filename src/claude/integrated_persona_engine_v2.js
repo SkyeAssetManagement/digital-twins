@@ -146,7 +146,11 @@ export class IntegratedPersonaEngineV2 {
     
     // Log which prefill was selected for debugging
     if (prefill) {
-      console.log(`[Prefill] Using: "${prefill}" for ${segment}`);
+      console.log(`[Prefill] Using: "${prefill}" for ${segment} (length: ${prefill.length})`);
+      // Additional check for trailing spaces
+      if (prefill !== prefill.trimEnd()) {
+        console.error(`[ERROR] Prefill still has trailing space after trimEnd()! Original: "${selectedPrefill}", After trim: "${prefill}"`);
+      }
     } else {
       console.log(`[Prefill] No prefill for ${segment}`);
     }
@@ -166,6 +170,10 @@ export class IntegratedPersonaEngineV2 {
         }
         
         // Step 5: Generate response with Claude
+        // Final safety check before sending
+        const finalPrefill = prefill ? prefill.trimEnd() : '';
+        console.log(`[API] Sending prefill: "${finalPrefill}" (length: ${finalPrefill.length}, ends with space: ${finalPrefill !== finalPrefill.trimEnd()})`);
+        
         const response = await this.client.messages.create({
           model: selectedModel,
           max_tokens: 300,
@@ -178,7 +186,7 @@ export class IntegratedPersonaEngineV2 {
             },
             {
               role: 'assistant',
-              content: prefill  // Minimal prefilling
+              content: finalPrefill  // Use double-trimmed prefill
             }
           ]
         });
@@ -190,6 +198,10 @@ export class IntegratedPersonaEngineV2 {
       } catch (error) {
         lastError = error;
         console.error(`[Claude] Attempt ${attempt} failed for ${segment}:`, error.message || error);
+        console.error(`[Claude] Failed prefill was: "${finalPrefill}" (length: ${finalPrefill?.length})`);
+        console.error(`[Claude] Original selectedPrefill: "${selectedPrefill}"`);
+        console.error(`[Claude] After first trim: "${prefill}"`);
+        console.error(`[Claude] After final trim: "${finalPrefill}"`);
         
         // Check for rate limit error
         if (error.status === 429) {
