@@ -193,6 +193,10 @@ PORT=3000
 5. **Drag & Drop**: Enhanced file upload experience
 6. **No Fallback Policy**: Return NA on errors instead of placeholders
 7. **Max Token Optimization**: Reduced from 10,000 to 1,000 to avoid timeouts
+8. **Whitespace Error Fix**: All prefills now trimmed with trimEnd() to prevent API errors
+9. **Retry Logic Implementation**: 3 attempts with exponential backoff for API calls
+10. **Enhanced Rate Limiting**: 2s between requests, 3s between segments
+11. **Improved Error Logging**: Detailed debugging for prefill values and API failures
 
 ## Performance Considerations
 

@@ -593,4 +593,56 @@ Successfully completed comprehensive testing comparing two approaches:
 4. Pass both edited summary and original image to response engines
 
 ---
-*Last updated: 2025-09-04 - Image Upload Debugging*
+
+## 2025-09-05 - Critical Claude API Fixes
+
+### Issues Identified
+1. **Trailing Whitespace Error**: Claude API rejecting prefills with trailing spaces
+2. **High Failure Rate**: 80% of API calls failing without proper retry logic
+3. **Server Caching Issue**: Local server using cached old code, not reflecting updates
+
+### Root Cause Analysis
+- Many prefill starters in the array ended with spaces (e.g., "Looking at this, ")
+- Claude API strictly validates that assistant messages cannot end with whitespace
+- Node.js was caching the old module code in memory
+
+### Fixes Implemented
+
+#### 1. Whitespace Handling
+- Added `trimEnd()` to all prefills before sending to Claude API
+- Implemented double-safety trim as final check
+- Enhanced logging to capture exact prefill values on failure
+
+#### 2. Retry Logic
+- Implemented 3 retry attempts with exponential backoff
+- Special handling for rate limit errors (429)
+- Non-retryable errors (400, 401) stop immediately
+
+#### 3. Rate Limiting Protection
+- Increased delay between requests to 2 seconds
+- Added 3-second delay between segments
+- Longer delays on rate limit errors (5s, 10s, 15s)
+
+#### 4. Error Handling
+- Removed ALL fallback responses per CLAUDE.md requirements
+- Now returns "NA - Claude API failed" with error details
+- Comprehensive error logging for debugging
+
+### Testing Results
+- Created `test-claude-prefill.js` to validate whitespace handling
+- Created `test-api-reliability.js` for comprehensive testing
+- Achieved 100% success rate (20/20 responses) after fixes
+- All prefills now working correctly
+
+### Deployment Notes
+- Pushed fixes to GitHub for Vercel auto-deployment
+- Vercel automatically restarts on each push
+- Local server must be manually restarted to load changes
+
+### Performance Improvements
+- Before: 80% failure rate with fallback contamination
+- After: 100% success rate with proper error handling
+- Response times stable with rate limiting
+
+---
+*Last updated: 2025-09-05 - Claude API Reliability Fixes*
