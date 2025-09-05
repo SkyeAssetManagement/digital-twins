@@ -171,13 +171,21 @@ export class IntegratedPersonaEngineV2 {
       return this.parseEnhancedResponse(response, respondents, segment);
       
     } catch (error) {
-      console.error('Claude API error:', error);
-      // NO FALLBACKS - Return NA
+      console.error('Claude API error:', error.message || error);
+      console.error('Full error details:', JSON.stringify(error, null, 2));
+      
+      // Check for rate limit error
+      if (error.status === 429) {
+        console.error('RATE LIMIT HIT - Too many requests to Claude API');
+      }
+      
+      // NO FALLBACKS - Return NA with detailed error
       return {
-        text: 'NA - Claude API failed',
+        text: `NA - Claude API failed: ${error.message || 'Unknown error'}`,
         sentiment: 'NA',
         purchaseIntent: 0,
         error: true,
+        errorCode: error.status || error.code,
         errorMessage: error.message,
         timestamp: new Date().toISOString()
       };

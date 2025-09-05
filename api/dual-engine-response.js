@@ -25,6 +25,11 @@ async function generateMultipleResponses(engine, content, segment, count, engine
           interpolationWeight: 0.6 + (i * 0.1) // Vary interpolation
         });
       } else {
+        // Add delay to avoid rate limiting (Claude has strict limits)
+        if (i > 0) {
+          await new Promise(resolve => setTimeout(resolve, 1000)); // 1 second delay between requests
+        }
+        
         // Generate unique Claude response with different respondents
         response = await engine.generateEnhancedResponse(content, segment, {
           numRespondents: 10 + i, // More granular variation (10, 11, 12, 13...)
