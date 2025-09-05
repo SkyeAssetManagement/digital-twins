@@ -26,14 +26,26 @@ export default async function handler(req, res) {
   try {
     const {
       marketingContent,
+      adContent, // Alternative parameter name
       imageData,
       datasetId = 'surf-clothing',
+      segment,  // Single segment for parameter testing
       segments = ['Leader', 'Leaning', 'Learner', 'Laggard'],
       usePersonaVectors = true,
-      conversationHistory = []
+      conversationHistory = [],
+      // New parameters for testing
+      model = 'claude-opus-4-1-20250805',
+      temperature = 0.7,
+      topP = 0.9,
+      maxTokens = 150,
+      usePrefill = true,
+      systemPromptStyle = 'detailed',
+      responseCount = 3
     } = req.body;
 
-    if (!marketingContent) {
+    // Accept either marketingContent or adContent
+    const content = marketingContent || adContent;
+    if (!content) {
       return res.status(400).json({ error: 'Marketing content is required' });
     }
 
@@ -56,38 +68,41 @@ export default async function handler(req, res) {
       }
     }
 
+    // Handle single segment for parameter testing
+    const segmentsToProcess = segment ? [segment] : segments;
+    
     // Generate responses for each segment
     const responses = [];
-    const queries = [marketingContent];
+    const queries = [content];
 
-    for (const segment of segments) {
+    for (const targetSegment of segmentsToProcess) {
       try {
         let twinData = null;
 
         // Prepare twin data
         if (digitalTwins) {
-          const segmentKey = `LOHAS ${segment}`;
+          const segmentKey = `LOHAS ${targetSegment}`;
           if (digitalTwins[segmentKey]) {
             const segmentData = digitalTwins[segmentKey];
             twinData = {
-              id: `${datasetId}_${segment}`,
-              pid: `${datasetId}_${segment}`,
-              segment: segment,
+              id: `${datasetId}_${targetSegment}`,
+              pid: `${datasetId}_${targetSegment}`,
+              segment: targetSegment,
               persona_json: {
-                segment: segment,
+                segment: targetSegment,
                 values: {
-                  environmental_concern: segment === 'Leader' ? 0.95 : 
-                                        segment === 'Leaning' ? 0.75 :
-                                        segment === 'Learner' ? 0.50 : 0.25,
-                  brand_loyalty: segment === 'Leader' ? 0.85 :
-                                segment === 'Leaning' ? 0.70 :
-                                segment === 'Learner' ? 0.55 : 0.45,
-                  community_involvement: segment === 'Leader' ? 0.80 :
-                                        segment === 'Leaning' ? 0.60 :
-                                        segment === 'Learner' ? 0.45 : 0.30,
-                  price_sensitivity: segment === 'Leader' ? 0.30 :
-                                    segment === 'Leaning' ? 0.50 :
-                                    segment === 'Learner' ? 0.70 : 0.90
+                  environmental_concern: targetSegment === 'Leader' ? 0.95 : 
+                                        targetSegment === 'Leaning' ? 0.75 :
+                                        targetSegment === 'Learner' ? 0.50 : 0.25,
+                  brand_loyalty: targetSegment === 'Leader' ? 0.85 :
+                                targetSegment === 'Leaning' ? 0.70 :
+                                targetSegment === 'Learner' ? 0.55 : 0.45,
+                  community_involvement: targetSegment === 'Leader' ? 0.80 :
+                                        targetSegment === 'Leaning' ? 0.60 :
+                                        targetSegment === 'Learner' ? 0.45 : 0.30,
+                  price_sensitivity: targetSegment === 'Leader' ? 0.30 :
+                                    targetSegment === 'Leaning' ? 0.50 :
+                                    targetSegment === 'Learner' ? 0.70 : 0.90
                 },
                 demographics: segmentData.demographics || {},
                 purchasing_behavior: segmentData.purchasing || {},
@@ -102,68 +117,110 @@ export default async function handler(req, res) {
         // Fallback to basic segment data
         if (!twinData) {
           twinData = {
-            id: `${datasetId}_${segment}`,
-            pid: `${datasetId}_${segment}`,
-            segment: segment,
+            id: `${datasetId}_${targetSegment}`,
+            pid: `${datasetId}_${targetSegment}`,
+            segment: targetSegment,
             persona_json: {
-              segment: segment
+              segment: targetSegment
             }
           };
         }
 
-        // Process with Claude integration
+        // Process with Claude integration using new parameters
         let segmentResponse;
         
-        if (usePersonaVectors) {
-          // Use full persona vector system
+        if (usePersonaVectors && !segment) {
+          // Use full persona vector system for multi-segment
           const result = await integration.processDigitalTwin(twinData, queries);
           
           segmentResponse = {
-            segment: segment,
+            segment: targetSegment,
             response: result.responses[0]?.response || 'Unable to generate response',
             sentiment: analyzeSentiment(result.responses[0]?.response),
-            purchaseIntent: calculatePurchaseIntent(segment, result.responses[0]?.response),
+            purchaseIntent: calculatePurchaseIntent(targetSegment, result.responses[0]?.response),
             consistency: result.validation?.consistencyScore || 0,
             driftScore: result.responses[0]?.driftScore || 0,
             personaVector: result.personaVector ? result.personaVector.slice(0, 10) : [], // Send first 10 values
-            marketSize: twinData.market_size || getMarketSize(segment)
+            marketSize: twinData.market_size || getMarketSize(targetSegment)
           };
         } else {
-          // Use simpler Claude helper without vectors
+          // Use Claude helper with custom parameters for testing
           const helper = integration.claudeHelper;
-          const systemPrompt = helper.convertTwinPersonaToClaude(twinData.persona_json || twinData);
-          const response = await helper.generateResponse(systemPrompt, marketingContent);
+          
+          // Generate system prompt based on style
+          let systemPrompt;
+          if (systemPromptStyle === 'minimal') {
+            systemPrompt = `You are a ${targetSegment} consumer in the LOHAS framework. Respond naturally to marketing messages.`;
+          } else if (systemPromptStyle === 'values') {
+            systemPrompt = getValuesPrompt(targetSegment);
+          } else if (systemPromptStyle === 'demographic') {
+            systemPrompt = getDemographicPrompt(targetSegment);
+          } else {
+            systemPrompt = helper.convertTwinPersonaToClaude(twinData.persona_json || twinData);
+          }
+          
+          // Generate multiple responses if requested
+          const generatedResponses = [];
+          for (let i = 0; i < responseCount; i++) {
+            // Vary temperature slightly for each response if randomizing
+            const responseTemp = temperature + (Math.random() - 0.5) * 0.1;
+            
+            const response = await generateClaudeResponse({
+              systemPrompt,
+              userMessage: content,
+              model,
+              temperature: Math.min(2, Math.max(0, responseTemp)),
+              topP,
+              maxTokens,
+              usePrefill
+            });
+            
+            generatedResponses.push(response);
+          }
+          
+          // Select best response or combine them
+          const bestResponse = generatedResponses[0]; // Can enhance selection logic later
           
           segmentResponse = {
-            segment: segment,
-            response: response,
-            sentiment: analyzeSentiment(response),
-            purchaseIntent: calculatePurchaseIntent(segment, response),
-            marketSize: twinData.market_size || getMarketSize(segment)
+            segment: targetSegment,
+            responses: generatedResponses,
+            response: bestResponse, // Primary response for backward compatibility
+            sentiment: analyzeSentiment(bestResponse),
+            purchaseIntent: calculatePurchaseIntent(targetSegment, bestResponse),
+            marketSize: twinData.market_size || getMarketSize(targetSegment),
+            parameters: {
+              model,
+              temperature,
+              topP,
+              maxTokens,
+              usePrefill,
+              systemPromptStyle,
+              responseCount
+            }
           };
         }
 
         // Add image analysis if provided
         if (imageData) {
-          segmentResponse.imageAnalysis = `As a ${segment} consumer, I would evaluate the visual appeal based on my values.`;
+          segmentResponse.imageAnalysis = `As a ${targetSegment} consumer, I would evaluate the visual appeal based on my values.`;
         }
 
         responses.push(segmentResponse);
-        console.log(`Generated response for ${segment} segment`);
+        console.log(`Generated response for ${targetSegment} segment`);
 
       } catch (error) {
-        console.error(`Error generating response for ${segment}:`, error);
+        console.error(`Error generating response for ${targetSegment}:`, error);
         
         // Provide fallback response
         responses.push({
-          segment: segment,
-          response: getFallbackResponse(segment, marketingContent),
+          segment: targetSegment,
+          response: getFallbackResponse(targetSegment, content),
           sentiment: 'neutral',
-          purchaseIntent: segment === 'Leader' ? 0.7 :
-                         segment === 'Leaning' ? 0.5 :
-                         segment === 'Learner' ? 0.3 : 0.1,
+          purchaseIntent: targetSegment === 'Leader' ? 0.7 :
+                         targetSegment === 'Leaning' ? 0.5 :
+                         targetSegment === 'Learner' ? 0.3 : 0.1,
           error: error.message,
-          marketSize: getMarketSize(segment)
+          marketSize: getMarketSize(targetSegment)
         });
       }
     }
@@ -190,6 +247,84 @@ export default async function handler(req, res) {
       message: error.message
     });
   }
+}
+
+/**
+ * Generate Claude response with custom parameters
+ */
+async function generateClaudeResponse(params) {
+  const {
+    systemPrompt,
+    userMessage,
+    model = 'claude-opus-4-1-20250805',
+    temperature = 0.7,
+    topP = 0.9,
+    maxTokens = 150,
+    usePrefill = true
+  } = params;
+  
+  try {
+    const anthropic = claudeIntegration?.claudeHelper?.client;
+    if (!anthropic) {
+      throw new Error('Claude client not initialized');
+    }
+    
+    const messages = [
+      { role: 'user', content: userMessage }
+    ];
+    
+    // Add prefill if enabled
+    if (usePrefill) {
+      messages.push({
+        role: 'assistant',
+        content: 'As a'
+      });
+    }
+    
+    const response = await anthropic.messages.create({
+      model: model,
+      max_tokens: maxTokens,
+      temperature: temperature,
+      top_p: topP,
+      system: systemPrompt,
+      messages: messages
+    });
+    
+    const responseText = usePrefill 
+      ? 'As a' + response.content[0]?.text 
+      : response.content[0]?.text;
+      
+    return responseText || 'Unable to generate response';
+  } catch (error) {
+    console.error('Claude generation error:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get values-focused prompt for segment
+ */
+function getValuesPrompt(segment) {
+  const prompts = {
+    'Leader': `You embody these values: Environmental responsibility (95%), Quality (85%), Innovation (90%), Social impact (95%). You are willing to pay premium for genuine sustainability. Respond as this highly values-driven consumer.`,
+    'Leaning': `You balance these values: Sustainability (65%), Practicality (75%), Quality (75%), Value (60%). You seek sustainable options when they align with practical needs. Respond as this balanced consumer.`,
+    'Learner': `You prioritize these values: Price (80%), Practicality (70%), Learning (60%), Traditional quality (60%). You're curious but cautious about new sustainable products. Respond as this price-conscious explorer.`,
+    'Laggard': `You focus on these values: Price (95%), Functionality (85%), Traditional quality (70%), Proven results (80%). Sustainability is not a priority. Respond as this traditional, practical consumer.`
+  };
+  return prompts[segment] || prompts['Learner'];
+}
+
+/**
+ * Get demographic-focused prompt for segment
+ */
+function getDemographicPrompt(segment) {
+  const prompts = {
+    'Leader': `You are a 35-45 year old professional with above-average income, higher education, living in an urban area. You actively research products and influence others' purchasing decisions. Respond from this demographic perspective.`,
+    'Leaning': `You are a 30-40 year old suburban resident with average to above-average income, college educated. You balance family needs with environmental consciousness. Respond from this demographic perspective.`,
+    'Learner': `You are a 25-50 year old with average income, some college education, living in mixed urban/suburban areas. You follow mainstream trends and seek value. Respond from this demographic perspective.`,
+    'Laggard': `You are a 35-55 year old with below-average to average income, varied education, often in rural or suburban areas. You prefer familiar brands and proven products. Respond from this demographic perspective.`
+  };
+  return prompts[segment] || prompts['Learner'];
 }
 
 /**

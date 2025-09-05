@@ -7,6 +7,7 @@ import { dirname } from 'path';
 
 // Import API routes
 import generateResponseRoute from './api/generate-response.js';
+import generateClaudeResponseRoute from './api/generate-claude-response.js';
 import listDatasetsRoute from './api/list-datasets.js';
 import uploadDatasetRoute from './api/upload-dataset.js';
 import getDatasetConfigRoute from './api/dataset-config.js';
@@ -36,6 +37,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // API Routes
 app.post('/api/generate-response', generateResponseRoute);
+app.post('/api/generate-claude-response', generateClaudeResponseRoute);
 app.get('/api/list-datasets', listDatasetsRoute);
 app.post('/api/upload-dataset', uploadDatasetRoute);
 app.get('/api/dataset-config/:datasetId', getDatasetConfigRoute);

@@ -7,7 +7,6 @@ import fs from 'fs/promises';
 import path from 'path';
 import Papa from 'papaparse';
 import XLSX from 'xlsx';
-import PDFParse from 'pdf-parse';
 import { createLogger } from './logger.js';
 import { AppError, ValidationError } from './error-handler.js';
 
@@ -184,6 +183,9 @@ export async function parseExcelSheet(filePath, sheetName = null, options = {}) 
  */
 export async function readPDFContent(filePath) {
   try {
+    // Lazy load pdf-parse only when needed
+    const PDFParse = (await import('pdf-parse')).default;
+    
     const absolutePath = path.resolve(filePath);
     const dataBuffer = await fs.readFile(absolutePath);
     const data = await PDFParse(dataBuffer);
