@@ -165,6 +165,7 @@ export default async function handler(req, res) {
           // Generate multiple responses if requested
           const generatedResponses = [];
           const responseTemperatures = [];
+          const responsePrefills = [];
           for (let i = 0; i < responseCount; i++) {
             // Calculate temperature for this response
             let responseTemp;
@@ -182,7 +183,7 @@ export default async function handler(req, res) {
             responseTemp = Math.min(1, Math.max(0, responseTemp));
             responseTemperatures.push(responseTemp);
             
-            const response = await generateClaudeResponse({
+            const { response, prefill } = await generateClaudeResponse({
               systemPrompt,
               userMessage: content,
               model,
@@ -193,6 +194,7 @@ export default async function handler(req, res) {
             });
             
             generatedResponses.push(response);
+            responsePrefills.push(prefill || '');
           }
           
           // Select best response or combine them
@@ -202,6 +204,7 @@ export default async function handler(req, res) {
             segment: targetSegment,
             responses: generatedResponses,
             responseTemperatures: responseTemperatures, // Temperature used for each response
+            responsePrefills: responsePrefills, // Prefill used for each response
             response: bestResponse, // Primary response for backward compatibility
             sentiment: analyzeSentiment(bestResponse),
             purchaseIntent: calculatePurchaseIntent(targetSegment, bestResponse),
@@ -292,12 +295,17 @@ async function generateClaudeResponse(params) {
       { role: 'user', content: userMessage }
     ];
     
-    // Add prefill if enabled
+    // Add prefill if enabled with randomized starters
+    let prefillUsed = '';
     if (usePrefill) {
-      messages.push({
-        role: 'assistant',
-        content: 'As a'
-      });
+      const prefillStarter = getRandomPrefillStarter();
+      if (prefillStarter) {
+        prefillUsed = prefillStarter.trimEnd();
+        messages.push({
+          role: 'assistant',
+          content: prefillUsed
+        });
+      }
     }
     
     // Only use temperature OR top_p, not both
@@ -319,11 +327,12 @@ async function generateClaudeResponse(params) {
     
     const response = await anthropic.messages.create(apiParams);
     
-    const responseText = usePrefill 
-      ? 'As a' + response.content[0]?.text 
-      : response.content[0]?.text;
-      
-    return responseText || 'NA';
+    // Return both response and prefill used
+    const responseText = response.content[0]?.text || 'NA';
+    return { 
+      response: responseText,
+      prefill: prefillUsed
+    };
   } catch (error) {
     console.error('Claude generation error:', error);
     throw error;
@@ -432,6 +441,75 @@ function getMarketSize(segment) {
   };
   
   return sizes[segment] || 'Unknown';
+}
+
+/**
+ * Get random prefill starter for varied responses
+ */
+function getRandomPrefillStarter() {
+  const prefillStarters = [
+    // Observational starters
+    'Looking at this, ', 'Seeing this, ', 'Noticing that ', 'Observing the ', 
+    'Considering this, ', 'Examining the ', 'Reviewing this, ', 'Checking out ',
+    'Glancing at ', 'Studying this, ', 'Analyzing the ', 'Inspecting this, ',
+    
+    // Thoughtful/reflective
+    'Hmm, ', 'Well, ', 'Actually, ', 'Honestly, ', 'Frankly, ', 'Personally, ',
+    'Realistically, ', 'Truthfully, ', 'Genuinely, ', 'Seriously, ', 'Really, ',
+    'Basically, ', 'Essentially, ', 'Fundamentally, ', 'Ultimately, ', 'Generally, ',
+    
+    // Initial reactions
+    'Oh, ', 'Ah, ', 'Okay, ', 'Right, ', 'Sure, ', 'Yeah, ', 'Yes, ', 'No, ',
+    'Wait, ', 'Hold on, ', 'Hang on, ', 'Listen, ', 'Look, ', 'See, ',
+    
+    // Evaluative starters
+    'This seems ', 'This looks ', 'This appears ', 'This feels ', 'This sounds ',
+    'That seems ', 'That looks ', 'That appears ', 'That feels ', 'That sounds ',
+    'It seems ', 'It looks ', 'It appears ', 'It feels ', 'It sounds ',
+    
+    // Questioning/curious
+    'So ', 'Now ', 'But ', 'And ', 'Yet ', 'Still, ', 'Though, ', 'Although, ',
+    'While ', 'Whereas ', 'However, ', 'Nevertheless, ', 'Nonetheless, ', 'Meanwhile, ',
+    
+    // Direct address
+    'You know, ', 'I mean, ', 'I think ', 'I feel ', 'I believe ', 'I suppose ',
+    'I guess ', 'I imagine ', 'I wonder ', 'I notice ', 'I see ', 'I find ',
+    
+    // Contextual/situational
+    'At first glance, ', 'On one hand, ', 'To be fair, ', 'In my view, ',
+    'From my perspective, ', 'In my experience, ', 'As someone who ', 'Having seen ',
+    'After seeing ', 'Upon viewing ', 'When I see ', 'Whenever I see ',
+    
+    // Emotional/attitudinal
+    'Interesting, ', 'Fascinating, ', 'Curious, ', 'Strange, ', 'Odd, ', 'Weird, ',
+    'Cool, ', 'Nice, ', 'Great, ', 'Good, ', 'Fine, ', 'Alright, ', 'Decent, ',
+    
+    // Comparative/relative
+    'Compared to ', 'Unlike ', 'Similar to ', 'Like ', 'As with ', 'Just like ',
+    'Much like ', 'Rather than ', 'Instead of ', 'Versus ', 'Against ',
+    
+    // Temporal
+    'Initially, ', 'First off, ', 'To start, ', 'Right away, ', 'Immediately, ',
+    'Currently, ', 'Now, ', 'Today, ', 'These days, ', 'Lately, ', 'Recently, ',
+    
+    // Conditional/hypothetical
+    'If ', 'Unless ', 'Assuming ', 'Supposing ', 'Provided ', 'Given that ',
+    'Considering ', 'Taking into account ', 'Bearing in mind ', 'Keeping in mind ',
+    
+    // Professional/formal
+    'Indeed, ', 'Certainly, ', 'Undoubtedly, ', 'Evidently, ', 'Clearly, ',
+    'Obviously, ', 'Apparently, ', 'Presumably, ', 'Arguably, ', 'Potentially, ',
+    
+    // Skeptical/questioning
+    'Supposedly ', 'Allegedly ', 'Seemingly ', 'Purportedly ', 'Ostensibly ',
+    'Questionably ', 'Dubiously ', 'Debatably ', 'Perhaps ', 'Maybe ',
+    
+    // Minimal or no prefill
+    '', '', '', '', '', // Some empty for no prefill occasionally
+  ];
+  
+  const randomIndex = Math.floor(Math.random() * prefillStarters.length);
+  return prefillStarters[randomIndex];
 }
 
 /**
