@@ -4,14 +4,27 @@
  * Removed all semantic engine dependencies
  */
 
+import dotenv from 'dotenv';
 import Anthropic from '@anthropic-ai/sdk';
 
+// Load environment variables
+dotenv.config();
+
 const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY
+  apiKey: process.env.ANTHROPIC_API_KEY,
+  timeout: 30000 // 30 second timeout per request
 });
 
+// Retry configuration based on test results
+const RETRY_CONFIG = {
+  maxRetries: 5,
+  retryDelays: [1000, 2000, 4000, 8000, 16000], // Exponential backoff
+  requestStagger: 500, // ms between parallel requests
+  maxConcurrent: 3 // max concurrent requests per model
+};
+
 /**
- * Generate response using Claude models
+ * Generate response using Claude models with retry logic
  */
 async function generateClaudeResponse(content, segment, modelType, responseIndex = 0) {
   const startTime = Date.now();
@@ -19,7 +32,7 @@ async function generateClaudeResponse(content, segment, modelType, responseIndex
   // Select model based on type
   const model = modelType === 'sonnet' 
     ? 'claude-sonnet-4-20250514'
-    : 'claude-3-5-opus-20241022';
+    : 'claude-opus-4-1-20250805';
   
   // Get segment characteristics
   const segmentData = getSegmentCharacteristics(segment);
@@ -40,50 +53,71 @@ Your response should be authentic, natural, and reflect your segment's character
 Give a brief, authentic response (2-3 sentences) that reflects your segment's typical reaction.
 Include subtle hints about your purchase intent without explicitly stating numbers.`;
 
-  try {
-    const response = await anthropic.messages.create({
-      model: model,
-      max_tokens: 150,
-      temperature: 0.7 + (responseIndex * 0.05), // Vary temperature for diversity
-      messages: [
-        {
-          role: 'user',
-          content: userPrompt
-        }
-      ],
-      system: systemPrompt
-    });
-    
-    const responseText = response.content[0].text;
-    const responseTime = Date.now() - startTime;
-    
-    // Analyze response for sentiment and intent
-    const analysis = analyzeResponse(responseText, segment);
-    
-    return {
-      segment: segment,
-      text: responseText,
-      sentiment: analysis.sentiment,
-      purchaseIntent: analysis.purchaseIntent,
-      responseTime: responseTime,
-      model: modelType,
-      index: responseIndex + 1
-    };
-    
-  } catch (error) {
-    console.error(`Error generating ${modelType} response for ${segment}:`, error);
-    
-    return {
-      segment: segment,
-      text: 'NA - Response generation failed',
-      sentiment: 'NA',
-      purchaseIntent: 0,
-      responseTime: 0,
-      model: modelType,
-      index: responseIndex + 1,
-      error: true
-    };
+  // Implement retry logic
+  let lastError = null;
+  for (let attempt = 0; attempt <= RETRY_CONFIG.maxRetries; attempt++) {
+    try {
+      if (attempt > 0) {
+        const delay = RETRY_CONFIG.retryDelays[Math.min(attempt - 1, RETRY_CONFIG.retryDelays.length - 1)];
+        console.log(`Retry attempt ${attempt} for ${modelType} ${segment} after ${delay}ms`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+      
+      const response = await anthropic.messages.create({
+        model: model,
+        max_tokens: 150,
+        temperature: 0.7 + (responseIndex * 0.05), // Vary temperature for diversity
+        messages: [
+          {
+            role: 'user',
+            content: userPrompt
+          }
+        ],
+        system: systemPrompt
+      });
+      
+      const responseText = response.content[0].text;
+      const responseTime = Date.now() - startTime;
+      
+      // Analyze response for sentiment and intent
+      const analysis = analyzeResponse(responseText, segment);
+      
+      return {
+        segment: segment,
+        text: responseText,
+        sentiment: analysis.sentiment,
+        purchaseIntent: analysis.purchaseIntent,
+        responseTime: responseTime,
+        model: modelType,
+        index: responseIndex + 1,
+        attempts: attempt + 1
+      };
+      
+    } catch (error) {
+      lastError = error;
+      console.error(`Attempt ${attempt + 1} failed for ${modelType} ${segment}:`, error.message);
+      
+      // Don't retry on specific errors
+      if (error.message && error.message.includes('invalid_api_key')) {
+        break;
+      }
+    }
   }
+  
+  // All retries failed
+  console.error(`All retries failed for ${modelType} response for ${segment}:`, lastError);
+  
+  return {
+    segment: segment,
+    text: 'NA - Response generation failed after retries',
+    sentiment: 'NA',
+    purchaseIntent: 0,
+    responseTime: Date.now() - startTime,
+    model: modelType,
+    index: responseIndex + 1,
+    error: true,
+    errorMessage: lastError?.message || 'Unknown error'
+  };
 }
 
 /**
@@ -218,19 +252,40 @@ function analyzeResponse(text, segment) {
 }
 
 /**
- * Generate multiple responses for a segment and model
+ * Generate multiple responses for a segment and model with concurrency control
  */
 async function generateMultipleResponses(content, segment, count, modelType) {
   const responses = [];
+  const promises = [];
   
+  // Process in batches to control concurrency
   for (let i = 0; i < count; i++) {
-    // Add delay between requests to avoid rate limiting
-    if (i > 0) {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-    }
+    // Stagger requests to avoid overwhelming the API
+    const staggerDelay = i * RETRY_CONFIG.requestStagger;
     
-    const response = await generateClaudeResponse(content, segment, modelType, i);
-    responses.push(response);
+    const promise = (async () => {
+      // Wait for stagger delay
+      if (staggerDelay > 0) {
+        await new Promise(resolve => setTimeout(resolve, staggerDelay));
+      }
+      
+      // Generate the response
+      return await generateClaudeResponse(content, segment, modelType, i);
+    })();
+    
+    promises.push(promise);
+    
+    // Process in batches
+    if ((i + 1) % RETRY_CONFIG.maxConcurrent === 0 || i === count - 1) {
+      // Wait for current batch to complete
+      const batchResults = await Promise.all(promises.splice(0));
+      responses.push(...batchResults);
+      
+      // Add delay between batches
+      if (i < count - 1) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+    }
   }
   
   return responses;
@@ -389,35 +444,55 @@ export default async function handler(req, res) {
     }
     
     // Generate responses for both models
+    console.log(`Generating ${responseCount} responses per segment for ${segments.length} segments`);
     const sonnetResponses = [];
     const opusResponses = [];
     
     for (const segment of segments) {
-      // Generate responses with Sonnet 3.5
+      console.log(`Processing segment: ${segment}`);
+      
+      // Generate responses with Sonnet 4.0
+      console.log(`Generating Sonnet responses for ${segment}...`);
       const sonnetSegmentResponses = await generateMultipleResponses(
         marketingContent, 
         segment, 
         responseCount, 
         'sonnet'
       );
+      const sonnetSuccess = sonnetSegmentResponses.filter(r => !r.error).length;
+      console.log(`Sonnet ${segment}: ${sonnetSuccess}/${responseCount} successful`);
       sonnetResponses.push(...sonnetSegmentResponses);
       
       // Generate responses with Opus 4.1
+      console.log(`Generating Opus responses for ${segment}...`);
       const opusSegmentResponses = await generateMultipleResponses(
         marketingContent, 
         segment, 
         responseCount, 
         'opus'
       );
+      const opusSuccess = opusSegmentResponses.filter(r => !r.error).length;
+      console.log(`Opus ${segment}: ${opusSuccess}/${responseCount} successful`);
       opusResponses.push(...opusSegmentResponses);
     }
+    
+    // Summary statistics
+    const totalSonnetSuccess = sonnetResponses.filter(r => !r.error).length;
+    const totalOpusSuccess = opusResponses.filter(r => !r.error).length;
+    console.log(`Final results: Sonnet ${totalSonnetSuccess}/${sonnetResponses.length}, Opus ${totalOpusSuccess}/${opusResponses.length}`);
     
     // Return responses
     res.status(200).json({
       sonnet: sonnetResponses,
       opus: opusResponses,
       wasImageAnalyzed,
-      extractedContent: wasImageAnalyzed ? marketingContent : null
+      extractedContent: wasImageAnalyzed ? marketingContent : null,
+      statistics: {
+        sonnetSuccess: totalSonnetSuccess,
+        sonnetTotal: sonnetResponses.length,
+        opusSuccess: totalOpusSuccess,
+        opusTotal: opusResponses.length
+      }
     });
     
   } catch (error) {

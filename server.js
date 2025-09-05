@@ -18,7 +18,7 @@ import DigitalTwinService from './api/digital-twin-service.js';
 const digitalTwinService = new DigitalTwinService();
 
 // Load environment variables
-dotenv.config({ path: '.env.local' });
+dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
