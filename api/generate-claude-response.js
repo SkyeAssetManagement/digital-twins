@@ -299,8 +299,10 @@ async function generateClaudeResponse(params) {
     let prefillUsed = '';
     if (usePrefill) {
       const prefillStarter = getRandomPrefillStarter();
-      if (prefillStarter) {
-        prefillUsed = prefillStarter.trimEnd();
+      // Always set prefillUsed even if empty string
+      prefillUsed = prefillStarter.trimEnd();
+      // Only add assistant message if there's actual content
+      if (prefillUsed.length > 0) {
         messages.push({
           role: 'assistant',
           content: prefillUsed
@@ -505,7 +507,7 @@ function getRandomPrefillStarter() {
     'Questionably ', 'Dubiously ', 'Debatably ', 'Perhaps ', 'Maybe ',
     
     // Minimal or no prefill
-    '', '', '', '', '', // Some empty for no prefill occasionally
+    '' // Rare empty for no prefill (only 1 out of ~150)
   ];
   
   const randomIndex = Math.floor(Math.random() * prefillStarters.length);
