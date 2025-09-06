@@ -131,15 +131,38 @@ Include subtle hints about your purchase intent without explicitly stating numbe
     '', '', '', '', '', // Some empty for no prefill occasionally
   ];
   
-  // Randomly select a prefill starter
-  const randomIndex = Math.floor(Math.random() * prefillStarters.length);
+  // Randomly select a prefill starter with better entropy
+  // Add small delay to ensure different random seed
+  if (responseIndex > 0) {
+    await new Promise(resolve => setTimeout(resolve, 10));
+  }
+  
+  // Use timestamp mixing for better randomization
+  const timeComponent = (Date.now() + responseIndex * 37) % prefillStarters.length;
+  const randomComponent = Math.floor(Math.random() * prefillStarters.length);
+  const randomIndex = (timeComponent + randomComponent) % prefillStarters.length;
+  
   const selectedPrefill = prefillStarters[randomIndex];
   const prefill = selectedPrefill.trimEnd(); // Remove trailing spaces
   
-  // Randomize temperature for this response
+  // Randomize temperature for this response with better entropy
   const baseTemp = options.temperature || 0.7;
   const tempRange = options.temperatureRange || 0.3;
-  const temperature = Math.max(0, Math.min(1, baseTemp + (Math.random() - 0.5) * tempRange));
+  
+  // Use crypto for better randomness if available, with fallback
+  let randomValue;
+  try {
+    // Use crypto.getRandomValues for better entropy
+    const array = new Uint32Array(1);
+    require('crypto').randomFillSync(array);
+    randomValue = array[0] / (0xffffffff + 1);
+  } catch {
+    // Fallback to Math.random with timestamp mixing for better distribution
+    const timeSeed = Date.now() + responseIndex * 997; // Use prime number for better distribution
+    randomValue = (Math.random() + (timeSeed % 100) / 100) % 1;
+  }
+  
+  const temperature = Math.max(0, Math.min(1, baseTemp + (randomValue - 0.5) * tempRange));
   
   console.log(`[${modelType}] Response ${responseIndex + 1} for ${segment}: Temp=${temperature.toFixed(2)}, Prefill="${prefill}"`);
 
