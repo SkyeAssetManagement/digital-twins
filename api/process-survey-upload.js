@@ -282,7 +282,7 @@ async function processSurveyPipeline(datasetId, surveyData, targetDemographic) {
         'Uploaded survey data analysis'
     );
 
-    logger.info(`Categorized ${categorizations.categorizations.length} questions into ${categorizations.categories.length} categories`);
+    logger.info(`Categorized ${categorizations.categorizations.length} questions into ${categorizations.question_types.length} question types`);
 
     // Step 2: Archetype Generation
     const generator = new ArchetypeGenerator();

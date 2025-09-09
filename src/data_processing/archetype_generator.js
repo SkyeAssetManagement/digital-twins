@@ -66,10 +66,10 @@ export class ArchetypeGenerator {
         }
     }
 
-    buildArchetypePrompt(demographicAnalysis, categories, responsePatterns, statistics) {
-        const categoriesText = categories.map(cat => 
-            `${cat.name}: ${cat.description} (${cat.behavioral_significance})`
-        ).join('\n');
+    buildArchetypePrompt(demographicAnalysis, questionTypes, responsePatterns, statistics) {
+        const questionTypesText = questionTypes.map(type => 
+            `${type.type}: ${type.description}\n  Themes: ${type.specific_themes.join(', ')}\n  Examples: ${type.example_questions.slice(0, 2).join('; ')}`
+        ).join('\n\n');
 
         const patternsText = responsePatterns ? 
             Object.entries(responsePatterns).map(([pattern, data]) => 
@@ -89,8 +89,8 @@ SURVEY DATA ANALYSIS:
 Target Demographic: ${demographicAnalysis.target_demographic}
 Survey Context: ${demographicAnalysis.survey_context}
 
-Data-Driven Categories Identified:
-${categoriesText}
+Question Types and Themes Identified:
+${questionTypesText}
 
 Actual Response Patterns from Survey Data:
 ${patternsText}
