@@ -68,6 +68,25 @@ app.use('/api/survey-datasets', async (req, res) => {
   await surveyDatasetsHandler(req, res);
 });
 
+// 3-Stage Pipeline Analysis API
+import threeStageAnalysisHandler, { 
+  getAnalysisStatus, 
+  getAnalysisResults, 
+  exportAnalysisResults 
+} from './api/three-stage-analysis.js';
+app.post('/api/three-stage-analysis', async (req, res) => {
+  await threeStageAnalysisHandler(req, res);
+});
+app.get('/api/three-stage-analysis/status/:datasetId', async (req, res) => {
+  await getAnalysisStatus(req, res);
+});
+app.get('/api/three-stage-analysis/results/:datasetId', async (req, res) => {
+  await getAnalysisResults(req, res);
+});
+app.get('/api/three-stage-analysis/export/:datasetId', async (req, res) => {
+  await exportAnalysisResults(req, res);
+});
+
 // Process Survey Upload API
 import processSurveyUploadHandler from './api/process-survey-upload.js';
 app.post('/api/process-survey-upload', async (req, res) => {

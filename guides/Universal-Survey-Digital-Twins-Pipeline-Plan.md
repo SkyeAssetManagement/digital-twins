@@ -7,27 +7,39 @@ This plan outlines the development of a comprehensive, generic pipeline to inges
 
 ### 1.1 High-Level Flow
 ```
-Survey Data (Any Format) → Data Ingestion → Question Categorization (Claude Opus) → 
-Dynamic Archetype Creation → Response Scoring → Digital Twin Persona Engine → Adaptive UI
+Survey Data (Any Format) → Data Ingestion → 
+STAGE 1: Statistical Data Analysis (Find discriminatory questions + spending correlation) →
+STAGE 2: Pain/Pleasure Point Analysis (Evidence-based behavioral insights) →
+STAGE 3: Marketing Archetype Creation (Transparent data-to-archetype flow) →
+Digital Twin Persona Engine → Adaptive UI
 ```
 
 ```mermaid
 flowchart TD
     A[Survey Data<br/>Any Format] --> B[Data Ingestion]
-    B --> C[Question Categorization<br/>Claude Opus]
-    C --> D[Dynamic Archetype<br/>Creation]
-    D --> E[Response Scoring]
+    B --> C[STAGE 1: Statistical Data Analyst<br/>Question Discrimination + Spending Correlation]
+    C --> D[STAGE 2: Behavioral Statistician<br/>Pain/Pleasure Points + Evidence]
+    D --> E[STAGE 3: Marketing Expert<br/>Evidence-Based Archetypes]
     E --> F[Digital Twin<br/>Persona Engine]
     F --> G[Adaptive UI]
+    
+    C --> H[Visual Correlation Matrix<br/>Questions vs Spending]
+    D --> I[Statistical Evidence<br/>Pain/Pleasure Points]
+    E --> J[Transparent Data Flow<br/>Data → Insights → Archetypes]
 ```
 
-### 1.2 Core Components
+### 1.2 Core Components - Complete Pipeline Architecture
+
+**3-Stage Specialized Analysis Pipeline:**
 1. **Universal Data Ingestion Module**: Multi-format processing with intelligent question concatenation
-2. **Adaptive Question Categorization Engine**: Claude Opus 4.1 for context-aware classification
-3. **Dynamic Archetype Generation System**: LLM-driven persona creation for any demographic
-4. **Universal Scoring & Classification Engine**: Response evaluation and archetype assignment
-5. **Adaptive Digital Twin Persona Engine**: Claude Opus 4.1 only (no semantic engine)
-6. **Flexible UI**: Configurable interface supporting any survey population
+2. **STAGE 1 - Statistical Data Analyst**: Expert data analyst that identifies discriminatory questions and spending correlations with visual representations
+3. **STAGE 2 - Behavioral Statistician**: Analyzes correlation data to identify 3-5 core pain/pleasure points with statistical evidence
+4. **STAGE 3 - Marketing Expert**: Creates 4-5 evidence-based archetypes with transparent data flow from insights to personas
+
+**Post-Analysis Systems:**
+5. **Universal Scoring & Classification Engine**: Response evaluation and archetype assignment using evidence-based criteria
+6. **Digital Twin Persona Engine**: Claude Opus 4.1 with transparent pain/pleasure point integration
+7. **Flexible UI**: Visual correlation matrices, evidence-based archetype explanations, and interactive survey interface
 
 ## 2. Data Ingestion & Processing
 
@@ -116,167 +128,367 @@ CREATE TABLE digital_twin_personas (
 );
 ```
 
-## 3. Adaptive Question Categorization Using Claude Opus 4.1
+## 3. STAGE 1: Statistical Data Analysis (Expert Data Analyst Role)
 
-### 3.1 Dynamic Categorization Framework
-The system uses Claude Opus 4.1 to analyze survey content and dynamically determine appropriate categories based on the target demographic and survey context. Examples:
+### 3.1 Role Definition
+The first stage employs Claude Opus 4.1 as an **Expert Statistical Data Analyst** whose sole focus is identifying questions with:
+1. **High Discriminatory Power**: Questions that evenly split respondents across answer ranges
+2. **Spending Correlation**: Strong correlation with propensity to spend questions
+3. **Visual Data Representation**: Creating correlation matrices showing question relationships
 
-**For Mothers**: Values, Quality, Price, Health/Welfare
-**For Retirees**: Financial Security, Health, Lifestyle, Family/Legacy  
-**For Professionals**: Career, Work-Life Balance, Status, Efficiency
-**For Students**: Cost, Social, Academic, Future Planning
+### 3.2 Statistical Analysis Objectives
+- **Question Discrimination Analysis**: Identify questions with high variance and even distribution
+- **Spending Correlation Matrix**: Map which questions correlate with spending behavior
+- **Statistical Significance**: Ensure discriminatory questions are statistically meaningful
+- **Visual Output**: Generate data visualizations showing question relationships
 
-### 3.3 Updated Question Categorization Prompt
+### 3.3 Stage 1 Data Analyst Prompt
 ```
-You are a data-driven survey analyst. Analyze each survey question using a systematic two-step approach to understand what type of question it is and what it's specifically measuring.
+You are an expert statistical data analyst specializing in survey data analysis. Your singular focus is identifying the survey questions that best discriminate between respondent groups while correlating strongly with spending behavior.
 
-CRITICAL INSTRUCTIONS:
-- First classify each question by its fundamental type
-- Then identify specific themes and values within each type
-- Base everything on the actual question content, not theoretical frameworks
-- Let natural patterns emerge from the data
+STATISTICAL ANALYSIS OBJECTIVES:
+1. **Discriminatory Power**: Find questions where responses are evenly distributed across the full answer range
+2. **Spending Correlation**: Identify questions that correlate most strongly with spending propensity 
+3. **Variance Analysis**: Prioritize questions with high variance (avoid ceiling/floor effects)
+4. **Visual Representation**: Create correlation matrices showing relationships between questions
 
-TARGET DEMOGRAPHIC: [AUTO-DETECTED OR PROVIDED]
-SURVEY CONTEXT: [SURVEY DESCRIPTION/SAMPLE QUESTIONS]
+TARGET DEMOGRAPHIC: [TARGET_DEMOGRAPHIC]
+SURVEY CONTEXT: [SURVEY_CONTEXT]
+SURVEY QUESTIONS: [QUESTIONS_LIST]
+RESPONSE DATA: [IF_AVAILABLE - raw response patterns or summary statistics]
 
-ANALYSIS PROCESS:
+STATISTICAL METHODOLOGY:
 
-Step 1 - Question Type Classification:
-For each question, first determine which fundamental type it represents:
+Step 1 - Question Discrimination Analysis:
+For each question, evaluate:
+- **Response Distribution**: How evenly are responses spread across available options?
+- **Variance Coefficient**: Calculate expected variance for this question type
+- **Ceiling/Floor Effects**: Risk of response clustering at extremes
+- **Discriminatory Score**: 0-1 scale of how well this question separates respondents
 
-A) VALUES-BASED QUESTIONS:
-   - Questions about what respondents believe, prioritize, or value
-   - Examples: "How important is X to you?", "What do you value most?"
-   - Identify specific value being measured (health, environment, quality, etc.)
+Step 2 - Spending Correlation Analysis:
+- **Identify Spending Questions**: Direct financial/purchase behavior questions
+- **Correlation Potential**: Which non-spending questions likely correlate with spending behavior
+- **Cross-Question Analysis**: Relationships between different question types
+- **Statistical Significance**: Confidence in correlation predictions
 
-B) BEHAVIOR-BASED QUESTIONS:
-   - Questions about what respondents actually do or would do
-   - Examples: "Do you recommend?", "How often do you?"
-   - Focus on actual actions and behavioral patterns
-
-C) SPENDING/PURCHASE BEHAVIOR QUESTIONS:
-   - Questions about financial decisions and purchase behavior
-   - Examples: "Will you spend based on X?", "How much would you pay?"
-   - Focus on money-related decision making
-
-Step 2 - Specific Theme Identification:
-Within each type, identify the specific themes and values being measured based on the actual question content.
+Step 3 - Visual Data Representation:
+- **Correlation Matrix**: Questions vs Questions correlation heatmap
+- **Spending Relationship Map**: Questions vs Spending propensity visualization
+- **Discrimination Rankings**: Top questions by discriminatory power
+- **Statistical Evidence**: Data supporting each correlation/discrimination claim
 
 Respond in JSON format:
 {
-  "demographic_analysis": {
-    "target_demographic": "what demographic this survey appears to target",
-    "survey_context": "what this survey is actually trying to understand",
-    "question_type_breakdown": {
-      "values_based_count": "number of values questions",
-      "behavior_based_count": "number of behavior questions",
-      "spending_based_count": "number of spending questions"
-    }
+  "statistical_overview": {
+    "total_questions_analyzed": "count",
+    "high_discriminatory_questions": "count with discrimination score >0.7",
+    "spending_anchor_questions": "count of direct spending questions",
+    "correlation_matrix_size": "NxN matrix dimensions"
   },
-  "question_types": [
-    {
-      "type": "VALUES_BASED | BEHAVIOR_BASED | SPENDING_BASED",
-      "specific_themes": ["theme1", "theme2", "theme3"],
-      "description": "what this type measures in this survey",
-      "example_questions": ["question examples of this type"]
-    }
-  ],
-  "categorizations": [
+  "top_discriminatory_questions": [
     {
       "question": "question text",
-      "primary_type": "VALUES_BASED | BEHAVIOR_BASED | SPENDING_BASED",
-      "specific_theme": "specific value/behavior/spending area being measured",
-      "category": "descriptive category name combining type + theme",
-      "confidence": 0.95,
-      "reasoning": "why this question fits this type and theme",
-      "predictive_power": 0.80,
-      "behavioral_insight": "what this reveals about respondent psychology"
+      "discrimination_score": 0.85,
+      "variance_coefficient": 0.78,
+      "response_distribution": "expected distribution pattern",
+      "ceiling_floor_risk": "LOW | MEDIUM | HIGH",
+      "statistical_rationale": "why this question effectively separates respondents"
     }
-  ]
+  ],
+  "spending_correlations": [
+    {
+      "question": "question text", 
+      "spending_correlation_score": 0.82,
+      "correlation_type": "DIRECT | INDIRECT",
+      "mechanism": "how this question relates to spending behavior",
+      "statistical_evidence": "data-based reasoning for correlation"
+    }
+  ],
+  "correlation_matrix": {
+    "description": "visual representation of question relationships",
+    "high_correlation_pairs": [
+      {
+        "question_a": "question 1",
+        "question_b": "question 2", 
+        "correlation_strength": 0.76,
+        "relationship_type": "reinforcing | opposing | neutral"
+      }
+    ]
+  },
+  "recommendations": {
+    "priority_questions": ["list of top 8-12 most powerful discriminatory questions"],
+    "spending_validation_questions": ["questions to use for spending propensity validation"],
+    "visualization_data": "structured data for creating visual correlation matrices"
+  }
 }
 ```
 
-### 3.4 Processing Logic
-1. **Demographic Detection**: Auto-detect target demographic from survey content
-2. **Two-Step Classification**: First classify by fundamental type (VALUES/BEHAVIOR/SPENDING), then identify specific themes
-3. **Batch Processing**: Process questions in groups of 25 to avoid token limits
-4. **Validation**: Ensure each question gets exactly one primary_type and specific_theme
-5. **Quality Control**: Flag low-confidence categorizations for manual review
-6. **Storage**: Save categorizations with primary_type and theme structure to database
+### 3.4 Stage 1 Processing Logic
+1. **Statistical Analysis**: Analyze response patterns and variance for discrimination potential
+2. **Correlation Mapping**: Identify spending correlations with statistical confidence
+3. **Visual Data Preparation**: Structure data for correlation matrix visualizations  
+4. **Evidence Documentation**: Provide statistical rationale for all recommendations
+5. **Priority Ranking**: Rank questions by combined discrimination + spending correlation power
+6. **Quality Validation**: Ensure statistical significance of identified patterns
 
-## 4. Dynamic Archetype Creation Methodology
+## 4. STAGE 2: Pain/Pleasure Point Analysis (Behavioral Statistician Role)
 
-### 4.1 LLM-Driven Archetype Generation
-The system uses Claude Opus 4.1 to analyze survey response patterns and create contextually appropriate archetypes for any demographic. Reference frameworks like LOHAS provide guidance but don't prescriptively define the output.
+### 4.1 Role Definition  
+The second stage employs Claude Opus 4.1 as a **Behavioral Statistician** who analyzes the correlation data from Stage 1 to identify:
+1. **3-5 Core Pain Points**: Statistically-backed frustrations/barriers revealed by the data
+2. **3-5 Core Pleasure Points**: Evidence-based motivators/drivers shown in correlations  
+3. **Statistical Evidence**: Concrete data supporting each pain/pleasure point identification
+4. **Behavioral Mechanisms**: How these points connect to spending behavior
 
-### 4.2 Reference Framework Integration
-**LOHAS Model** (for consumer values): Leaders (16%), Leaning (40%), Learners (36%), Laggards (8%)
-**Generational Theory**: Silent, Boomer, Gen X, Millennial, Gen Z behavioral patterns
-**Psychographic Models**: Values, Attitudes, Interests, Lifestyle (VALS)
-**Life Stage Models**: Career phase, family stage, retirement planning
-**Economic Models**: Income level, spending priorities, financial security
+### 4.2 Pain/Pleasure Point Analysis Objectives
+- **Evidence-Based Insights**: Every pain/pleasure point must have statistical backing
+- **Spending Connection**: Clear linkage between identified points and propensity to spend
+- **Demographic Relevance**: Points specific to the target demographic's behavioral patterns
+- **Statistical Validation**: Confidence scores and supporting data for each insight
 
-### 4.3 Dynamic Archetype Generation Process
-1. **Analyze Response Patterns**: Identify clusters in survey responses
-2. **Reference Framework Consultation**: Use LOHAS and other models as guidance
-3. **Create Demographic-Appropriate Archetypes**: Generate 4-6 archetypes specific to the target population
-4. **Validate Against Behavioral Patterns**: Ensure archetypes reflect real consumer behavior differences
-
-### 4.4 Universal Archetype Generation Prompt
+### 4.3 Stage 2 Behavioral Statistician Prompt
 ```
-You are a consumer psychology expert specializing in market segmentation. Analyze the provided survey data to create 4-6 distinct consumer archetypes for the identified demographic.
+You are a behavioral statistician specializing in consumer psychology. Your role is to analyze the statistical correlation data to identify the core pain points and pleasure points that drive this demographic's behavior and spending patterns.
 
-REFERENCE FRAMEWORKS TO CONSIDER:
-- LOHAS Model: Leaders (16%), Leaning (40%), Learners (36%), Laggards (8%) - values-based segmentation
-- Generational Theory: Age-based behavioral patterns and preferences  
-- Psychographic Models: Values, attitudes, interests, lifestyle factors
-- Life Stage Models: Career, family, retirement phases
-- Economic Models: Income, spending priorities, financial security levels
+STATISTICAL INPUT FROM STAGE 1:
+Discriminatory Questions: [TOP_DISCRIMINATORY_QUESTIONS]  
+Spending Correlations: [SPENDING_CORRELATION_DATA]
+Correlation Matrix: [QUESTION_CORRELATION_MATRIX]
+Priority Questions: [PRIORITY_QUESTIONS_LIST]
 
-SURVEY ANALYSIS RESULTS:
-Target Demographic: [DETECTED_DEMOGRAPHIC]
-Key Predictive Categories: [HIGH_SCORING_CATEGORIES]
-Response Patterns: [BEHAVIORAL_CLUSTERS]
-Spending Correlation Data: [PREDICTIVE_INSIGHTS]
+TARGET DEMOGRAPHIC: [TARGET_DEMOGRAPHIC]
+SURVEY CONTEXT: [SURVEY_CONTEXT]
 
-ARCHETYPE CREATION REQUIREMENTS:
-1. Create 4-6 archetypes that are:
-   - Distinct and non-overlapping
-   - Representative of different behavioral patterns
-   - Predictive of consumer decision-making
-   - Contextually appropriate for this demographic
+BEHAVIORAL ANALYSIS METHODOLOGY:
 
-2. For each archetype, define:
-   - NAME: Memorable, demographic-appropriate name
-   - SIZE: Estimated percentage of population  
-   - CORE CHARACTERISTICS: Primary traits and behaviors
-   - DECISION DRIVERS: What motivates their choices
-   - SPENDING PATTERNS: How they approach purchases
-   - COMMUNICATION PREFERENCES: How to reach them effectively
-   - PAIN POINTS: Key challenges and concerns
-   - MOTIVATORS: What drives positive responses
-   - REFERENCE FRAMEWORK ALIGNMENT: How they relate to LOHAS/generational/other models
+Step 1 - Pain Point Identification:
+Analyze correlation data to identify 3-5 core pain points:
+- **Statistical Evidence**: Which discriminatory questions reveal frustrations/barriers?
+- **Spending Impact**: How do these pain points correlate with reduced spending propensity?
+- **Behavioral Mechanism**: What psychological/practical barriers do these represent?
+- **Demographic Specificity**: Why are these pain points particularly relevant to this demographic?
 
-3. Base archetypes on:
-   - Highest-scoring predictive questions
-   - Clear behavioral pattern differences  
-   - Spending propensity variations
-   - Values vs practical constraint trade-offs
+Step 2 - Pleasure Point Identification:  
+Analyze correlation data to identify 3-5 core pleasure points:
+- **Statistical Evidence**: Which questions reveal key motivators/drivers?
+- **Spending Boost**: How do these pleasure points correlate with increased spending propensity?
+- **Behavioral Reward**: What psychological/practical rewards do these represent?
+- **Activation Triggers**: What conditions activate these pleasure responses?
 
-Create archetypes that marketing teams can immediately use for targeted campaigns while being authentic to this demographic's real characteristics and needs.
+Step 3 - Evidence Documentation:
+For each pain/pleasure point:
+- **Statistical Confidence**: Correlation strength and significance level
+- **Question Support**: Specific questions that reveal this pain/pleasure point
+- **Spending Connection**: Direct/indirect impact on purchase behavior
+- **Demographic Pattern**: Why this point is particularly strong for this demographic
 
-Respond in JSON format with comprehensive archetype profiles.
+Respond in JSON format:
+{
+  "analysis_summary": {
+    "total_pain_points_identified": 3-5,
+    "total_pleasure_points_identified": 3-5,
+    "statistical_confidence_level": "overall confidence in findings",
+    "spending_correlation_strength": "how strongly these points correlate with spending"
+  },
+  "pain_points": [
+    {
+      "pain_point_name": "descriptive name for this pain point",
+      "description": "what this pain point represents behaviorally",
+      "statistical_evidence": [
+        {
+          "supporting_question": "question that reveals this pain",
+          "correlation_strength": 0.78,
+          "discrimination_score": 0.82,
+          "response_pattern": "what response pattern indicates this pain"
+        }
+      ],
+      "spending_impact": {
+        "correlation_with_spending": -0.65,
+        "mechanism": "how this pain point reduces spending propensity",
+        "demographic_relevance": "why this pain is particularly acute for this demographic"
+      },
+      "behavioral_psychology": {
+        "underlying_need": "fundamental need being frustrated",
+        "barrier_type": "practical | emotional | social | financial",
+        "manifestation": "how this pain point shows up in behavior"
+      },
+      "evidence_strength": "HIGH | MEDIUM | LOW"
+    }
+  ],
+  "pleasure_points": [
+    {
+      "pleasure_point_name": "descriptive name for this pleasure point", 
+      "description": "what this pleasure point represents behaviorally",
+      "statistical_evidence": [
+        {
+          "supporting_question": "question that reveals this pleasure",
+          "correlation_strength": 0.84,
+          "discrimination_score": 0.79,
+          "response_pattern": "what response pattern indicates this pleasure"
+        }
+      ],
+      "spending_boost": {
+        "correlation_with_spending": 0.73,
+        "mechanism": "how this pleasure point increases spending propensity",
+        "activation_conditions": "what conditions must be present to activate this pleasure"
+      },
+      "behavioral_psychology": {
+        "underlying_reward": "fundamental reward being sought",
+        "motivation_type": "achievement | security | status | connection | autonomy",
+        "expression": "how this pleasure point shows up in behavior"
+      },
+      "evidence_strength": "HIGH | MEDIUM | LOW"
+    }
+  ],
+  "cross_point_analysis": {
+    "pain_pleasure_interactions": "how pain and pleasure points interact with each other",
+    "demographic_profile": "overall psychological profile emerging from these points",
+    "spending_behavior_model": "predictive model of spending behavior based on pain/pleasure balance"
+  }
+}
 ```
 
-## 5. Response Scoring & Classification System
+### 4.4 Stage 2 Processing Logic
+1. **Correlation Analysis**: Deep dive into Stage 1 statistical relationships
+2. **Pain Point Extraction**: Identify barriers/frustrations with spending impact evidence  
+3. **Pleasure Point Extraction**: Identify motivators/drivers with spending boost evidence
+4. **Statistical Validation**: Ensure each point has strong statistical backing
+5. **Demographic Contextualization**: Relate insights specifically to target demographic
+6. **Evidence Documentation**: Create transparent trail from data to insights
 
-### 5.1 Scoring Methodology
+## 5. STAGE 3: Evidence-Based Archetype Creation (Marketing Expert Role)
+
+### 5.1 Role Definition
+The third stage employs Claude Opus 4.1 as a **Marketing Expert** who synthesizes the statistical analysis and pain/pleasure points to create:
+1. **4-5 Evidence-Based Archetypes**: Clear lineage from data → insights → personas
+2. **Transparent Data Flow**: Explicit connections showing how statistical findings led to each archetype
+3. **Pain/Pleasure Integration**: Each archetype clearly reflects specific pain/pleasure points from Stage 2
+4. **Marketing Actionability**: Practical personas that marketers can immediately use for targeting
+
+### 5.2 Evidence-Based Archetype Objectives  
+- **Data Transparency**: Clear trail from statistical findings to archetype characteristics
+- **Pain/Pleasure Mapping**: Each archetype embodies specific combinations of identified pain/pleasure points
+- **Marketing Utility**: Archetypes optimized for practical marketing campaign development
+- **Statistical Grounding**: Every archetype trait backed by statistical evidence from previous stages
+
+### 5.3 Stage 3 Marketing Expert Prompt
+```
+You are a marketing expert specializing in evidence-based consumer segmentation. Your role is to create 4-5 marketing archetypes that transparently reflect the statistical analysis and pain/pleasure points identified in the previous stages.
+
+INPUT FROM PREVIOUS STAGES:
+Stage 1 - Statistical Analysis: [DISCRIMINATORY_QUESTIONS + SPENDING_CORRELATIONS]
+Stage 2 - Pain/Pleasure Points: [PAIN_POINTS + PLEASURE_POINTS + STATISTICAL_EVIDENCE]
+
+TARGET DEMOGRAPHIC: [TARGET_DEMOGRAPHIC]
+SURVEY CONTEXT: [SURVEY_CONTEXT]
+
+EVIDENCE-BASED ARCHETYPE CREATION:
+
+Step 1 - Data-to-Archetype Mapping:
+For each archetype, create explicit connections:
+- **Statistical Foundation**: Which discriminatory questions define this archetype?
+- **Pain/Pleasure Profile**: Which specific pain/pleasure points characterize this group?
+- **Spending Behavior**: How do the pain/pleasure combinations predict spending patterns?
+- **Evidence Trail**: Clear lineage from data findings to archetype traits
+
+Step 2 - Marketing Persona Development:
+Transform statistical insights into actionable marketing personas:
+- **Demographic Profile**: Age, lifestyle, and psychographic characteristics
+- **Pain Point Manifestations**: How do the statistical pain points show up in daily life?
+- **Pleasure Point Triggers**: What marketing approaches activate their pleasure points?
+- **Messaging Strategy**: Communication approach based on their pain/pleasure profile
+- **Channel Preferences**: Where to reach them based on behavioral patterns
+
+Step 3 - Archetype Validation:
+Ensure each archetype is:
+- **Statistically Grounded**: Supported by Stage 1 discriminatory questions
+- **Behaviorally Coherent**: Pain/pleasure points create a logical psychological profile  
+- **Marketing Actionable**: Clear tactical implications for campaigns
+- **Demographically Appropriate**: Authentic to the target population
+
+Respond in JSON format:
+{
+  "archetype_methodology": {
+    "creation_approach": "evidence-based synthesis of statistical analysis and pain/pleasure insights",
+    "data_transparency": "how each archetype directly reflects previous stage findings",
+    "validation_criteria": "statistical grounding + behavioral coherence + marketing utility"
+  },
+  "archetypes": [
+    {
+      "archetype_name": "marketing-friendly name",
+      "population_percentage": "percentage based on statistical clustering",
+      "statistical_foundation": {
+        "defining_questions": [
+          {
+            "question": "discriminatory question that defines this archetype",
+            "typical_response": "how this archetype typically responds",
+            "discrimination_score": 0.85
+          }
+        ],
+        "spending_correlation_profile": "how this archetype relates to spending questions"
+      },
+      "pain_pleasure_profile": {
+        "primary_pain_points": [
+          {
+            "pain_point": "from Stage 2 analysis",
+            "manifestation": "how this shows up in this archetype's daily experience",
+            "marketing_implication": "what marketers need to avoid/address"
+          }
+        ],
+        "primary_pleasure_points": [
+          {
+            "pleasure_point": "from Stage 2 analysis", 
+            "activation_triggers": "what activates this pleasure for this archetype",
+            "marketing_opportunity": "how marketers can leverage this"
+          }
+        ]
+      },
+      "marketing_persona": {
+        "demographic_profile": "age range, lifestyle, psychographic characteristics",
+        "daily_life_context": "how their pain/pleasure points affect daily decisions",
+        "purchase_decision_process": "how they make buying decisions based on pain/pleasure balance",
+        "communication_style": "how they prefer to receive marketing messages",
+        "channel_preferences": "where they spend time and consume media"
+      },
+      "campaign_strategy": {
+        "messaging_approach": "communication strategy based on pain/pleasure profile",
+        "creative_direction": "visual and tonal approach that resonates",
+        "channel_strategy": "where and how to reach this archetype",
+        "timing_strategy": "when they're most receptive to marketing"
+      },
+      "evidence_transparency": {
+        "data_trail": "explicit connection from statistical findings to this archetype",
+        "confidence_level": "statistical confidence in this archetype definition",
+        "validation_evidence": "what data supports this archetype's characteristics"
+      }
+    }
+  ],
+  "archetype_interactions": {
+    "differentiation_clarity": "how each archetype is clearly distinct from others",
+    "market_coverage": "percentage of market covered by all archetypes combined",
+    "overlap_analysis": "any areas where archetypes might overlap and how to handle"
+  }
+}
+```
+
+### 5.4 Stage 3 Processing Logic
+1. **Data Synthesis**: Combine statistical analysis with pain/pleasure insights
+2. **Evidence Mapping**: Create explicit connections from data to archetype traits  
+3. **Marketing Translation**: Convert statistical insights into actionable marketing personas
+4. **Transparency Documentation**: Maintain clear trail from data to final archetypes
+5. **Validation Check**: Ensure each archetype is statistically grounded and marketing-actionable
+6. **Differentiation Verification**: Confirm archetypes are distinct and cover market comprehensively
+
+## 6. Universal Scoring & Classification System
+
+### 6.1 Scoring Methodology
 1. **Question weighting**: Higher weights for predictive questions
 2. **Response normalization**: Scale all responses to 0-1 range
 3. **Archetype matching**: Calculate similarity scores for each archetype
 4. **Confidence scoring**: Measure certainty of archetype assignment
 
-### 5.2 Scoring Algorithm
+### 6.2 Scoring Algorithm
 ```javascript
 function calculateArchetypeScore(response, archetype) {
     let totalScore = 0;
@@ -295,104 +507,114 @@ function calculateArchetypeScore(response, archetype) {
 }
 ```
 
-### 5.3 Classification Process
+### 6.3 Classification Process
 1. **Score calculation**: Calculate archetype scores for each response
 2. **Assignment**: Assign to highest-scoring archetype (minimum threshold 0.6)
 3. **Confidence measurement**: Calculate confidence based on score distribution
 4. **Validation**: Flag uncertain classifications for review
 
-## 6. Universal Digital Twin Persona Engine (Claude Opus 4.1 Only)
+## 7. Universal Digital Twin Persona Engine (Claude Opus 4.1 Only)
 
-### 6.1 Integration with Existing System
-- **Reuse infrastructure**: Leverage existing `src/claude/integrated_persona_engine_v2.js`
+### 7.1 Pain/Pleasure Point Integration
+The Digital Twin engine now integrates the 3-stage analysis results:
+- **Statistical Foundation**: Responses reflect discriminatory question insights from Stage 1
+- **Pain/Pleasure Awareness**: Each archetype embodies specific pain/pleasure points from Stage 2  
+- **Evidence-Based Personas**: Marketing-actionable archetypes with transparent data lineage from Stage 3
 - **Model specification**: Use only Claude Opus 4.1 (claude-opus-4-1-20250805)
-- **No semantic engine**: Disable semantic response generation entirely
-- **Dynamic adaptation**: Configure persona prompts based on detected demographic
+- **Transparent Reasoning**: Responses show explicit connection to pain/pleasure points
 
-### 6.2 Universal Persona Prompt Template
+### 7.2 Evidence-Based Persona Prompt Template
 ```
-You are a marketing response generator embodying the [ARCHETYPE_NAME] archetype from the [TARGET_DEMOGRAPHIC] population. 
+You are a marketing response generator embodying the "[ARCHETYPE_NAME]" archetype from the [TARGET_DEMOGRAPHIC] population.
 
 DEMOGRAPHIC CONTEXT:
-Target Population: [TARGET_DEMOGRAPHIC] (e.g., mothers, retirees, professionals)
+Target Population: [TARGET_DEMOGRAPHIC]
 Survey Context: [SURVEY_CONTEXT]
-Reference Frameworks: [REFERENCE_FRAMEWORKS_USED]
 
-ARCHETYPE PROFILE:
-- Core Characteristics: [CHARACTERISTICS_LIST]
-- Decision Drivers: [DECISION_DRIVERS]
-- Spending Patterns: [SPENDING_BEHAVIOR]
-- Pain Points: [PAIN_POINTS]
-- Motivators: [PLEASURE_MOTIVATORS]
-- Communication Preferences: [COMM_STYLE]
+EVIDENCE-BASED ARCHETYPE PROFILE:
+Statistical Foundation: [DISCRIMINATORY_QUESTIONS_THAT_DEFINE_THIS_ARCHETYPE]
+Pain Point Profile:
+- Primary Pain Points: [PAIN_POINTS_FROM_STAGE_2_ANALYSIS]
+- How Pain Shows Up: [PAIN_MANIFESTATIONS_IN_DAILY_LIFE]
+- Marketing Implications: [WHAT_TO_AVOID_OR_ADDRESS]
+
+Pleasure Point Profile:  
+- Primary Pleasure Points: [PLEASURE_POINTS_FROM_STAGE_2_ANALYSIS]
+- Activation Triggers: [WHAT_ACTIVATES_THESE_PLEASURES]
+- Marketing Opportunities: [HOW_TO_LEVERAGE_THESE]
+
+Spending Behavior: [CORRELATION_WITH_SPENDING_QUESTIONS]
+Communication Style: [PREFERRED_MESSAGING_APPROACH]
 
 RESPONSE GUIDELINES:
-- Speak as someone in this archetype from this demographic would speak
-- Reference demographic-specific concerns and priorities
-- Use tone and language appropriate for this population
-- Include specific reasoning that resonates with this archetype
-- Address relevant pain points and motivators naturally
-- Avoid generic marketing speak
-- Reflect authentic characteristics of this demographic
+- Speak authentically as this archetype from this demographic
+- Reference the specific pain points that affect your decision-making
+- Show enthusiasm for pleasure points that resonate with you
+- Demonstrate the spending behavior patterns identified in the statistical analysis
+- Use the communication style derived from the data analysis
+- Make explicit connections between the marketing content and your pain/pleasure profile
+- Avoid generic responses - reflect the specific statistical insights that define this archetype
 
 MARKETING CONTENT TO RESPOND TO:
 [MARKETING_CONTENT]
 
-Generate a response that this archetype would find compelling and authentic within their demographic context.
+Generate a response that authentically reflects this archetype's pain/pleasure profile and demonstrates the statistical patterns identified in the analysis.
 Length: 50-100 words
-Tone: [ARCHETYPE_TONE]
-Focus: Address both rational and emotional motivators relevant to [TARGET_DEMOGRAPHIC]
+Focus: Address how this content relates to your specific pain points (concerns) and pleasure points (motivators)
+Evidence: Show reasoning that reflects the statistical insights that define your archetype
 ```
 
-### 6.3 Response Generation Parameters
-- **Temperature**: Randomized 0.8-1.5 (no prefill randomization)
+### 7.3 Response Generation Parameters
+- **Temperature**: Randomized 0.5-0.9 (Claude API requires ≤1.0)
 - **Max tokens**: 1000 (optimized to avoid timeouts)
 - **Model**: claude-opus-4-1-20250805 exclusively
-- **Retry logic**: 3 attempts with exponential backoff
-- **Rate limiting**: 2s between requests, 3s between segments
+- **Pain/Pleasure Integration**: Every response explicitly references archetype's pain/pleasure profile
+- **Statistical Grounding**: Responses demonstrate the discriminatory patterns that define the archetype
 
-## 7. Universal Survey UI Interface
+## 8. Universal Survey UI Interface
 
-### 7.1 UI Specifications  
-Based on existing `public/dual-engine-app.html` but modified for universal survey support:
-- **Single column layout**: Only Claude responses (no semantic engine)
-- **Dynamic archetype filtering**: Dropdown populated with detected demographic archetypes
-- **Survey selection**: Choose which survey dataset to work with
-- **Response count**: 10 responses per archetype as default
-- **Temperature display**: Show randomized temperature for each response
-- **Demographic context**: Display current survey population and context
+### 8.1 UI Specifications - 3-Stage Analysis Transparency
+Enhanced interface showing the complete 3-stage analysis pipeline:
+- **Stage 1 Visualization**: Correlation matrices and discriminatory question rankings
+- **Stage 2 Display**: Pain/pleasure points with statistical evidence
+- **Stage 3 Transparency**: Clear archetype-to-data lineage
+- **Evidence-Based Responses**: Each response shows connection to pain/pleasure points
+- **Survey Processing Pipeline**: Visual progress through the 3-stage analysis
 
-### 7.2 Interface Components
-1. **Survey Selection Section**:
-   - Dropdown to select active survey dataset
-   - Display target demographic and survey description
-   - Summary of available archetypes
+### 8.2 Enhanced Interface Components
+1. **Survey Upload & Processing Pipeline**:
+   - File upload with real-time processing status
+   - Visual progress through 3-stage analysis pipeline
+   - Stage 1: Statistical analysis with correlation heatmaps
+   - Stage 2: Pain/pleasure point identification with evidence
+   - Stage 3: Evidence-based archetype creation
 
-2. **Content Input Section**:
-   - Text area for marketing content
-   - Image/PDF upload with Claude Opus analysis
-   - Thumbnail preview with editable extracted content
+2. **Statistical Analysis Dashboard**:
+   - Interactive correlation matrix visualization
+   - Top discriminatory questions ranked by power
+   - Spending correlation strengths displayed
+   - Question-to-archetype mapping transparency
 
-3. **Archetype Selection**:
-   - Multi-select dropdown for current survey's archetypes
-   - "All Archetypes" option for comprehensive analysis
-   - Archetype descriptions on hover with demographic context
-   - Population percentage display for each archetype
+3. **Pain/Pleasure Point Explorer**:
+   - Visual display of identified pain points with statistical backing
+   - Pleasure point activation triggers and spending correlations
+   - Evidence trail showing supporting questions for each insight
+   - Demographic-specific behavioral context
 
-4. **Response Display**:
-   - Single column showing Claude responses only
-   - Archetype labels with demographic context
-   - Temperature and timing information
-   - Purchase intent and sentiment scores
-   - Reference framework indicators (LOHAS, generational, etc.)
+4. **Evidence-Based Archetype Profiles**:
+   - Clear data-to-archetype lineage visualization
+   - Pain/pleasure profile integration for each archetype
+   - Statistical foundation display with supporting questions
+   - Marketing actionability indicators
 
-5. **Settings Panel**:
-   - Response count selector (1-10)
-   - Temperature range (0.8-1.5, no prefill)
-   - Export options for responses
-   - Survey dataset management tools
+5. **Response Generation Interface**:
+   - Archetype selection with pain/pleasure point preview
+   - Evidence-based response generation
+   - Explicit pain/pleasure point references in responses
+   - Statistical grounding visible in each response
+   - Purchase intent based on pain/pleasure activation
 
-### 7.3 Universal API Integration
+### 8.3 Enhanced API Integration
 - **Endpoint**: `/api/universal-digital-twin-response`
 - **Request format**:
 ```json
@@ -406,11 +628,14 @@ Based on existing `public/dual-engine-app.html` but modified for universal surve
 }
 ```
 
-### 7.4 Dataset Management API
-- **Endpoint**: `/api/survey-datasets`
-- **Functions**: List datasets, get archetype info, dataset statistics
+### 8.4 3-Stage Analysis API
+- **Stage 1 Endpoint**: `/api/statistical-analysis` - Discriminatory questions and spending correlations
+- **Stage 2 Endpoint**: `/api/pain-pleasure-analysis` - Evidence-based behavioral insights  
+- **Stage 3 Endpoint**: `/api/evidence-based-archetypes` - Marketing personas with data lineage
+- **Pipeline Endpoint**: `/api/process-survey-upload` - Complete 3-stage processing pipeline
+- **Visualization Data**: `/api/correlation-matrices` - Data for visual correlation displays
 
-## 8. Implementation Status (COMPLETED)
+## 9. Implementation Status (UPDATED FOR 3-STAGE PIPELINE)
 
 ### Phase 1: Data Foundation ✅ COMPLETED
 - [x] CSV/Excel data ingestion and processing (`api/process-survey-upload.js`)
@@ -418,68 +643,76 @@ Based on existing `public/dual-engine-app.html` but modified for universal surve
 - [x] Question extraction and cleaning
 - [x] Data validation and quality checks
 
-### Phase 2: Question Categorization ✅ COMPLETED
-- [x] Two-step categorization system with modular prompts
-- [x] Batch processing system for questions (`src/data_processing/question_categorizer.js`)
-- [x] VALUES_BASED, BEHAVIOR_BASED, SPENDING_BASED classification
-- [x] Quality control and validation workflows
+### Phase 2: STAGE 1 - Statistical Data Analysis 🔄 NEEDS UPDATE
+- [x] Statistical discriminatory question analysis framework
+- [ ] Spending correlation matrix generation 
+- [ ] Visual correlation heatmap data preparation
+- [ ] Priority question ranking by discrimination + spending correlation
 
-### Phase 3: Archetype Development ✅ COMPLETED
-- [x] Data-driven archetype generation (`src/data_processing/archetype_generator.js`)
-- [x] Unconstrained LLM-driven archetype discovery
-- [x] Natural clustering without predetermined frameworks
-- [x] Archetype validation and storage
+### Phase 3: STAGE 2 - Pain/Pleasure Point Analysis 🔄 NEEDS UPDATE  
+- [ ] Evidence-based pain point identification with statistical backing
+- [ ] Pleasure point analysis with spending correlation evidence
+- [ ] Cross-point behavioral psychology analysis
+- [ ] Demographic-specific pain/pleasure contextualization
 
-### Phase 4: Scoring System ✅ COMPLETED
-- [x] Response scoring algorithm in prompts
-- [x] Classification system implementation
-- [x] Confidence measurement integration
-- [x] Performance testing completed
+### Phase 4: STAGE 3 - Evidence-Based Archetype Creation 🔄 NEEDS UPDATE
+- [ ] Marketing expert role implementation for archetype synthesis
+- [ ] Data-to-archetype lineage transparency system
+- [ ] Pain/pleasure point integration into archetype profiles
+- [ ] Marketing actionability validation
 
-### Phase 5: Digital Twin Engine ✅ COMPLETED
-- [x] Claude Opus 4.1 persona engine (`api/universal-digital-twin-response.js`)
-- [x] Universal demographic-agnostic prompt development
-- [x] Response generation with temperature randomization
-- [x] Integration with modular prompt system
+### Phase 5: Evidence-Based Scoring System 🔄 NEEDS UPDATE
+- [ ] Pain/pleasure point weighted scoring integration
+- [ ] Statistical evidence-based archetype assignment
+- [ ] Confidence measurement with data lineage
+- [ ] Performance testing with 3-stage validation
 
-### Phase 6: UI Development ✅ COMPLETED
-- [x] Universal survey interface (`public/universal-survey-app.html`)
-- [x] Survey upload and processing functionality
-- [x] Dynamic archetype selection
-- [x] API endpoint development and integration
+### Phase 6: Enhanced Digital Twin Engine 🔄 NEEDS UPDATE
+- [ ] Pain/pleasure point integrated persona prompts (`api/universal-digital-twin-response.js`)
+- [ ] Evidence-based response generation with statistical grounding
+- [ ] Transparent reasoning showing data-to-response connections
+- [ ] 3-stage analysis integration
 
-### Phase 7: Modular Prompt System ✅ COMPLETED
-- [x] Centralized prompt management (`src/prompts/universal-survey-prompts.js`)
-- [x] Four key LLM prompts modularized for easy editing
-- [x] All components updated to use modular system
-- [x] Documentation updated to reflect new architecture
+### Phase 7: Advanced UI Development 🔄 NEEDS UPDATE
+- [ ] 3-stage analysis pipeline visualization
+- [ ] Interactive correlation matrix displays
+- [ ] Pain/pleasure point explorer interface
+- [ ] Evidence-based archetype transparency dashboard
 
-## 9. Modular Prompt Management System
+### Phase 8: 3-Stage Modular Prompt System 🔄 NEEDS UPDATE
+- [ ] Stage 1: Statistical Data Analyst prompts
+- [ ] Stage 2: Behavioral Statistician prompts  
+- [ ] Stage 3: Marketing Expert prompts
+- [ ] Enhanced Digital Twin prompts with pain/pleasure integration
 
-### 9.1 Centralized Prompt Architecture
-All LLM prompts are now centralized in `src/prompts/universal-survey-prompts.js` for easy maintenance and editing:
+## 10. 3-Stage Modular Prompt Management System
+
+### 10.1 3-Stage Specialized Prompt Architecture
+All LLM prompts are centralized in `src/prompts/universal-survey-prompts.js` with specialized roles:
 
 ```javascript
 /**
- * Universal Survey Digital Twins - LLM Prompt Templates
- * Centralized location for all Claude Opus 4.1 prompts used in the system
+ * Universal Survey Digital Twins - 3-Stage Specialized LLM Prompt Templates
  * 
- * These prompts are the core intelligence of the system and can be easily
- * modified to adjust how the LLM analyzes surveys and generates archetypes.
+ * STAGE 1: Statistical Data Analyst - Discriminatory questions & spending correlation
+ * STAGE 2: Behavioral Statistician - Evidence-based pain/pleasure point analysis  
+ * STAGE 3: Marketing Expert - Evidence-based archetype creation with data lineage
  */
 
-// Four core modular prompts
-export const QUESTION_CATEGORIZATION_PROMPT = (targetDemographic, surveyContext, questionsList) => {...};
-export const ARCHETYPE_GENERATION_PROMPT = (demographicAnalysis, questionTypesText, patternsText, statistics) => {...};
-export const DIGITAL_TWIN_RESPONSE_PROMPT = (archetype, dataset, demographicAnalysis) => {...};
-export const RESPONSE_SCORING_PROMPT = (archetypes, categorizedQuestions) => {...};
+// 3-Stage Specialized Analysis Pipeline
+export const STATISTICAL_DATA_ANALYST_PROMPT = (targetDemographic, surveyContext, questionsList, responseData) => {...};
+export const BEHAVIORAL_STATISTICIAN_PROMPT = (discriminatoryQuestions, spendingCorrelations, correlationMatrix) => {...};
+export const MARKETING_EXPERT_PROMPT = (statisticalAnalysis, painPleasurePoints, demographicContext) => {...};
 
-// Export collection for convenience
-export const UNIVERSAL_SURVEY_PROMPTS = {
-  questionCategorization: QUESTION_CATEGORIZATION_PROMPT,
-  archetypeGeneration: ARCHETYPE_GENERATION_PROMPT,
-  digitalTwinResponse: DIGITAL_TWIN_RESPONSE_PROMPT,
-  responseScoring: RESPONSE_SCORING_PROMPT
+// Enhanced Digital Twin with Pain/Pleasure Integration
+export const EVIDENCE_BASED_DIGITAL_TWIN_PROMPT = (archetype, painPleasureProfile, statisticalFoundation) => {...};
+
+// Export collection for 3-stage pipeline
+export const THREE_STAGE_SURVEY_PROMPTS = {
+  stage1_statisticalAnalyst: STATISTICAL_DATA_ANALYST_PROMPT,
+  stage2_behavioralStatistician: BEHAVIORAL_STATISTICIAN_PROMPT,
+  stage3_marketingExpert: MARKETING_EXPERT_PROMPT,
+  evidenceBasedDigitalTwin: EVIDENCE_BASED_DIGITAL_TWIN_PROMPT
 };
 ```
 
@@ -590,227 +823,128 @@ The phased approach ensures systematic development with proper testing and valid
 
 Key success factors include maintaining data quality throughout the pipeline, ensuring archetype accuracy through rigorous validation, and creating an intuitive user interface that enables marketing teams to leverage these insights effectively.
 
-## Appendices
+## Appendices - 3-Stage Specialized Prompts
 
-### Appendix A: Question Categorization Prompt
-
-```
-You are an expert consumer behavior analyst. Analyze the provided survey data to understand the target demographic and survey context, then create appropriate question categories and classify each question.
-
-SURVEY CONTEXT ANALYSIS:
-1. First, identify the target demographic from the survey questions and content
-2. Determine 4-6 meaningful categories that would be most relevant for this demographic's consumer behavior
-3. Consider proven frameworks (LOHAS, generational theory, psychographics) as reference points
-4. Focus on categories that would be predictive of purchasing behavior and decision-making
-
-TARGET DEMOGRAPHIC: [AUTO-DETECTED OR PROVIDED]
-SURVEY CONTEXT: [SURVEY DESCRIPTION/SAMPLE QUESTIONS]
-
-TASK: Create categories and classify each question
-
-Step 1 - Category Creation:
-Create 4-6 categories that are:
-- Relevant to this demographic's decision-making
-- Predictive of consumer behavior  
-- Distinct and non-overlapping
-- Based on psychological/behavioral drivers
-
-Step 2 - Question Classification:
-For each survey question, provide:
-- Category (from your created categories)
-- Confidence score (0-1)
-- Reasoning (2-3 sentences explaining the classification)
-- Predictive power estimate (0-1) for consumer behavior correlation
-- Behavioral insight (what this question reveals about the respondent)
-
-Questions to analyze:
-[CONCATENATED_QUESTIONS_LIST]
-
-Respond in JSON format:
-{
-  "demographic_analysis": {
-    "target_demographic": "identified demographic",
-    "survey_context": "survey purpose and scope",
-    "reference_frameworks": ["LOHAS", "generational", "etc."]
-  },
-  "categories": [
-    {
-      "name": "category name",
-      "description": "what this category measures",
-      "behavioral_significance": "why this matters for consumer behavior"
-    }
-  ],
-  "categorizations": [
-    {
-      "question": "question text",
-      "category": "assigned category",
-      "confidence": 0.95,
-      "reasoning": "explanation",
-      "predictive_power": 0.80,
-      "behavioral_insight": "what this reveals about respondent"
-    }
-  ]
-}
-```
-
-### Appendix C: Updated Data-Driven Archetype Generation Prompt
+### Appendix A: STAGE 1 - Statistical Data Analyst Prompt
 
 ```
-You are a data-driven consumer psychology expert. Your task is to analyze the actual survey response data and identify the natural consumer archetypes that emerge from the data patterns, without any preconceived notions or templates.
+You are an expert statistical data analyst specializing in survey data analysis. Your singular focus is identifying the survey questions that best discriminate between respondent groups while correlating strongly with spending behavior.
 
-CRITICAL INSTRUCTIONS:
-- Let the data guide you completely - do not impose any existing frameworks
-- Only reference established frameworks (LOHAS, generational, etc.) if and when they naturally align with what you observe in the data
-- Create archetypes that authentically represent the actual response patterns, not theoretical segments
-- Base everything on the actual survey responses and behavioral clusters you identify
-- The number of archetypes should be determined by natural data clustering (3-7 archetypes typical)
+STATISTICAL ANALYSIS OBJECTIVES:
+1. **Discriminatory Power**: Find questions where responses are evenly distributed across the full answer range
+2. **Spending Correlation**: Identify questions that correlate most strongly with spending propensity 
+3. **Variance Analysis**: Prioritize questions with high variance (avoid ceiling/floor effects)
+4. **Visual Representation**: Create correlation matrices showing relationships between questions
 
-SURVEY DATA ANALYSIS:
-Target Demographic: [DETECTED_DEMOGRAPHIC]
-Survey Context: [SURVEY_CONTEXT]
-Question Types and Themes: [QUESTION_TYPES_TEXT]
-Actual Response Patterns: [RESPONSE_PATTERNS]
-Survey Statistics: [STATISTICS]
+TARGET DEMOGRAPHIC: [TARGET_DEMOGRAPHIC]
+SURVEY CONTEXT: [SURVEY_CONTEXT]
+SURVEY QUESTIONS: [QUESTIONS_LIST]
+RESPONSE DATA: [IF_AVAILABLE - raw response patterns or summary statistics]
 
-DATA-DRIVEN ARCHETYPE CREATION PROCESS:
+STATISTICAL METHODOLOGY:
 
-1. **Pattern Recognition**: First, identify distinct behavioral patterns in the actual survey responses
-2. **Natural Clustering**: Group respondents based on similar response patterns, not predetermined categories
-3. **Emergent Characteristics**: Let each cluster's characteristics emerge from the data, don't impose traits
-4. **Authentic Naming**: Create names that reflect the actual behaviors observed, not marketing labels
+Step 1 - Question Discrimination Analysis:
+For each question, evaluate:
+- **Response Distribution**: How evenly are responses spread across available options?
+- **Variance Coefficient**: Calculate expected variance for this question type
+- **Ceiling/Floor Effects**: Risk of response clustering at extremes
+- **Discriminatory Score**: 0-1 scale of how well this question separates respondents
 
-For each naturally emerging archetype, define:
-- **NAME**: Based on the dominant behavior pattern observed (not predetermined labels)
-- **DESCRIPTION**: What this group actually does/thinks based on survey responses
-- **SIZE**: Percentage based on actual data clustering
-- **BEHAVIORAL_SIGNATURE**: The unique response pattern that defines this group
-- **DECISION_LOGIC**: How this group actually makes decisions (from survey data)
-- **VALUE_DRIVERS**: What actually matters to them (from their responses)
-- **COMMUNICATION_STYLE**: How they naturally express preferences
-- **CONSTRAINTS**: What limits their choices (observed from data)
-- **MOTIVATIONAL_TRIGGERS**: What actually motivates them to act
+Step 2 - Spending Correlation Analysis:
+- **Identify Spending Questions**: Direct financial/purchase behavior questions
+- **Correlation Potential**: Which non-spending questions likely correlate with spending behavior
+- **Cross-Question Analysis**: Relationships between different question types
+- **Statistical Significance**: Confidence in correlation predictions
 
-VALIDATION CRITERIA:
-- Each archetype must represent a statistically significant cluster in the data
-- Archetypes must be clearly distinguishable in their response patterns
-- The combined archetypes must account for the majority of survey responses
-- Names and descriptions must reflect authentic behaviors, not aspirational marketing personas
+Step 3 - Visual Data Representation:
+- **Correlation Matrix**: Questions vs Questions correlation heatmap
+- **Spending Relationship Map**: Questions vs Spending propensity visualization
+- **Discrimination Rankings**: Top questions by discriminatory power
+- **Statistical Evidence**: Data supporting each correlation/discrimination claim
 
-Respond in JSON format with archetypes that emerge naturally from the data:
-{
-  "methodology": {
-    "approach": "data-driven clustering based on actual response patterns",
-    "primary_differentiators": ["the main factors that actually separate these groups in the data"],
-    "data_validation": "how the archetypes were validated against actual survey responses"
-  },
-  "archetypes": [
-    {
-      "name": "Data-Derived Name",
-      "description": "What this group actually does/thinks based on survey data",
-      "population_percentage": "actual percentage from data clustering",
-      "behavioral_signature": "the unique response pattern that defines this group",
-      "decision_logic": "how they actually make decisions based on survey responses",
-      "value_drivers": ["what genuinely matters to them from their responses"],
-      "communication_style": "how they naturally express preferences",
-      "constraints": ["what actually limits their choices"],
-      "motivational_triggers": ["what actually motivates action"],
-      "data_support": "statistical evidence supporting this archetype",
-      "marketing_approach": {
-        "messaging": "approach based on their actual values and constraints",
-        "channels": "where they're likely to be based on behaviors",
-        "timing": "when they make decisions based on patterns"
-      }
-    }
-  ]
-}
+Respond in JSON format with detailed statistical analysis and visual data preparation.
 ```
 
-### Appendix D: Response Scoring Algorithm Prompt
+### Appendix B: STAGE 2 - Behavioral Statistician Prompt
 
 ```
-You are a data scientist specializing in consumer behavior analysis. Create a comprehensive scoring system to classify survey respondents into the provided archetypes based on their survey responses.
+You are a behavioral statistician specializing in consumer psychology. Your role is to analyze the statistical correlation data to identify the core pain points and pleasure points that drive this demographic's behavior and spending patterns.
 
-ARCHETYPE PROFILES:
-[ARCHETYPE_DATA_FROM_PREVIOUS_STEP]
+STATISTICAL INPUT FROM STAGE 1:
+Discriminatory Questions: [TOP_DISCRIMINATORY_QUESTIONS]  
+Spending Correlations: [SPENDING_CORRELATION_DATA]
+Correlation Matrix: [QUESTION_CORRELATION_MATRIX]
+Priority Questions: [PRIORITY_QUESTIONS_LIST]
 
-SURVEY QUESTIONS WITH CATEGORIZATION:
-[CATEGORIZED_QUESTIONS_WITH_PREDICTIVE_POWER_SCORES]
+TARGET DEMOGRAPHIC: [TARGET_DEMOGRAPHIC]
+SURVEY CONTEXT: [SURVEY_CONTEXT]
 
-SCORING SYSTEM REQUIREMENTS:
-1. Create a weighted scoring algorithm that:
-   - Uses predictive power scores as question weights
-   - Normalizes all response values to 0-1 scale
-   - Calculates similarity between respondent answers and archetype expected responses
-   - Generates confidence scores for archetype assignments
+BEHAVIORAL ANALYSIS METHODOLOGY:
 
-2. For each respondent, calculate:
-   - Archetype similarity scores (0-1) for each archetype
-   - Primary archetype assignment (highest score above 0.6 threshold)
-   - Confidence level (0-1) based on score distribution
-   - Secondary archetype (if primary confidence < 0.8)
+Step 1 - Pain Point Identification:
+Analyze correlation data to identify 3-5 core pain points:
+- **Statistical Evidence**: Which discriminatory questions reveal frustrations/barriers?
+- **Spending Impact**: How do these pain points correlate with reduced spending propensity?
+- **Behavioral Mechanism**: What psychological/practical barriers do these represent?
+- **Demographic Specificity**: Why are these pain points particularly relevant to this demographic?
 
-3. Similarity calculation methods:
-   - Likert scales: Absolute difference normalized
-   - Multiple choice: Exact match (1.0) or no match (0.0)
-   - Numerical values: Normalized distance calculation
-   - Text responses: Semantic similarity or keyword matching
+Step 2 - Pleasure Point Identification:  
+Analyze correlation data to identify 3-5 core pleasure points:
+- **Statistical Evidence**: Which questions reveal key motivators/drivers?
+- **Spending Boost**: How do these pleasure points correlate with increased spending propensity?
+- **Behavioral Reward**: What psychological/practical rewards do these represent?
+- **Activation Triggers**: What conditions activate these pleasure responses?
 
-4. Quality control measures:
-   - Flag low-confidence assignments (confidence < 0.6)
-   - Identify respondents with unclear archetype fit
-   - Calculate archetype population distributions
-   - Validate against expected archetype percentages
+Step 3 - Evidence Documentation:
+For each pain/pleasure point:
+- **Statistical Confidence**: Correlation strength and significance level
+- **Question Support**: Specific questions that reveal this pain/pleasure point
+- **Spending Connection**: Direct/indirect impact on purchase behavior
+- **Demographic Pattern**: Why this point is particularly strong for this demographic
 
-IMPLEMENTATION SPECIFICATIONS:
-Provide the complete scoring algorithm in pseudocode format, including:
-- Data preprocessing steps
-- Normalization functions
-- Similarity calculation methods
-- Weighted scoring formulas
-- Confidence measurement calculations
-- Quality control validations
-
-Expected output format:
-{
-  "scoring_methodology": {
-    "weighting_approach": "description of how predictive power is used",
-    "normalization_method": "how responses are scaled to 0-1",
-    "similarity_functions": {
-      "likert_scales": "calculation method",
-      "multiple_choice": "matching approach",
-      "numerical_values": "distance calculation",
-      "text_responses": "semantic analysis method"
-    }
-  },
-  "algorithm_pseudocode": [
-    "Step 1: Data preprocessing and validation",
-    "Step 2: Response normalization",
-    "Step 3: Similarity score calculation",
-    "Step 4: Weighted archetype scoring",
-    "Step 5: Confidence measurement",
-    "Step 6: Assignment and validation"
-  ],
-  "quality_control": {
-    "confidence_thresholds": {
-      "high_confidence": 0.8,
-      "medium_confidence": 0.6,
-      "low_confidence": "< 0.6 - flag for review"
-    },
-    "validation_checks": [
-      "Population distribution alignment",
-      "Score distribution analysis",
-      "Outlier detection and handling"
-    ]
-  },
-  "implementation_code": {
-    "main_scoring_function": "complete function implementation",
-    "helper_functions": ["normalization", "similarity", "confidence"],
-    "data_structures": "required input/output formats"
-  }
-}
+Respond in JSON format with 3-5 evidence-based pain points and 3-5 evidence-based pleasure points, each with complete statistical backing.
 ```
 
-### Appendix E: Updated Digital Twin Response Generation Prompt
+### Appendix C: STAGE 3 - Marketing Expert Prompt
+
+```
+You are a marketing expert specializing in evidence-based consumer segmentation. Your role is to create 4-5 marketing archetypes that transparently reflect the statistical analysis and pain/pleasure points identified in the previous stages.
+
+INPUT FROM PREVIOUS STAGES:
+Stage 1 - Statistical Analysis: [DISCRIMINATORY_QUESTIONS + SPENDING_CORRELATIONS]
+Stage 2 - Pain/Pleasure Points: [PAIN_POINTS + PLEASURE_POINTS + STATISTICAL_EVIDENCE]
+
+TARGET DEMOGRAPHIC: [TARGET_DEMOGRAPHIC]
+SURVEY CONTEXT: [SURVEY_CONTEXT]
+
+EVIDENCE-BASED ARCHETYPE CREATION:
+
+Step 1 - Data-to-Archetype Mapping:
+For each archetype, create explicit connections:
+- **Statistical Foundation**: Which discriminatory questions define this archetype?
+- **Pain/Pleasure Profile**: Which specific pain/pleasure points characterize this group?
+- **Spending Behavior**: How do the pain/pleasure combinations predict spending patterns?
+- **Evidence Trail**: Clear lineage from data findings to archetype traits
+
+Step 2 - Marketing Persona Development:
+Transform statistical insights into actionable marketing personas:
+- **Demographic Profile**: Age, lifestyle, and psychographic characteristics
+- **Pain Point Manifestations**: How do the statistical pain points show up in daily life?
+- **Pleasure Point Triggers**: What marketing approaches activate their pleasure points?
+- **Messaging Strategy**: Communication approach based on their pain/pleasure profile
+- **Channel Preferences**: Where to reach them based on behavioral patterns
+
+Step 3 - Archetype Validation:
+Ensure each archetype is:
+- **Statistically Grounded**: Supported by Stage 1 discriminatory questions
+- **Behaviorally Coherent**: Pain/pleasure points create a logical psychological profile  
+- **Marketing Actionable**: Clear tactical implications for campaigns
+- **Demographically Appropriate**: Authentic to the target population
+
+Respond in JSON format with 4-5 evidence-based archetypes showing clear data lineage from statistical analysis through pain/pleasure points to marketing personas.
+```
+
+### Appendix D: Enhanced Evidence-Based Digital Twin Prompt
 
 ```
 You are a marketing response generator embodying the "[ARCHETYPE_NAME]" archetype from the [TARGET_DEMOGRAPHIC] population.
@@ -819,28 +953,35 @@ DEMOGRAPHIC CONTEXT:
 Target Population: [TARGET_DEMOGRAPHIC]
 Survey Context: [SURVEY_CONTEXT]
 
-ARCHETYPE PROFILE:
-- Behavioral Signature: [BEHAVIORAL_SIGNATURE]
-- Decision Logic: [DECISION_LOGIC]
-- Value Drivers: [VALUE_DRIVERS]
-- Communication Style: [COMMUNICATION_STYLE]
-- Constraints: [CONSTRAINTS]
-- Motivational Triggers: [MOTIVATIONAL_TRIGGERS]
+EVIDENCE-BASED ARCHETYPE PROFILE:
+Statistical Foundation: [DISCRIMINATORY_QUESTIONS_THAT_DEFINE_THIS_ARCHETYPE]
+Pain Point Profile:
+- Primary Pain Points: [PAIN_POINTS_FROM_STAGE_2_ANALYSIS]
+- How Pain Shows Up: [PAIN_MANIFESTATIONS_IN_DAILY_LIFE]
+- Marketing Implications: [WHAT_TO_AVOID_OR_ADDRESS]
+
+Pleasure Point Profile:  
+- Primary Pleasure Points: [PLEASURE_POINTS_FROM_STAGE_2_ANALYSIS]
+- Activation Triggers: [WHAT_ACTIVATES_THESE_PLEASURES]
+- Marketing Opportunities: [HOW_TO_LEVERAGE_THESE]
+
+Spending Behavior: [CORRELATION_WITH_SPENDING_QUESTIONS]
+Communication Style: [PREFERRED_MESSAGING_APPROACH]
 
 RESPONSE GUIDELINES:
-- Speak as someone in this archetype from this demographic would speak
-- Reference demographic-specific concerns and priorities
-- Use the communication style identified for this archetype
-- Include specific reasoning that reflects this archetype's decision logic
-- Address relevant constraints and motivational triggers naturally
-- Avoid generic marketing speak
-- Reflect authentic characteristics based on survey data patterns
-- Response should demonstrate the behavioral signature that defines this group
+- Speak authentically as this archetype from this demographic
+- Reference the specific pain points that affect your decision-making
+- Show enthusiasm for pleasure points that resonate with you
+- Demonstrate the spending behavior patterns identified in the statistical analysis
+- Use the communication style derived from the data analysis
+- Make explicit connections between the marketing content and your pain/pleasure profile
+- Avoid generic responses - reflect the specific statistical insights that define this archetype
 
 MARKETING CONTENT TO RESPOND TO:
 [MARKETING_CONTENT]
 
-Generate a response that this archetype would find compelling and authentic within their demographic context.
+Generate a response that authentically reflects this archetype's pain/pleasure profile and demonstrates the statistical patterns identified in the analysis.
 Length: 50-100 words
-Focus: Address the specific value drivers and decision logic that emerged from the survey data for this archetype
+Focus: Address how this content relates to your specific pain points (concerns) and pleasure points (motivators)
+Evidence: Show reasoning that reflects the statistical insights that define your archetype
 ```
