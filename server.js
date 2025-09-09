@@ -71,6 +71,18 @@ app.post('/api/survey-datasets', async (req, res) => {
   await surveyDatasetsHandler(req, res);
 });
 
+// Data Wrangling Report API
+import dataWranglingReportHandler from './api/data-wrangling-report.js';
+app.get('/api/data-wrangling-report', async (req, res) => {
+  await dataWranglingReportHandler(req, res);
+});
+
+// Export Clean CSV API
+import exportCleanCSVHandler from './api/export-clean-csv.js';
+app.get('/api/export-clean-csv', async (req, res) => {
+  await exportCleanCSVHandler(req, res);
+});
+
 // 3-Stage Pipeline Analysis API
 import threeStageAnalysisHandler, { 
   getAnalysisStatus, 
