@@ -96,6 +96,12 @@ app.post('/api/process-survey-upload', async (req, res) => {
   await processSurveyUploadHandler(req, res);
 });
 
+// Simple Upload API (fallback)
+import simpleUploadHandler from './api/simple-upload.js';
+app.post('/api/simple-upload', async (req, res) => {
+  await simpleUploadHandler(req, res);
+});
+
 // Digital Twin Routes
 app.get('/api/digital-twins/personas', async (req, res) => {
   try {

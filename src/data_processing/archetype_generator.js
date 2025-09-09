@@ -1,7 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { createLogger } from '../utils/logger.js';
 import { AppError, ValidationError } from '../utils/error-handler.js';
-import { ARCHETYPE_GENERATION_PROMPT, DIGITAL_TWIN_RESPONSE_PROMPT } from '../prompts/universal-survey-prompts.js';
+import promptLoader from '../prompts/prompt-loader.js';
 
 const logger = createLogger('ArchetypeGenerator');
 

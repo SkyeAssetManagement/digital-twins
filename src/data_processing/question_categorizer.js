@@ -1,7 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { createLogger } from '../utils/logger.js';
 import { AppError, ValidationError } from '../utils/error-handler.js';
-import { QUESTION_CATEGORIZATION_PROMPT } from '../prompts/universal-survey-prompts.js';
+import promptLoader from '../prompts/prompt-loader.js';
 
 const logger = createLogger('QuestionCategorizer');
 
@@ -55,7 +55,11 @@ export class QuestionCategorizer {
     async categorizeBatch(questions, targetDemographic, surveyContext) {
         const questionsList = questions.map((q, index) => `${index + 1}. ${q.fullQuestion || q.text}`).join('\n');
         
-        const prompt = QUESTION_CATEGORIZATION_PROMPT(targetDemographic, surveyContext, questionsList);
+        const prompt = promptLoader.buildPrompt('prompt_1_StatsAnalyst', {
+            targetDemographic,
+            surveyContext,
+            questions: questionsList
+        });
 
         try {
             const response = await this.anthropic.messages.create({
