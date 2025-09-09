@@ -1,5 +1,6 @@
 import { createLogger } from '../src/utils/logger.js';
 import { AppError, ValidationError } from '../src/utils/error-handler.js';
+import { getIntelligentDataPreprocessor } from '../src/data_processing/intelligent_data_preprocessor.js';
 import path from 'path';
 import fs from 'fs';
 
@@ -9,8 +10,10 @@ const logger = createLogger('SurveyDatasetsAPI');
 const uploadedDatasets = new Map();
 const uploadedArchetypes = new Map();
 
-// Initialize with pre-loaded datasets
-initializePreloadedDatasets();
+// Initialize with pre-loaded datasets - async but don't block startup
+initializePreloadedDatasets().catch(error => {
+    logger.error('Failed to initialize preloaded datasets during startup:', error);
+});
 
 export default async function handler(req, res) {
     try {
@@ -121,9 +124,9 @@ async function handleCreateDataset(req, res) {
 }
 
 // Named export for direct use in other modules
-function initializePreloadedDatasets() {
+async function initializePreloadedDatasets() {
     try {
-        logger.info('Initializing pre-loaded datasets...');
+        logger.info('Initializing pre-loaded datasets with intelligent preprocessing...');
         
         // Define pre-loaded datasets with their file paths
         const preloadedDatasets = [
@@ -133,15 +136,12 @@ function initializePreloadedDatasets() {
                 target_demographic: 'Parents with children aged 0-18, primarily mothers',
                 description: 'Comprehensive survey of parenting behaviors, concerns, spending patterns, and lifestyle choices',
                 file_path: './data/datasets/mums/Detail_Parents Survey.xlsx',
-                total_questions: 45, // Estimated - would be calculated from actual file
-                total_responses: 285, // Estimated - would be calculated from actual file
-                processing_status: 'completed',
+                processing_status: 'processing',
                 created_at: '2024-01-15T10:30:00.000Z',
                 updated_at: new Date().toISOString(),
                 file_info: {
                     original_name: 'Detail_Parents Survey.xlsx',
-                    file_type: '.xlsx',
-                    file_size: 156789 // Would be actual file size
+                    file_type: '.xlsx'
                 },
                 is_preloaded: true
             },
@@ -151,45 +151,84 @@ function initializePreloadedDatasets() {
                 target_demographic: 'Active lifestyle consumers aged 18-45, surf culture enthusiasts',
                 description: 'Analysis of surf clothing preferences, brand loyalty, and purchasing behaviors',
                 file_path: './data/datasets/surf-clothing/raw/All_Surf_detail 2.xlsx',
-                total_questions: 38,
-                total_responses: 427,
-                processing_status: 'completed',
+                processing_status: 'processing',
                 created_at: '2024-02-01T14:15:00.000Z',
                 updated_at: new Date().toISOString(),
                 file_info: {
                     original_name: 'All_Surf_detail 2.xlsx',
-                    file_type: '.xlsx',
-                    file_size: 203456
+                    file_type: '.xlsx'
                 },
                 is_preloaded: true
             }
         ];
 
-        // Add mock survey data structure for each preloaded dataset
-        preloadedDatasets.forEach(dataset => {
-            // Add mock survey data structure (in real implementation, would parse Excel file)
-            dataset.survey_data = {
-                questions: generateMockQuestions(dataset.total_questions),
-                responses: [], // Would be populated from actual Excel parsing
-                fields: generateMockFields(dataset.total_questions)
-            };
-
-            // Check if file actually exists (optional - for development)
+        // Process each dataset with intelligent data preprocessing
+        const preprocessor = await getIntelligentDataPreprocessor();
+        
+        for (const dataset of preloadedDatasets) {
             try {
-                if (fs.existsSync(dataset.file_path)) {
-                    logger.info(`Pre-loaded dataset file found: ${dataset.file_path}`);
+                const filePath = path.resolve(dataset.file_path);
+                
+                // Check if file exists
+                if (fs.existsSync(filePath)) {
+                    logger.info(`Processing dataset file: ${dataset.file_path}`);
+                    
+                    // Use intelligent preprocessing to extract real data
+                    const processingResult = await preprocessor.processFile(filePath);
+                    
+                    if (processingResult.success) {
+                        // Update dataset with real data from Excel file
+                        dataset.survey_data = {
+                            questions: processingResult.data.headers.map((header, index) => ({
+                                id: `q${index + 1}`,
+                                text: header,
+                                type: inferQuestionType(header),
+                                required: false
+                            })),
+                            responses: processingResult.data.responses,
+                            fields: processingResult.data.fields
+                        };
+                        
+                        // Update metadata with real counts
+                        dataset.total_questions = processingResult.data.headers.length;
+                        dataset.total_responses = processingResult.data.responses.length;
+                        dataset.processing_status = 'completed';
+                        dataset.wrangling_report = processingResult.wranglingReport;
+                        dataset.file_info.file_size = fs.statSync(filePath).size;
+                        
+                        logger.info(`Successfully processed ${dataset.name}: ${dataset.total_questions} questions, ${dataset.total_responses} responses`);
+                    } else {
+                        throw new Error('Processing failed');
+                    }
                 } else {
-                    logger.warn(`Pre-loaded dataset file not found: ${dataset.file_path} - using mock data`);
+                    logger.warn(`File not found: ${dataset.file_path} - creating placeholder`);
+                    dataset.survey_data = {
+                        questions: [],
+                        responses: [],
+                        fields: {}
+                    };
+                    dataset.total_questions = 0;
+                    dataset.total_responses = 0;
+                    dataset.processing_status = 'file_not_found';
                 }
             } catch (error) {
-                logger.warn(`Cannot check file existence: ${dataset.file_path} - using mock data`);
+                logger.error(`Failed to process dataset ${dataset.name}:`, error);
+                dataset.processing_status = 'failed';
+                dataset.error_message = error.message;
+                dataset.survey_data = {
+                    questions: [],
+                    responses: [],
+                    fields: {}
+                };
+                dataset.total_questions = 0;
+                dataset.total_responses = 0;
             }
 
             uploadedDatasets.set(dataset.id, dataset);
-            logger.info(`Pre-loaded dataset: ${dataset.name} (ID: ${dataset.id})`);
-        });
+            logger.info(`Loaded dataset: ${dataset.name} (ID: ${dataset.id}) - Status: ${dataset.processing_status}`);
+        }
 
-        logger.info(`Successfully initialized ${preloadedDatasets.length} pre-loaded datasets`);
+        logger.info(`Successfully initialized ${preloadedDatasets.length} pre-loaded datasets with intelligent preprocessing`);
 
     } catch (error) {
         logger.error('Failed to initialize pre-loaded datasets:', error);
@@ -197,37 +236,18 @@ function initializePreloadedDatasets() {
     }
 }
 
-function generateMockQuestions(count) {
-    const questionTypes = [
-        'How important is [factor] to you when [context]?',
-        'How often do you [behavior]?',
-        'What is your preferred [choice] for [scenario]?',
-        'How much would you spend on [product/service]?',
-        'Which statement best describes your [attitude/belief]?'
-    ];
-
-    const questions = [];
-    for (let i = 1; i <= count; i++) {
-        questions.push({
-            id: `q${i}`,
-            text: questionTypes[i % questionTypes.length].replace('[factor]', 'quality').replace('[context]', 'making purchases'),
-            type: i % 4 === 0 ? 'spending' : i % 3 === 0 ? 'behavior' : 'values',
-            required: Math.random() > 0.3
-        });
+// Helper function to infer question type from header text
+function inferQuestionType(header) {
+    const lowerHeader = header.toLowerCase();
+    if (lowerHeader.includes('age') || lowerHeader.includes('how many') || lowerHeader.includes('number')) {
+        return 'spending';
+    } else if (lowerHeader.includes('often') || lowerHeader.includes('frequency')) {
+        return 'behavior';
+    } else {
+        return 'values';
     }
-    return questions;
 }
 
-function generateMockFields(count) {
-    const fields = {};
-    for (let i = 1; i <= count; i++) {
-        fields[`q${i}`] = {
-            title: `Question ${i}`,
-            type: i % 4 === 0 ? 'number' : 'text',
-            required: Math.random() > 0.3
-        };
-    }
-    return fields;
-}
+// Mock data generation functions removed - now using intelligent data preprocessing
 
 export { uploadedDatasets, uploadedArchetypes };

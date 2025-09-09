@@ -41,8 +41,9 @@ class EvidenceBasedArchetypes {
                 confidence_metrics: stage2Results.confidence_metrics || {}
             });
 
-            // Call Claude API for archetype generation
-            const response = await this.claudeClient.messages.create({
+            // Call Claude API for archetype generation using streaming
+            console.log('Stage 3: Starting streaming API call for archetype generation...');
+            const response = await this.streamClaudeResponse({
                 model: 'claude-opus-4-1-20250805',
                 max_tokens: 10000,
                 temperature: 0.5, // Balanced for creative marketing insights with accuracy
@@ -53,7 +54,7 @@ class EvidenceBasedArchetypes {
             });
 
             // Parse and validate the response
-            const analysisResult = this.parseAnalysisResponse(response.content[0].text);
+            const analysisResult = this.parseAnalysisResponse(response);
             
             // Enhance with evidence validation and marketing optimization
             const enhancedArchetypes = await this.enhanceArchetypesWithEvidence(analysisResult, dataMatrix);
@@ -83,6 +84,49 @@ class EvidenceBasedArchetypes {
         } catch (error) {
             console.error('Stage 3 Archetype Generation Error:', error);
             throw new Error(`Evidence-based archetype generation failed: ${error.message}`);
+        }
+    }
+
+    /**
+     * Stream Claude API response to handle long-running requests
+     */
+    async streamClaudeResponse(requestParams) {
+        try {
+            console.log('Stage 3: Initiating streaming request with Claude API...');
+            
+            const stream = await this.claudeClient.messages.stream(requestParams);
+            
+            let fullResponse = '';
+            let streamingStartTime = Date.now();
+            let lastLogTime = streamingStartTime;
+            
+            stream.on('text', (text) => {
+                fullResponse += text;
+                
+                // Log progress every 30 seconds
+                const now = Date.now();
+                if (now - lastLogTime > 30000) {
+                    console.log(`Stage 3: Streaming in progress... ${Math.round((now - streamingStartTime) / 1000)}s elapsed, ${fullResponse.length} characters received`);
+                    lastLogTime = now;
+                }
+            });
+            
+            stream.on('error', (error) => {
+                console.error('Stage 3: Streaming error:', error);
+                throw error;
+            });
+            
+            // Wait for the stream to complete
+            await stream.finalMessage();
+            
+            const totalTime = Math.round((Date.now() - streamingStartTime) / 1000);
+            console.log(`Stage 3: Streaming completed successfully in ${totalTime}s, received ${fullResponse.length} characters`);
+            
+            return fullResponse;
+            
+        } catch (error) {
+            console.error('Stage 3: Streaming request failed:', error);
+            throw new Error(`Streaming API call failed: ${error.message}`);
         }
     }
 
