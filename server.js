@@ -64,7 +64,10 @@ app.post('/api/universal-digital-twin-response', async (req, res) => {
 
 // Survey Datasets API
 import surveyDatasetsHandler from './api/survey-datasets.js';
-app.use('/api/survey-datasets', async (req, res) => {
+app.get('/api/survey-datasets', async (req, res) => {
+  await surveyDatasetsHandler(req, res);
+});
+app.post('/api/survey-datasets', async (req, res) => {
   await surveyDatasetsHandler(req, res);
 });
 

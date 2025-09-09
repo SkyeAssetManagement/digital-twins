@@ -633,15 +633,32 @@
         async function loadDatasets() {
             try {
                 const response = await fetch('/api/survey-datasets');
-                const datasets = await response.json();
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(result.error || 'Failed to fetch datasets');
+                }
+                
+                const datasets = result.datasets || [];
                 
                 const select = document.getElementById('datasetSelect');
                 select.innerHTML = '<option value="">Choose a dataset...</option>';
                 
+                if (datasets.length === 0) {
+                    const option = document.createElement('option');
+                    option.value = '';
+                    option.textContent = 'No datasets available - Please upload a survey file first';
+                    option.disabled = true;
+                    select.appendChild(option);
+                    
+                    showAlert(result.message || 'No datasets uploaded yet. Please upload a CSV or XLSX file to get started.', 'info');
+                    return;
+                }
+                
                 datasets.forEach(dataset => {
                     const option = document.createElement('option');
                     option.value = dataset.id;
-                    option.textContent = `${dataset.name} (${dataset.total_questions} questions, ${dataset.total_responses} responses)`;
+                    option.textContent = `${dataset.name} (${dataset.total_questions || 0} questions, ${dataset.total_responses || 0} responses)`;
                     select.appendChild(option);
                 });
                 
@@ -649,7 +666,7 @@
                 
             } catch (error) {
                 console.error('Failed to load datasets:', error);
-                showAlert('Failed to load datasets. Please refresh the page.', 'error');
+                showAlert(`Failed to load datasets: ${error.message}`, 'error');
             }
         }
 
