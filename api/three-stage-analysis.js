@@ -29,6 +29,7 @@ export default async function handler(req, res) {
     }
 
     try {
+        console.log('[DEBUG] Three-stage analysis endpoint called');
         const { datasetId, targetDemographic, surveyContext, options = {} } = req.body;
 
         // Validate required fields

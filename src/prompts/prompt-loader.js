@@ -30,6 +30,10 @@ class PromptLoader {
 
         try {
             const filePath = path.join(this.promptsDirectory, `${promptFileName}.md`);
+            console.log(`[DEBUG] Trying to load prompt from: ${filePath}`);
+            console.log(`[DEBUG] Directory exists: ${fs.existsSync(this.promptsDirectory)}`);
+            console.log(`[DEBUG] File exists: ${fs.existsSync(filePath)}`);
+            
             const promptContent = fs.readFileSync(filePath, 'utf8');
             
             this.promptCache.set(cacheKey, promptContent);
