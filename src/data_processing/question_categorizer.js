@@ -1,7 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { createLogger } from '../utils/logger.js';
 import { AppError, ValidationError } from '../utils/error-handler.js';
-import promptLoader from '../prompts/prompt-loader.js';
+import promptLoader from '../prompts/vercel-prompt-loader.js';
 
 const logger = createLogger('QuestionCategorizer');
 

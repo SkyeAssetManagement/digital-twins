@@ -4,7 +4,7 @@
  * Provides evidence-based insights with statistical backing
  */
 
-import promptLoader from '../prompts/prompt-loader.js';
+import promptLoader from '../prompts/vercel-prompt-loader.js';
 
 class PainPleasureAnalyst {
     constructor(claudeClient) {

@@ -6,7 +6,7 @@
  * making it easy to modify prompts without touching JavaScript code.
  */
 
-import promptLoader from './prompt-loader.js';
+import promptLoader from './vercel-prompt-loader.js';
 
 // Stage 1: Statistical Data Analyst Prompt
 export const STATISTICAL_ANALYST_PROMPT = (targetDemographic, surveyContext, questionsList, statisticalSummary) => {

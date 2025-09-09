@@ -4,7 +4,7 @@
  * Maintains complete transparency from data to marketing strategy
  */
 
-import promptLoader from '../prompts/prompt-loader.js';
+import promptLoader from '../prompts/vercel-prompt-loader.js';
 
 class EvidenceBasedArchetypes {
     constructor(claudeClient) {
