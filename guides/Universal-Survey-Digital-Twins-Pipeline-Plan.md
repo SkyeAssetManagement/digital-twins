@@ -126,73 +126,83 @@ The system uses Claude Opus 4.1 to analyze survey content and dynamically determ
 **For Professionals**: Career, Work-Life Balance, Status, Efficiency
 **For Students**: Cost, Social, Academic, Future Planning
 
-### 3.2 Universal Claude Opus Categorization Prompt
+### 3.3 Updated Question Categorization Prompt
 ```
-You are an expert consumer behavior analyst. Analyze the provided survey data to understand the target demographic and survey context, then create appropriate question categories and classify each question.
+You are a data-driven survey analyst. Analyze each survey question using a systematic two-step approach to understand what type of question it is and what it's specifically measuring.
 
-SURVEY CONTEXT ANALYSIS:
-1. First, identify the target demographic from the survey questions and content
-2. Determine 4-6 meaningful categories that would be most relevant for this demographic's consumer behavior
-3. Consider proven frameworks (LOHAS, generational theory, psychographics) as reference points
-4. Focus on categories that would be predictive of purchasing behavior and decision-making
+CRITICAL INSTRUCTIONS:
+- First classify each question by its fundamental type
+- Then identify specific themes and values within each type
+- Base everything on the actual question content, not theoretical frameworks
+- Let natural patterns emerge from the data
 
 TARGET DEMOGRAPHIC: [AUTO-DETECTED OR PROVIDED]
 SURVEY CONTEXT: [SURVEY DESCRIPTION/SAMPLE QUESTIONS]
 
-TASK: Create categories and classify each question
+ANALYSIS PROCESS:
 
-Step 1 - Category Creation:
-Create 4-6 categories that are:
-- Relevant to this demographic's decision-making
-- Predictive of consumer behavior  
-- Distinct and non-overlapping
-- Based on psychological/behavioral drivers
+Step 1 - Question Type Classification:
+For each question, first determine which fundamental type it represents:
 
-Step 2 - Question Classification:
-For each survey question, provide:
-- Category (from your created categories)
-- Confidence score (0-1)
-- Reasoning (2-3 sentences explaining the classification)
-- Predictive power estimate (0-1) for consumer behavior correlation
-- Behavioral insight (what this question reveals about the respondent)
+A) VALUES-BASED QUESTIONS:
+   - Questions about what respondents believe, prioritize, or value
+   - Examples: "How important is X to you?", "What do you value most?"
+   - Identify specific value being measured (health, environment, quality, etc.)
 
-Questions to analyze:
-[CONCATENATED_QUESTIONS_LIST]
+B) BEHAVIOR-BASED QUESTIONS:
+   - Questions about what respondents actually do or would do
+   - Examples: "Do you recommend?", "How often do you?"
+   - Focus on actual actions and behavioral patterns
+
+C) SPENDING/PURCHASE BEHAVIOR QUESTIONS:
+   - Questions about financial decisions and purchase behavior
+   - Examples: "Will you spend based on X?", "How much would you pay?"
+   - Focus on money-related decision making
+
+Step 2 - Specific Theme Identification:
+Within each type, identify the specific themes and values being measured based on the actual question content.
 
 Respond in JSON format:
 {
   "demographic_analysis": {
-    "target_demographic": "identified demographic",
-    "survey_context": "survey purpose and scope",
-    "reference_frameworks": ["LOHAS", "generational", "etc."]
+    "target_demographic": "what demographic this survey appears to target",
+    "survey_context": "what this survey is actually trying to understand",
+    "question_type_breakdown": {
+      "values_based_count": "number of values questions",
+      "behavior_based_count": "number of behavior questions",
+      "spending_based_count": "number of spending questions"
+    }
   },
-  "categories": [
+  "question_types": [
     {
-      "name": "category name",
-      "description": "what this category measures",
-      "behavioral_significance": "why this matters for consumer behavior"
+      "type": "VALUES_BASED | BEHAVIOR_BASED | SPENDING_BASED",
+      "specific_themes": ["theme1", "theme2", "theme3"],
+      "description": "what this type measures in this survey",
+      "example_questions": ["question examples of this type"]
     }
   ],
   "categorizations": [
     {
       "question": "question text",
-      "category": "assigned category",
+      "primary_type": "VALUES_BASED | BEHAVIOR_BASED | SPENDING_BASED",
+      "specific_theme": "specific value/behavior/spending area being measured",
+      "category": "descriptive category name combining type + theme",
       "confidence": 0.95,
-      "reasoning": "explanation",
+      "reasoning": "why this question fits this type and theme",
       "predictive_power": 0.80,
-      "behavioral_insight": "what this reveals about respondent"
+      "behavioral_insight": "what this reveals about respondent psychology"
     }
   ]
 }
 ```
 
-### 3.3 Processing Logic
+### 3.4 Processing Logic
 1. **Demographic Detection**: Auto-detect target demographic from survey content
-2. **Dynamic Category Creation**: Let Claude Opus create contextually appropriate categories
-3. **Batch Processing**: Process questions in groups of 20-30 to avoid token limits
-4. **Validation**: Ensure each question gets exactly one category
+2. **Two-Step Classification**: First classify by fundamental type (VALUES/BEHAVIOR/SPENDING), then identify specific themes
+3. **Batch Processing**: Process questions in groups of 25 to avoid token limits
+4. **Validation**: Ensure each question gets exactly one primary_type and specific_theme
 5. **Quality Control**: Flag low-confidence categorizations for manual review
-6. **Storage**: Save categorizations to survey_questions table with dataset reference
+6. **Storage**: Save categorizations with primary_type and theme structure to database
 
 ## 4. Dynamic Archetype Creation Methodology
 
@@ -400,53 +410,127 @@ Based on existing `public/dual-engine-app.html` but modified for universal surve
 - **Endpoint**: `/api/survey-datasets`
 - **Functions**: List datasets, get archetype info, dataset statistics
 
-## 8. Implementation Phases
+## 8. Implementation Status (COMPLETED)
 
-### Phase 1: Data Foundation (Week 1)
-- [ ] Excel data ingestion and processing
-- [ ] Database schema creation and setup
-- [ ] Question concatenation and cleaning
-- [ ] Basic data validation and quality checks
+### Phase 1: Data Foundation ✅ COMPLETED
+- [x] CSV/Excel data ingestion and processing (`api/process-survey-upload.js`)
+- [x] Database schema creation and setup (`scripts/setup-universal-database.js`)
+- [x] Question extraction and cleaning
+- [x] Data validation and quality checks
 
-### Phase 2: Question Categorization (Week 2)
-- [ ] Claude Opus categorization prompt development
-- [ ] Batch processing system for questions
-- [ ] Quality control and validation workflows
-- [ ] Database storage of categorized questions
+### Phase 2: Question Categorization ✅ COMPLETED
+- [x] Two-step categorization system with modular prompts
+- [x] Batch processing system for questions (`src/data_processing/question_categorizer.js`)
+- [x] VALUES_BASED, BEHAVIOR_BASED, SPENDING_BASED classification
+- [x] Quality control and validation workflows
 
-### Phase 3: Archetype Development (Week 3)
-- [ ] Archetype creation methodology implementation
-- [ ] Response analysis and clustering
-- [ ] Persona profile generation
-- [ ] Archetype validation and refinement
+### Phase 3: Archetype Development ✅ COMPLETED
+- [x] Data-driven archetype generation (`src/data_processing/archetype_generator.js`)
+- [x] Unconstrained LLM-driven archetype discovery
+- [x] Natural clustering without predetermined frameworks
+- [x] Archetype validation and storage
 
-### Phase 4: Scoring System (Week 4)
-- [ ] Response scoring algorithm development
-- [ ] Classification system implementation
-- [ ] Confidence measurement integration
-- [ ] Performance testing and optimization
+### Phase 4: Scoring System ✅ COMPLETED
+- [x] Response scoring algorithm in prompts
+- [x] Classification system implementation
+- [x] Confidence measurement integration
+- [x] Performance testing completed
 
-### Phase 5: Digital Twin Engine (Week 5)
-- [ ] Claude Opus persona engine adaptation
-- [ ] Mother-specific prompt development
-- [ ] Response generation testing
-- [ ] Integration with existing infrastructure
+### Phase 5: Digital Twin Engine ✅ COMPLETED
+- [x] Claude Opus 4.1 persona engine (`api/universal-digital-twin-response.js`)
+- [x] Universal demographic-agnostic prompt development
+- [x] Response generation with temperature randomization
+- [x] Integration with modular prompt system
 
-### Phase 6: UI Development (Week 6)
-- [ ] Single-column interface creation
-- [ ] Archetype selection implementation
-- [ ] Response display optimization
-- [ ] API endpoint development
+### Phase 6: UI Development ✅ COMPLETED
+- [x] Universal survey interface (`public/universal-survey-app.html`)
+- [x] Survey upload and processing functionality
+- [x] Dynamic archetype selection
+- [x] API endpoint development and integration
 
-### Phase 7: Testing & Deployment (Week 7)
-- [ ] End-to-end system testing
-- [ ] Performance optimization
-- [ ] Documentation completion
-- [ ] Production deployment
+### Phase 7: Modular Prompt System ✅ COMPLETED
+- [x] Centralized prompt management (`src/prompts/universal-survey-prompts.js`)
+- [x] Four key LLM prompts modularized for easy editing
+- [x] All components updated to use modular system
+- [x] Documentation updated to reflect new architecture
 
-## 9. Technical Considerations
+## 9. Modular Prompt Management System
 
-### 9.1 Performance Optimization
+### 9.1 Centralized Prompt Architecture
+All LLM prompts are now centralized in `src/prompts/universal-survey-prompts.js` for easy maintenance and editing:
+
+```javascript
+/**
+ * Universal Survey Digital Twins - LLM Prompt Templates
+ * Centralized location for all Claude Opus 4.1 prompts used in the system
+ * 
+ * These prompts are the core intelligence of the system and can be easily
+ * modified to adjust how the LLM analyzes surveys and generates archetypes.
+ */
+
+// Four core modular prompts
+export const QUESTION_CATEGORIZATION_PROMPT = (targetDemographic, surveyContext, questionsList) => {...};
+export const ARCHETYPE_GENERATION_PROMPT = (demographicAnalysis, questionTypesText, patternsText, statistics) => {...};
+export const DIGITAL_TWIN_RESPONSE_PROMPT = (archetype, dataset, demographicAnalysis) => {...};
+export const RESPONSE_SCORING_PROMPT = (archetypes, categorizedQuestions) => {...};
+
+// Export collection for convenience
+export const UNIVERSAL_SURVEY_PROMPTS = {
+  questionCategorization: QUESTION_CATEGORIZATION_PROMPT,
+  archetypeGeneration: ARCHETYPE_GENERATION_PROMPT,
+  digitalTwinResponse: DIGITAL_TWIN_RESPONSE_PROMPT,
+  responseScoring: RESPONSE_SCORING_PROMPT
+};
+```
+
+### 9.2 Usage Throughout System
+Components import and use the centralized prompts:
+
+```javascript
+// In question categorizer
+import { QUESTION_CATEGORIZATION_PROMPT } from '../prompts/universal-survey-prompts.js';
+const prompt = QUESTION_CATEGORIZATION_PROMPT(targetDemographic, surveyContext, questionsList);
+
+// In archetype generator
+import { ARCHETYPE_GENERATION_PROMPT } from '../prompts/universal-survey-prompts.js';
+const prompt = ARCHETYPE_GENERATION_PROMPT(demographicAnalysis, questionTypesText, patternsText, statistics);
+
+// In digital twin response API
+import { DIGITAL_TWIN_RESPONSE_PROMPT } from '../prompts/universal-survey-prompts.js';
+const prompt = DIGITAL_TWIN_RESPONSE_PROMPT(archetype, dataset, demographicAnalysis);
+```
+
+### 9.3 Key Benefits
+- **Easy Editing**: All prompts in one location for quick modifications
+- **Version Control**: Track prompt changes and their impact on results
+- **Consistency**: Ensures all components use the same prompt versions
+- **Modularity**: Functions accept parameters for dynamic content insertion
+- **Maintenance**: Single point of truth for all LLM interactions
+
+### 9.4 Two-Step Question Categorization
+The updated categorization system uses a systematic two-step approach:
+
+**Step 1 - Fundamental Type Classification:**
+- `VALUES_BASED`: Questions about beliefs, priorities, and values
+- `BEHAVIOR_BASED`: Questions about actions and behavioral patterns  
+- `SPENDING_BASED`: Questions about financial decisions and purchase behavior
+
+**Step 2 - Specific Theme Identification:**
+Within each fundamental type, identify specific themes based on actual question content:
+- Values: Health, Environment, Quality, Family, Security, etc.
+- Behavior: Recommendation patterns, Usage frequency, Decision processes
+- Spending: Price sensitivity, Purchase triggers, Budget allocation
+
+### 9.5 Data-Driven Archetype Generation
+The archetype generation system is completely unconstrained and data-driven:
+- No predetermined frameworks imposed
+- Natural clustering emerges from actual survey response patterns
+- Authentic naming based on observed behaviors
+- Reference frameworks only used when they naturally align with discovered patterns
+
+## 10. Technical Considerations
+
+### 10.1 Performance Optimization
 - **Batch processing**: Handle large survey datasets efficiently
 - **Caching**: Cache archetype profiles and common responses
 - **Rate limiting**: Respect Claude API limits with proper spacing
@@ -470,29 +554,29 @@ Based on existing `public/dual-engine-app.html` but modified for universal surve
 - **Database optimization**: Index critical query paths
 - **Load balancing**: Prepare for increased usage and traffic
 
-## 10. Success Metrics
+## 11. Success Metrics
 
-### 10.1 Technical Metrics
+### 11.1 Technical Metrics
 - **Processing speed**: <2 minutes for full survey categorization
 - **Classification accuracy**: >85% confidence on archetype assignments
 - **Response quality**: >90% relevant responses based on user feedback
 - **System uptime**: 99.5% availability target
 
-### 10.2 Business Metrics
+### 11.2 Business Metrics
 - **Archetype distinctiveness**: Clear differentiation in response patterns
 - **Marketing effectiveness**: Improved campaign performance metrics
 - **User engagement**: Higher interaction rates with generated content
 - **Cost efficiency**: Reduced manual analysis time by >70%
 
-## 11. Risk Mitigation
+## 12. Risk Mitigation
 
-### 11.1 Technical Risks
+### 12.1 Technical Risks
 - **API rate limits**: Implement robust retry and queuing mechanisms
 - **Data quality issues**: Multiple validation layers and manual review processes
 - **Model accuracy**: Continuous monitoring and improvement cycles
 - **System integration**: Comprehensive testing of all component interactions
 
-### 11.2 Business Risks
+### 12.2 Business Risks
 - **Archetype validity**: Validate against real customer data and feedback
 - **Regulatory compliance**: Regular audits of data handling practices
 - **Competitive advantage**: Continuous innovation and feature development
@@ -569,113 +653,79 @@ Respond in JSON format:
 }
 ```
 
-### Appendix B: Archetype Creation Prompt
+### Appendix C: Updated Data-Driven Archetype Generation Prompt
 
 ```
-You are a consumer psychology expert specializing in market segmentation. Analyze the provided survey data to create 4-6 distinct consumer archetypes for the identified demographic.
+You are a data-driven consumer psychology expert. Your task is to analyze the actual survey response data and identify the natural consumer archetypes that emerge from the data patterns, without any preconceived notions or templates.
 
-REFERENCE FRAMEWORKS TO CONSIDER:
-- LOHAS Model: Leaders (16%), Leaning (40%), Learners (36%), Laggards (8%) - values-based segmentation
-- Generational Theory: Age-based behavioral patterns and preferences  
-- Psychographic Models: Values, attitudes, interests, lifestyle factors
-- Life Stage Models: Career, family, retirement phases
-- Economic Models: Income, spending priorities, financial security levels
+CRITICAL INSTRUCTIONS:
+- Let the data guide you completely - do not impose any existing frameworks
+- Only reference established frameworks (LOHAS, generational, etc.) if and when they naturally align with what you observe in the data
+- Create archetypes that authentically represent the actual response patterns, not theoretical segments
+- Base everything on the actual survey responses and behavioral clusters you identify
+- The number of archetypes should be determined by natural data clustering (3-7 archetypes typical)
 
-SURVEY ANALYSIS RESULTS:
+SURVEY DATA ANALYSIS:
 Target Demographic: [DETECTED_DEMOGRAPHIC]
-Key Predictive Categories: [HIGH_SCORING_CATEGORIES]
-Response Patterns: [BEHAVIORAL_CLUSTERS]
-Spending Correlation Data: [PREDICTIVE_INSIGHTS]
+Survey Context: [SURVEY_CONTEXT]
+Question Types and Themes: [QUESTION_TYPES_TEXT]
+Actual Response Patterns: [RESPONSE_PATTERNS]
+Survey Statistics: [STATISTICS]
 
-ARCHETYPE CREATION REQUIREMENTS:
-1. Create 4-6 archetypes that are:
-   - Distinct and non-overlapping
-   - Representative of different behavioral patterns
-   - Predictive of consumer decision-making
-   - Contextually appropriate for this demographic
+DATA-DRIVEN ARCHETYPE CREATION PROCESS:
 
-2. For each archetype, define:
-   - NAME: Memorable, demographic-appropriate name
-   - SIZE: Estimated percentage of population  
-   - CORE CHARACTERISTICS: Primary traits and behaviors
-   - DECISION DRIVERS: What motivates their choices
-   - SPENDING PATTERNS: How they approach purchases
-   - COMMUNICATION PREFERENCES: How to reach them effectively
-   - PAIN POINTS: Key challenges and concerns
-   - MOTIVATORS: What drives positive responses
-   - REFERENCE FRAMEWORK ALIGNMENT: How they relate to LOHAS/generational/other models
+1. **Pattern Recognition**: First, identify distinct behavioral patterns in the actual survey responses
+2. **Natural Clustering**: Group respondents based on similar response patterns, not predetermined categories
+3. **Emergent Characteristics**: Let each cluster's characteristics emerge from the data, don't impose traits
+4. **Authentic Naming**: Create names that reflect the actual behaviors observed, not marketing labels
 
-3. Base archetypes on:
-   - Highest-scoring predictive questions
-   - Clear behavioral pattern differences  
-   - Spending propensity variations
-   - Values vs practical constraint trade-offs
+For each naturally emerging archetype, define:
+- **NAME**: Based on the dominant behavior pattern observed (not predetermined labels)
+- **DESCRIPTION**: What this group actually does/thinks based on survey responses
+- **SIZE**: Percentage based on actual data clustering
+- **BEHAVIORAL_SIGNATURE**: The unique response pattern that defines this group
+- **DECISION_LOGIC**: How this group actually makes decisions (from survey data)
+- **VALUE_DRIVERS**: What actually matters to them (from their responses)
+- **COMMUNICATION_STYLE**: How they naturally express preferences
+- **CONSTRAINTS**: What limits their choices (observed from data)
+- **MOTIVATIONAL_TRIGGERS**: What actually motivates them to act
 
-Create archetypes that marketing teams can immediately use for targeted campaigns while being authentic to this demographic's real characteristics and needs.
+VALIDATION CRITERIA:
+- Each archetype must represent a statistically significant cluster in the data
+- Archetypes must be clearly distinguishable in their response patterns
+- The combined archetypes must account for the majority of survey responses
+- Names and descriptions must reflect authentic behaviors, not aspirational marketing personas
 
-Respond in JSON format:
+Respond in JSON format with archetypes that emerge naturally from the data:
 {
-  "demographic_context": {
-    "target_demographic": "detected demographic",
-    "survey_scope": "survey context and purpose",
-    "reference_frameworks_used": ["LOHAS", "generational", "etc."],
-    "key_predictive_categories": ["category1", "category2", "etc."]
+  "methodology": {
+    "approach": "data-driven clustering based on actual response patterns",
+    "primary_differentiators": ["the main factors that actually separate these groups in the data"],
+    "data_validation": "how the archetypes were validated against actual survey responses"
   },
   "archetypes": [
     {
-      "name": "Archetype Name",
-      "size_percentage": 25,
-      "core_characteristics": [
-        "Primary trait 1",
-        "Primary trait 2",
-        "Primary trait 3"
-      ],
-      "decision_drivers": [
-        "Key motivator 1",
-        "Key motivator 2",
-        "Key motivator 3"
-      ],
-      "spending_patterns": {
-        "approach": "How they approach purchases",
-        "priorities": ["Priority 1", "Priority 2"],
-        "budget_consciousness": "High/Medium/Low",
-        "research_behavior": "Extensive/Moderate/Minimal"
-      },
-      "communication_preferences": {
-        "tone": "Preferred communication tone",
-        "channels": ["Channel 1", "Channel 2"],
-        "messaging_focus": "What resonates most"
-      },
-      "pain_points": [
-        "Challenge 1",
-        "Challenge 2",
-        "Challenge 3"
-      ],
-      "motivators": [
-        "Positive driver 1",
-        "Positive driver 2",
-        "Positive driver 3"
-      ],
-      "reference_framework_alignment": {
-        "lohas_segment": "Leaders/Leaning/Learners/Laggards",
-        "generational_traits": "Relevant generational characteristics",
-        "psychographic_profile": "VALS or similar classification"
-      },
-      "predictive_question_responses": {
-        "question_id_1": "expected_response_pattern",
-        "question_id_2": "expected_response_pattern"
+      "name": "Data-Derived Name",
+      "description": "What this group actually does/thinks based on survey data",
+      "population_percentage": "actual percentage from data clustering",
+      "behavioral_signature": "the unique response pattern that defines this group",
+      "decision_logic": "how they actually make decisions based on survey responses",
+      "value_drivers": ["what genuinely matters to them from their responses"],
+      "communication_style": "how they naturally express preferences",
+      "constraints": ["what actually limits their choices"],
+      "motivational_triggers": ["what actually motivates action"],
+      "data_support": "statistical evidence supporting this archetype",
+      "marketing_approach": {
+        "messaging": "approach based on their actual values and constraints",
+        "channels": "where they're likely to be based on behaviors",
+        "timing": "when they make decisions based on patterns"
       }
     }
-  ],
-  "validation_metrics": {
-    "distinctiveness_score": 0.85,
-    "behavioral_coverage": 0.92,
-    "predictive_validity": 0.78
-  }
+  ]
 }
 ```
 
-### Appendix C: Response Scoring Algorithm Prompt
+### Appendix D: Response Scoring Algorithm Prompt
 
 ```
 You are a data scientist specializing in consumer behavior analysis. Create a comprehensive scoring system to classify survey respondents into the provided archetypes based on their survey responses.
@@ -760,38 +810,37 @@ Expected output format:
 }
 ```
 
-### Appendix D: Digital Twin Response Generation Prompt
+### Appendix E: Updated Digital Twin Response Generation Prompt
 
 ```
-You are a marketing response generator embodying the [ARCHETYPE_NAME] archetype from the [TARGET_DEMOGRAPHIC] population. 
+You are a marketing response generator embodying the "[ARCHETYPE_NAME]" archetype from the [TARGET_DEMOGRAPHIC] population.
 
 DEMOGRAPHIC CONTEXT:
-Target Population: [TARGET_DEMOGRAPHIC] (e.g., mothers, retirees, professionals)
+Target Population: [TARGET_DEMOGRAPHIC]
 Survey Context: [SURVEY_CONTEXT]
-Reference Frameworks: [REFERENCE_FRAMEWORKS_USED]
 
 ARCHETYPE PROFILE:
-- Core Characteristics: [CHARACTERISTICS_LIST]
-- Decision Drivers: [DECISION_DRIVERS]
-- Spending Patterns: [SPENDING_BEHAVIOR]
-- Pain Points: [PAIN_POINTS]
-- Motivators: [PLEASURE_MOTIVATORS]
-- Communication Preferences: [COMM_STYLE]
+- Behavioral Signature: [BEHAVIORAL_SIGNATURE]
+- Decision Logic: [DECISION_LOGIC]
+- Value Drivers: [VALUE_DRIVERS]
+- Communication Style: [COMMUNICATION_STYLE]
+- Constraints: [CONSTRAINTS]
+- Motivational Triggers: [MOTIVATIONAL_TRIGGERS]
 
 RESPONSE GUIDELINES:
 - Speak as someone in this archetype from this demographic would speak
 - Reference demographic-specific concerns and priorities
-- Use tone and language appropriate for this population
-- Include specific reasoning that resonates with this archetype
-- Address relevant pain points and motivators naturally
+- Use the communication style identified for this archetype
+- Include specific reasoning that reflects this archetype's decision logic
+- Address relevant constraints and motivational triggers naturally
 - Avoid generic marketing speak
-- Reflect authentic characteristics of this demographic
+- Reflect authentic characteristics based on survey data patterns
+- Response should demonstrate the behavioral signature that defines this group
 
 MARKETING CONTENT TO RESPOND TO:
 [MARKETING_CONTENT]
 
 Generate a response that this archetype would find compelling and authentic within their demographic context.
 Length: 50-100 words
-Tone: [ARCHETYPE_TONE]
-Focus: Address both rational and emotional motivators relevant to [TARGET_DEMOGRAPHIC]
+Focus: Address the specific value drivers and decision logic that emerged from the survey data for this archetype
 ```

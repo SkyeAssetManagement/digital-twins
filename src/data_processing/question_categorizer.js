@@ -1,6 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { createLogger } from '../utils/logger.js';
 import { AppError, ValidationError } from '../utils/error-handler.js';
+import { QUESTION_CATEGORIZATION_PROMPT } from '../prompts/universal-survey-prompts.js';
 
 const logger = createLogger('QuestionCategorizer');
 
@@ -54,75 +55,7 @@ export class QuestionCategorizer {
     async categorizeBatch(questions, targetDemographic, surveyContext) {
         const questionsList = questions.map((q, index) => `${index + 1}. ${q.fullQuestion || q.text}`).join('\n');
         
-        const prompt = `You are a data-driven survey analyst. Analyze each survey question using a systematic two-step approach to understand what type of question it is and what it's specifically measuring.
-
-CRITICAL INSTRUCTIONS:
-- First classify each question by its fundamental type
-- Then identify specific themes and values within each type
-- Base everything on the actual question content, not theoretical frameworks
-- Let natural patterns emerge from the data
-
-TARGET DEMOGRAPHIC: ${targetDemographic || 'Will be determined from question content'}
-SURVEY CONTEXT: ${surveyContext || 'Will be determined from question analysis'}
-
-ANALYSIS PROCESS:
-
-Step 1 - Question Type Classification:
-For each question, first determine which fundamental type it represents:
-
-A) VALUES-BASED QUESTIONS:
-   - Questions about what respondents believe, prioritize, or value
-   - Examples: "How important is X to you?", "What do you value most?", "How much do you care about Y?"
-   - Identify specific value being measured (health, environment, quality, family, security, etc.)
-
-B) BEHAVIOR-BASED QUESTIONS:
-   - Questions about what respondents actually do or would do
-   - Examples: "Do you recommend?", "How often do you?", "What do you typically do when?"
-   - Focus on actual actions and behavioral patterns
-
-C) SPENDING/PURCHASE BEHAVIOR QUESTIONS:
-   - Questions about financial decisions and purchase behavior
-   - Examples: "Will you spend based on X?", "How much would you pay for Y?", "What influences your purchasing?"
-   - Focus on money-related decision making
-
-Step 2 - Specific Theme Identification:
-Within each type, identify the specific themes and values being measured based on the actual question content.
-
-Questions to analyze:
-${questionsList}
-
-Respond in JSON format:
-{
-  "demographic_analysis": {
-    "target_demographic": "what demographic this survey appears to target",
-    "survey_context": "what this survey is actually trying to understand",
-    "question_type_breakdown": {
-      "values_based_count": "number of values questions",
-      "behavior_based_count": "number of behavior questions", 
-      "spending_based_count": "number of spending questions"
-    }
-  },
-  "question_types": [
-    {
-      "type": "VALUES_BASED | BEHAVIOR_BASED | SPENDING_BASED",
-      "specific_themes": ["theme1", "theme2", "theme3"],
-      "description": "what this type measures in this survey",
-      "example_questions": ["question examples of this type"]
-    }
-  ],
-  "categorizations": [
-    {
-      "question": "question text",
-      "primary_type": "VALUES_BASED | BEHAVIOR_BASED | SPENDING_BASED", 
-      "specific_theme": "specific value/behavior/spending area being measured",
-      "category": "descriptive category name combining type + theme",
-      "confidence": 0.95,
-      "reasoning": "why this question fits this type and theme",
-      "predictive_power": 0.80,
-      "behavioral_insight": "what this reveals about respondent psychology"
-    }
-  ]
-}`;
+        const prompt = QUESTION_CATEGORIZATION_PROMPT(targetDemographic, surveyContext, questionsList);
 
         try {
             const response = await this.anthropic.messages.create({
@@ -177,7 +110,7 @@ Respond in JSON format:
             throw new ValidationError('Missing or invalid categorizations in response');
         }
 
-        // Validate each categorization has required fields including primary_type
+        // Validate each categorization has required fields including primary_type and statistical_metrics
         for (const cat of result.categorizations) {
             if (!cat.question || !cat.primary_type || !cat.category || typeof cat.confidence !== 'number' || typeof cat.predictive_power !== 'number') {
                 throw new ValidationError(`Invalid categorization structure: ${JSON.stringify(cat)}`);
@@ -187,6 +120,27 @@ Respond in JSON format:
             const validTypes = ['VALUES_BASED', 'BEHAVIOR_BASED', 'SPENDING_BASED'];
             if (!validTypes.includes(cat.primary_type)) {
                 throw new ValidationError(`Invalid primary_type: ${cat.primary_type}. Must be one of: ${validTypes.join(', ')}`);
+            }
+            
+            // Validate statistical_metrics structure if present
+            if (cat.statistical_metrics) {
+                const validLevels = ['HIGH', 'MEDIUM', 'LOW'];
+                const requiredMetrics = ['expected_response_spread', 'ceiling_floor_risk', 'spending_correlation_potential', 'archetype_discriminatory_power'];
+                
+                for (const metric of requiredMetrics) {
+                    if (cat.statistical_metrics[metric] && !validLevels.includes(cat.statistical_metrics[metric].split(' - ')[0])) {
+                        logger.warn(`Invalid statistical metric value: ${metric} = ${cat.statistical_metrics[metric]}`);
+                    }
+                }
+            }
+            
+            // Validate archetype_relevance if present
+            if (cat.archetype_relevance) {
+                const validLevels = ['HIGH', 'MEDIUM', 'LOW'];
+                const relevanceValue = cat.archetype_relevance.split(' - ')[0];
+                if (!validLevels.includes(relevanceValue)) {
+                    logger.warn(`Invalid archetype_relevance value: ${cat.archetype_relevance}`);
+                }
             }
         }
 

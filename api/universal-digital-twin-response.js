@@ -1,6 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { createLogger } from '../src/utils/logger.js';
 import { AppError } from '../src/utils/error-handler.js';
+import { DIGITAL_TWIN_RESPONSE_PROMPT } from '../src/prompts/universal-survey-prompts.js';
 
 const logger = createLogger('UniversalDigitalTwinAPI');
 
@@ -159,7 +160,12 @@ async function generateArchetypeResponse(archetype, dataset, content, temperatur
         apiKey: process.env.ANTHROPIC_API_KEY
     });
 
-    const prompt = archetype.claude_prompt.replace('[MARKETING_CONTENT]', content);
+    // Use the modular prompt system with fallback to archetype's custom prompt
+    const basePrompt = archetype.claude_prompt || DIGITAL_TWIN_RESPONSE_PROMPT(archetype, dataset, { 
+        target_demographic: dataset.target_demographic,
+        survey_context: dataset.description || 'Survey data analysis'
+    });
+    const prompt = basePrompt.replace('[MARKETING_CONTENT]', content);
 
     try {
         const response = await anthropic.messages.create({

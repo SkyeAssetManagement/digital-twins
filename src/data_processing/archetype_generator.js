@@ -1,6 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { createLogger } from '../utils/logger.js';
 import { AppError, ValidationError } from '../utils/error-handler.js';
+import { ARCHETYPE_GENERATION_PROMPT, DIGITAL_TWIN_RESPONSE_PROMPT } from '../prompts/universal-survey-prompts.js';
 
 const logger = createLogger('ArchetypeGenerator');
 
@@ -18,9 +19,10 @@ export class ArchetypeGenerator {
         try {
             const archetypePrompt = this.buildArchetypePrompt(
                 categorizations.demographic_analysis,
-                categorizations.categories,
+                categorizations.question_types,
                 responsePatterns,
-                surveyData.statistics
+                surveyData.statistics,
+                categorizations
             );
 
             const response = await this.anthropic.messages.create({
@@ -66,91 +68,42 @@ export class ArchetypeGenerator {
         }
     }
 
-    buildArchetypePrompt(demographicAnalysis, questionTypes, responsePatterns, statistics) {
+    buildArchetypePrompt(demographicAnalysis, questionTypes, responsePatterns, statistics, categorizations) {
+        // Filter and prioritize questions based on statistical analysis
+        const highRelevanceQuestions = categorizations?.categorizations.filter(cat => 
+            cat.archetype_relevance === 'HIGH' || 
+            (cat.statistical_metrics?.archetype_discriminatory_power === 'HIGH')
+        ) || [];
+
+        const spendingAnchorQuestions = categorizations?.categorizations.filter(cat => 
+            cat.primary_type === 'SPENDING_BASED'
+        ) || [];
+
         const questionTypesText = questionTypes.map(type => 
-            `${type.type}: ${type.description}\n  Themes: ${type.specific_themes.join(', ')}\n  Examples: ${type.example_questions.slice(0, 2).join('; ')}`
+            `${type.type}: ${type.description}\n  Themes: ${type.specific_themes.join(', ')}\n  Differentiation Potential: ${type.archetype_differentiation_potential || 'Unknown'}\n  Examples: ${type.example_questions.slice(0, 2).join('; ')}`
         ).join('\n\n');
+
+        const statisticalInsights = `
+High Discriminatory Questions (${highRelevanceQuestions.length}): Focus archetype creation on these key differentiators
+Spending Anchor Questions (${spendingAnchorQuestions.length}): Use these to validate archetype spending propensity
+Expected Variance: ${categorizations?.statistical_overview?.expected_variance_distribution || 'Unknown'}
+
+Key Statistical Differentiators:
+${highRelevanceQuestions.map(q => 
+    `- ${q.question} (${q.primary_type}): ${q.statistical_metrics?.archetype_discriminatory_power || 'Unknown'} discriminatory power`
+).slice(0, 5).join('\n')}
+
+Spending Behavior Anchors:
+${spendingAnchorQuestions.map(q => 
+    `- ${q.question}: ${q.statistical_metrics?.spending_correlation_potential || 'Unknown'} correlation potential`
+).slice(0, 3).join('\n')}`;
 
         const patternsText = responsePatterns ? 
             Object.entries(responsePatterns).map(([pattern, data]) => 
                 `${pattern}: ${JSON.stringify(data)}`
             ).join('\n') : 'Response patterns analysis not available';
 
-        return `You are a data-driven consumer psychology expert. Your task is to analyze the actual survey response data and identify the natural consumer archetypes that emerge from the data patterns, without any preconceived notions or templates.
-
-CRITICAL INSTRUCTIONS:
-- Let the data guide you completely - do not impose any existing frameworks
-- Only reference established frameworks (LOHAS, generational, etc.) if and when they naturally align with what you observe in the data
-- Create archetypes that authentically represent the actual response patterns, not theoretical segments
-- Base everything on the actual survey responses and behavioral clusters you identify
-- The number of archetypes should be determined by natural data clustering (3-7 archetypes typical)
-
-SURVEY DATA ANALYSIS:
-Target Demographic: ${demographicAnalysis.target_demographic}
-Survey Context: ${demographicAnalysis.survey_context}
-
-Question Types and Themes Identified:
-${questionTypesText}
-
-Actual Response Patterns from Survey Data:
-${patternsText}
-
-Survey Statistics:
-- Total Responses: ${statistics.totalResponses}
-- Completion Rate: ${statistics.completionRate?.toFixed(1)}%
-- Total Questions: ${Object.keys(statistics.fields || {}).length}
-
-DATA-DRIVEN ARCHETYPE CREATION PROCESS:
-
-1. **Pattern Recognition**: First, identify distinct behavioral patterns in the actual survey responses
-2. **Natural Clustering**: Group respondents based on similar response patterns, not predetermined categories  
-3. **Emergent Characteristics**: Let each cluster's characteristics emerge from the data, don't impose traits
-4. **Authentic Naming**: Create names that reflect the actual behaviors observed, not marketing labels
-
-For each naturally emerging archetype, define:
-- **NAME**: Based on the dominant behavior pattern observed (not predetermined labels)
-- **DESCRIPTION**: What this group actually does/thinks based on survey responses
-- **SIZE**: Percentage based on actual data clustering
-- **BEHAVIORAL_SIGNATURE**: The unique response pattern that defines this group
-- **DECISION_LOGIC**: How this group actually makes decisions (from survey data)
-- **VALUE_DRIVERS**: What actually matters to them (from their responses)
-- **COMMUNICATION_STYLE**: How they naturally express preferences
-- **CONSTRAINTS**: What limits their choices (observed from data)
-- **MOTIVATIONAL_TRIGGERS**: What actually motivates them to act
-
-VALIDATION CRITERIA:
-- Each archetype must represent a statistically significant cluster in the data
-- Archetypes must be clearly distinguishable in their response patterns
-- The combined archetypes must account for the majority of survey responses
-- Names and descriptions must reflect authentic behaviors, not aspirational marketing personas
-
-Respond in JSON format with archetypes that emerge naturally from the data:
-{
-  "methodology": {
-    "approach": "data-driven clustering based on actual response patterns",
-    "primary_differentiators": ["the main factors that actually separate these groups in the data"],
-    "data_validation": "how the archetypes were validated against actual survey responses"
-  },
-  "archetypes": [
-    {
-      "name": "Data-Derived Name",
-      "description": "What this group actually does/thinks based on survey data",
-      "population_percentage": "actual percentage from data clustering",
-      "behavioral_signature": "the unique response pattern that defines this group",
-      "decision_logic": "how they actually make decisions based on survey responses",
-      "value_drivers": ["what genuinely matters to them from their responses"],
-      "communication_style": "how they naturally express preferences",
-      "constraints": ["what actually limits their choices"],
-      "motivational_triggers": ["what actually motivates action"],
-      "data_support": "statistical evidence supporting this archetype",
-      "marketing_approach": {
-        "messaging": "approach based on their actual values and constraints",
-        "channels": "where they're likely to be based on behaviors",
-        "timing": "when they make decisions based on patterns"
-      }
-    }
-  ]
-}`;
+        return ARCHETYPE_GENERATION_PROMPT(demographicAnalysis, questionTypesText, statisticalInsights + '\n\n' + patternsText, statistics);
     }
 
     async enhanceArchetypes(archetypes, demographicAnalysis) {
@@ -158,7 +111,7 @@ Respond in JSON format with archetypes that emerge naturally from the data:
         const enhancedArchetypes = [];
 
         for (const archetype of archetypes) {
-            const claudePrompt = this.generateClaudePrompt(archetype, demographicAnalysis);
+            const claudePrompt = DIGITAL_TWIN_RESPONSE_PROMPT(archetype, null, demographicAnalysis);
             
             enhancedArchetypes.push({
                 ...archetype,
@@ -172,41 +125,7 @@ Respond in JSON format with archetypes that emerge naturally from the data:
         return enhancedArchetypes;
     }
 
-    generateClaudePrompt(archetype, demographicAnalysis) {
-        return `You are a marketing response generator embodying the "${archetype.name}" archetype from the ${demographicAnalysis.target_demographic} population.
-
-DEMOGRAPHIC CONTEXT:
-Target Population: ${demographicAnalysis.target_demographic}
-Survey Context: ${demographicAnalysis.survey_context}
-Reference Frameworks: ${demographicAnalysis.reference_frameworks.join(', ')}
-
-ARCHETYPE PROFILE:
-- Core Characteristics: ${archetype.core_characteristics.join(', ')}
-- Decision Drivers: ${archetype.decision_drivers.join(', ')}
-- Spending Patterns: ${archetype.spending_patterns.budget_allocation}
-- Pain Points: ${archetype.pain_points.join(', ')}
-- Motivators: ${archetype.motivators.join(', ')}
-- Values Hierarchy: ${archetype.values_hierarchy.join(', ')}
-- Communication Preferences: ${archetype.communication_preferences.tone}
-
-RESPONSE GUIDELINES:
-- Speak as someone in this archetype from this demographic would speak
-- Reference demographic-specific concerns and priorities
-- Use tone and language appropriate for this population: ${archetype.communication_preferences.tone}
-- Include specific reasoning that resonates with this archetype
-- Address relevant pain points and motivators naturally
-- Avoid generic marketing speak
-- Reflect authentic characteristics of this demographic
-- Price sensitivity: ${archetype.spending_patterns.price_sensitivity}
-- Brand loyalty: ${archetype.spending_patterns.brand_loyalty}
-
-MARKETING CONTENT TO RESPOND TO:
-[MARKETING_CONTENT]
-
-Generate a response that this archetype would find compelling and authentic within their demographic context.
-Length: 50-100 words
-Focus: Address both rational and emotional motivators relevant to ${demographicAnalysis.target_demographic}`;
-    }
+    // Prompt generation now handled by modular prompt system
 
     calculateSpendingPropensity(archetype) {
         // Simple scoring based on price sensitivity and motivators
