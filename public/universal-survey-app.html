@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Survey Digital Twins</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .control-panel {
+            background: #f8f9fa;
+            padding: 30px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .section {
+            margin-bottom: 25px;
+        }
+
+        .section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dataset-selector {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 15px;
+            align-items: end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .form-control {
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .dataset-info {
+            background: #e3f2fd;
+            border: 1px solid #90caf9;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .dataset-info h4 {
+            color: #1976d2;
+            margin-bottom: 8px;
+        }
+
+        .archetype-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .archetype-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .archetype-card:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .archetype-card.selected {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .archetype-name {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 5px;
+        }
+
+        .archetype-percentage {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 8px;
+        }
+
+        .archetype-description {
+            font-size: 0.9rem;
+            color: #6c757d;
+            line-height: 1.4;
+        }
+
+        .content-input-section {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .content-textarea {
+            min-height: 120px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .file-upload-area {
+            border: 2px dashed #e9ecef;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+        }
+
+        .file-upload-area:hover {
+            border-color: #667eea;
+        }
+
+        .file-upload-area.dragover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .generate-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            align-items: end;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .results-section {
+            padding: 30px;
+        }
+
+        .status-bar {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .status-bar.show {
+            display: block;
+        }
+
+        .status-text {
+            font-weight: 500;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .response-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .response-group {
+            background: #f8f9fa;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .response-group-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            font-weight: 600;
+        }
+
+        .response-list {
+            padding: 0;
+        }
+
+        .response-item {
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+            background: white;
+        }
+
+        .response-item:last-child {
+            border-bottom: none;
+        }
+
+        .response-meta {
+            display: flex;
+            justify-content: between;
+            gap: 15px;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        .response-text {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .stats-panel {
+            background: #e8f5e8;
+            border: 1px solid #c8e6c9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2e7d32;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #4caf50;
+            margin-top: 5px;
+        }
+
+        .error-message {
+            background: #ffebee;
+            border: 1px solid #ef5350;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .control-panel {
+                padding: 20px;
+            }
+            
+            .dataset-selector {
+                grid-template-columns: 1fr;
+            }
+            
+            .archetype-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .generate-section {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Universal Survey Digital Twins</h1>
+            <p>Generate authentic consumer responses from any demographic using Claude Opus 4.1</p>
+        </header>
+
+        <main class="main-content">
+            <!-- Control Panel -->
+            <div class="control-panel">
+                <!-- Dataset Selection -->
+                <div class="section">
+                    <h3 class="section-title">
+                        📊 Survey Dataset Selection
+                    </h3>
+                    <div class="dataset-selector">
+                        <div class="form-group">
+                            <label class="form-label" for="datasetSelect">Choose Survey Dataset</label>
+                            <select id="datasetSelect" class="form-control">
+                                <option value="">Loading datasets...</option>
+                            </select>
+                        </div>
+                        <button type="button" class="btn btn-secondary" onclick="loadDatasets()">Refresh</button>
+                    </div>
+                    <div id="datasetInfo" class="dataset-info hidden">
+                        <!-- Dataset info will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Archetype Selection -->
+                <div class="section">
+                    <h3 class="section-title">
+                        👥 Archetype Selection
+                    </h3>
+                    <div id="archetypeGrid" class="archetype-grid">
+                        <p style="text-align: center; color: #6c757d; grid-column: 1/-1;">Select a dataset to view available archetypes</p>
+                    </div>
+                </div>
+
+                <!-- Content Input -->
+                <div class="section">
+                    <h3 class="section-title">
+                        📝 Marketing Content
+                    </h3>
+                    <div class="content-input-section">
+                        <div class="form-group">
+                            <label class="form-label" for="contentText">Marketing Message</label>
+                            <textarea 
+                                id="contentText" 
+                                class="form-control content-textarea" 
+                                placeholder="Enter your marketing message, product description, or advertisement content here..."
+                            ></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Or Upload Image/PDF</label>
+                            <div id="fileUploadArea" class="file-upload-area">
+                                <p>📁 Drag and drop an image or PDF, or click to select</p>
+                                <input type="file" id="fileInput" accept="image/*,.pdf" style="display: none;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Generation Settings -->
+                <div class="section">
+                    <h3 class="section-title">
+                        ⚙️ Response Settings
+                    </h3>
+                    <div class="generate-section">
+                        <div class="form-group">
+                            <label class="form-label" for="responseCount">Responses per Archetype</label>
+                            <select id="responseCount" class="form-control">
+                                <option value="3">3 responses</option>
+                                <option value="5" selected>5 responses</option>
+                                <option value="10">10 responses</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="temperatureRange">Temperature Range</label>
+                            <select id="temperatureRange" class="form-control">
+                                <option value="0.3,0.7">0.3 - 0.7 (Focused)</option>
+                                <option value="0.5,0.9" selected>0.5 - 0.9 (Balanced)</option>
+                                <option value="0.7,1.0">0.7 - 1.0 (Creative)</option>
+                            </select>
+                        </div>
+                        <button type="button" id="generateBtn" class="btn btn-primary" onclick="generateResponses()">
+                            Generate Responses
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="results-section">
+                <div id="statusBar" class="status-bar">
+                    <div class="status-text">Ready to generate responses</div>
+                    <div class="progress-bar">
+                        <div id="progressFill" class="progress-fill"></div>
+                    </div>
+                </div>
+
+                <div id="resultsContainer">
+                    <!-- Results will be populated here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Global state
+        let datasets = [];
+        let selectedDataset = null;
+        let selectedArchetypes = [];
+        let isGenerating = false;
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+            loadDatasets();
+        });
+
+        function setupEventListeners() {
+            // Dataset selection
+            document.getElementById('datasetSelect').addEventListener('change', handleDatasetChange);
+
+            // File upload
+            const fileUploadArea = document.getElementById('fileUploadArea');
+            const fileInput = document.getElementById('fileInput');
+
+            fileUploadArea.addEventListener('click', () => fileInput.click());
+            fileUploadArea.addEventListener('dragover', handleDragOver);
+            fileUploadArea.addEventListener('drop', handleDrop);
+            fileInput.addEventListener('change', handleFileSelect);
+        }
+
+        async function loadDatasets() {
+            try {
+                const response = await fetch('/api/survey-datasets');
+                const data = await response.json();
+                
+                if (data.success) {
+                    datasets = data.datasets;
+                    populateDatasetSelector();
+                } else {
+                    showError('Failed to load datasets: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error loading datasets:', error);
+                showError('Failed to load datasets. Please check your connection.');
+            }
+        }
+
+        function populateDatasetSelector() {
+            const select = document.getElementById('datasetSelect');
+            select.innerHTML = '<option value="">Select a survey dataset...</option>';
+            
+            datasets.forEach(dataset => {
+                const option = document.createElement('option');
+                option.value = dataset.id;
+                option.textContent = `${dataset.name} (${dataset.target_demographic})`;
+                select.appendChild(option);
+            });
+        }
+
+        function handleDatasetChange(event) {
+            const datasetId = parseInt(event.target.value);
+            selectedDataset = datasets.find(d => d.id === datasetId);
+            
+            if (selectedDataset) {
+                showDatasetInfo();
+                showArchetypes();
+            } else {
+                hideDatasetInfo();
+                hideArchetypes();
+            }
+        }
+
+        function showDatasetInfo() {
+            const info = document.getElementById('datasetInfo');
+            info.innerHTML = `
+                <h4>${selectedDataset.name}</h4>
+                <p><strong>Target Demographic:</strong> ${selectedDataset.target_demographic}</p>
+                <p><strong>Description:</strong> ${selectedDataset.description}</p>
+                <p><strong>Questions:</strong> ${selectedDataset.total_questions} | <strong>Responses:</strong> ${selectedDataset.total_responses}</p>
+            `;
+            info.classList.remove('hidden');
+        }
+
+        function hideDatasetInfo() {
+            document.getElementById('datasetInfo').classList.add('hidden');
+        }
+
+        function showArchetypes() {
+            const grid = document.getElementById('archetypeGrid');
+            grid.innerHTML = '';
+            
+            selectedDataset.archetypes.forEach(archetype => {
+                const card = document.createElement('div');
+                card.className = 'archetype-card';
+                card.dataset.archetypeId = archetype.id;
+                card.innerHTML = `
+                    <div class="archetype-name">${archetype.name}</div>
+                    <div class="archetype-percentage">${archetype.percentage}% of population</div>
+                    <div class="archetype-description">${archetype.description}</div>
+                `;
+                card.addEventListener('click', () => toggleArchetype(archetype.id, card));
+                grid.appendChild(card);
+            });
+        }
+
+        function hideArchetypes() {
+            const grid = document.getElementById('archetypeGrid');
+            grid.innerHTML = '<p style="text-align: center; color: #6c757d; grid-column: 1/-1;">Select a dataset to view available archetypes</p>';
+            selectedArchetypes = [];
+        }
+
+        function toggleArchetype(archetypeId, cardElement) {
+            const index = selectedArchetypes.indexOf(archetypeId);
+            if (index === -1) {
+                selectedArchetypes.push(archetypeId);
+                cardElement.classList.add('selected');
+            } else {
+                selectedArchetypes.splice(index, 1);
+                cardElement.classList.remove('selected');
+            }
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            event.currentTarget.classList.add('dragover');
+        }
+
+        function handleDrop(event) {
+            event.preventDefault();
+            event.currentTarget.classList.remove('dragover');
+            const files = event.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileSelect({ target: { files } });
+            }
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64 = e.target.result;
+                document.getElementById('contentText').value = `[File uploaded: ${file.name}]`;
+                document.getElementById('contentText').dataset.fileContent = base64;
+                document.getElementById('contentText').dataset.fileType = file.type.startsWith('image/') ? 'image' : 'text';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function generateResponses() {
+            // Validation
+            if (!selectedDataset) {
+                showError('Please select a survey dataset');
+                return;
+            }
+
+            if (selectedArchetypes.length === 0) {
+                showError('Please select at least one archetype');
+                return;
+            }
+
+            const content = document.getElementById('contentText').value.trim();
+            if (!content) {
+                showError('Please enter marketing content or upload a file');
+                return;
+            }
+
+            // Prepare request
+            const fileContent = document.getElementById('contentText').dataset.fileContent;
+            const fileType = document.getElementById('contentText').dataset.fileType;
+            const temperatureRange = document.getElementById('temperatureRange').value.split(',').map(Number);
+            const responseCount = parseInt(document.getElementById('responseCount').value);
+
+            const requestData = {
+                datasetId: selectedDataset.id,
+                content: fileContent || content,
+                contentType: fileType || 'text',
+                archetypeIds: selectedArchetypes,
+                responseCount: responseCount,
+                temperatureRange: temperatureRange
+            };
+
+            try {
+                setGenerating(true);
+                showStatus('Generating responses...', 0);
+
+                const response = await fetch('/api/universal-digital-twin-response', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showResults(data);
+                    showStatus('Generation completed', 100);
+                } else {
+                    showError('Generation failed: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Generation error:', error);
+                showError('Generation failed. Please try again.');
+            } finally {
+                setGenerating(false);
+            }
+        }
+
+        function setGenerating(generating) {
+            isGenerating = generating;
+            const btn = document.getElementById('generateBtn');
+            if (generating) {
+                btn.innerHTML = '<span class="loading"></span> Generating...';
+                btn.disabled = true;
+            } else {
+                btn.innerHTML = 'Generate Responses';
+                btn.disabled = false;
+            }
+        }
+
+        function showStatus(text, progress) {
+            const statusBar = document.getElementById('statusBar');
+            const statusText = statusBar.querySelector('.status-text');
+            const progressFill = document.getElementById('progressFill');
+
+            statusText.textContent = text;
+            progressFill.style.width = progress + '%';
+            statusBar.classList.add('show');
+        }
+
+        function showResults(data) {
+            const container = document.getElementById('resultsContainer');
+            
+            // Group responses by archetype
+            const groupedResponses = {};
+            data.responses.forEach(response => {
+                if (!groupedResponses[response.archetypeName]) {
+                    groupedResponses[response.archetypeName] = [];
+                }
+                groupedResponses[response.archetypeName].push(response);
+            });
+
+            // Create results HTML
+            let html = '';
+            
+            Object.keys(groupedResponses).forEach(archetypeName => {
+                const responses = groupedResponses[archetypeName];
+                const validResponses = responses.filter(r => r.text !== 'NA');
+                
+                html += `
+                    <div class="response-group">
+                        <div class="response-group-header">
+                            ${archetypeName} (${validResponses.length}/${responses.length} responses)
+                        </div>
+                        <div class="response-list">
+                `;
+
+                responses.forEach((response, index) => {
+                    html += `
+                        <div class="response-item">
+                            <div class="response-meta">
+                                <span>Response ${index + 1}</span>
+                                <span>Temperature: ${response.temperature || 'N/A'}</span>
+                                <span>Sentiment: ${response.sentiment || 'N/A'}</span>
+                                <span>Purchase Intent: ${response.purchaseIntent || 'N/A'}/10</span>
+                                <span>${response.responseTime ? Math.round(response.responseTime) + 'ms' : ''}</span>
+                            </div>
+                            <div class="response-text">
+                                ${response.text === 'NA' ? 
+                                  `<em style="color: #dc3545;">Response failed: ${response.error || 'Unknown error'}</em>` : 
+                                  response.text}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += `
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Add stats panel
+            html += `
+                <div class="stats-panel">
+                    <h4 style="text-align: center; margin-bottom: 20px;">Generation Statistics</h4>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-value">${data.stats.successfulResponses}</div>
+                            <div class="stat-label">Successful</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${data.stats.totalResponses}</div>
+                            <div class="stat-label">Total</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${Math.round(data.stats.avgResponseTime)}</div>
+                            <div class="stat-label">Avg Time (ms)</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${data.stats.archetypesUsed}</div>
+                            <div class="stat-label">Archetypes</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        function showError(message) {
+            const container = document.getElementById('resultsContainer');
+            container.innerHTML = `
+                <div class="error-message">
+                    <strong>Error:</strong> ${message}
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

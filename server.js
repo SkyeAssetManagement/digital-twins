@@ -56,6 +56,18 @@ app.post('/api/claude-comparison-response', async (req, res) => {
   await claudeComparisonHandler(req, res);
 });
 
+// Universal Survey Digital Twin API
+import universalDigitalTwinHandler from './api/universal-digital-twin-response.js';
+app.post('/api/universal-digital-twin-response', async (req, res) => {
+  await universalDigitalTwinHandler(req, res);
+});
+
+// Survey Datasets API
+import surveyDatasetsHandler from './api/survey-datasets.js';
+app.use('/api/survey-datasets', async (req, res) => {
+  await surveyDatasetsHandler(req, res);
+});
+
 // Digital Twin Routes
 app.get('/api/digital-twins/personas', async (req, res) => {
   try {
