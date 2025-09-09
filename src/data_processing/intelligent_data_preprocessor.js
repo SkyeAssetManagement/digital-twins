@@ -372,14 +372,16 @@ export class IntelligentDataPreprocessor {
         // Show first data record example
         if (cleanData.responses.length > 0) {
             const firstResponse = cleanData.responses[0];
-            const responseExample = {
-                before: "No structured data",
-                after: Object.fromEntries(
-                    Object.entries(firstResponse).slice(0, 3) // First 3 fields
-                ),
-                action: "Extracted clean survey responses"
-            };
-            examples.push(responseExample);
+            if (firstResponse && Object.keys(firstResponse).length > 0) {
+                const responseExample = {
+                    before: "No structured data",
+                    after: Object.fromEntries(
+                        Object.entries(firstResponse).slice(0, 3) // First 3 fields
+                    ),
+                    action: "Extracted clean survey responses"
+                };
+                examples.push(responseExample);
+            }
         }
 
         return examples;
