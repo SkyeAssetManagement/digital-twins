@@ -358,15 +358,73 @@ class StatisticalAnalyst {
      */
     parseAnalysisResponse(responseText) {
         try {
-            // Extract JSON from the response
-            const jsonMatch = responseText.match(/```json\s*([\s\S]*?)\s*```/) || 
-                             responseText.match(/\{[\s\S]*\}/);
+            console.log('Raw response length:', responseText.length);
+            console.log('Raw response preview:', responseText.substring(0, 200));
             
-            if (!jsonMatch) {
+            // Multiple JSON extraction strategies
+            let jsonContent = null;
+            
+            // Strategy 1: Extract from ```json code blocks
+            const jsonBlockMatch = responseText.match(/```json\s*([\s\S]*?)\s*```/);
+            if (jsonBlockMatch) {
+                jsonContent = jsonBlockMatch[1].trim();
+                console.log('Found JSON in code block');
+            }
+            
+            // Strategy 2: Extract from ```json without closing ```
+            if (!jsonContent) {
+                const openBlockMatch = responseText.match(/```json\s*([\s\S]*)/);
+                if (openBlockMatch) {
+                    jsonContent = openBlockMatch[1].trim();
+                    console.log('Found JSON in open code block');
+                }
+            }
+            
+            // Strategy 3: Look for largest JSON object
+            if (!jsonContent) {
+                const jsonMatches = responseText.match(/\{[\s\S]*?\}/g);
+                if (jsonMatches && jsonMatches.length > 0) {
+                    // Get the largest JSON object
+                    jsonContent = jsonMatches.reduce((longest, current) => 
+                        current.length > longest.length ? current : longest
+                    );
+                    console.log('Found JSON object, length:', jsonContent.length);
+                }
+            }
+            
+            // Strategy 4: Try to find JSON starting from first {
+            if (!jsonContent) {
+                const startIndex = responseText.indexOf('{');
+                if (startIndex !== -1) {
+                    // Find matching closing brace
+                    let braceCount = 0;
+                    let endIndex = -1;
+                    for (let i = startIndex; i < responseText.length; i++) {
+                        if (responseText[i] === '{') braceCount++;
+                        else if (responseText[i] === '}') {
+                            braceCount--;
+                            if (braceCount === 0) {
+                                endIndex = i;
+                                break;
+                            }
+                        }
+                    }
+                    if (endIndex !== -1) {
+                        jsonContent = responseText.substring(startIndex, endIndex + 1);
+                        console.log('Found JSON by brace matching');
+                    }
+                }
+            }
+            
+            if (!jsonContent) {
+                console.error('No JSON found in response');
+                console.error('Full response:', responseText);
                 throw new Error('No JSON found in response');
             }
             
-            const jsonContent = jsonMatch[1] || jsonMatch[0];
+            console.log('Attempting to parse JSON, length:', jsonContent.length);
+            console.log('JSON preview:', jsonContent.substring(0, 100));
+            
             const parsed = JSON.parse(jsonContent);
             
             // Validate required fields
