@@ -4,7 +4,7 @@
  * Maintains complete transparency from data to marketing strategy
  */
 
-import { MARKETING_EXPERT_PROMPT } from '../prompts/universal-survey-prompts.js';
+import promptLoader from '../prompts/prompt-loader.js';
 
 class EvidenceBasedArchetypes {
     constructor(claudeClient) {
@@ -33,13 +33,13 @@ class EvidenceBasedArchetypes {
             const evidenceMapping = this.createEvidenceMapping(stage1Results, stage2Results);
             
             // Build the marketing expert prompt
-            const prompt = MARKETING_EXPERT_PROMPT(
-                this.extractStatisticalFoundation(stage1Results),
-                stage2Results.pain_pleasure_points || [],
-                stage2Results.behavioral_insights || {},
-                stage2Results.evidence_matrix || {},
-                stage2Results.confidence_metrics || {}
-            );
+            const prompt = promptLoader.buildPrompt('prompt_3_MarketingExpert', {
+                stage1_statistical_foundation: this.extractStatisticalFoundation(stage1Results),
+                pain_pleasure_points: stage2Results.pain_pleasure_points || [],
+                behavioral_insights: stage2Results.behavioral_insights || {},
+                evidence_matrix: stage2Results.evidence_matrix || {},
+                confidence_metrics: stage2Results.confidence_metrics || {}
+            });
 
             // Call Claude API for archetype generation
             const response = await this.claudeClient.messages.create({

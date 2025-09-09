@@ -136,13 +136,12 @@
 
         .test-tube {
             position: relative;
-            width: 80px;
-            height: 200px;
+            width: 100px;
+            height: 180px;
             background: var(--bg-glass);
             border: 3px solid rgba(255,255,255,0.3);
-            border-radius: 0 0 40px 40px;
+            clip-path: polygon(40% 0%, 60% 0%, 60% 25%, 85% 100%, 15% 100%, 40% 25%);
             backdrop-filter: blur(10px);
-            overflow: hidden;
             transition: var(--transition);
             cursor: pointer;
         }
@@ -156,13 +155,15 @@
         .test-tube::before {
             content: '';
             position: absolute;
-            top: -10px;
+            top: -8px;
             left: 50%;
             transform: translateX(-50%);
-            width: 30px;
-            height: 20px;
+            width: 24px;
+            height: 12px;
             background: rgba(255,255,255,0.3);
-            border-radius: 15px 15px 0 0;
+            border-radius: 12px 12px 0 0;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-bottom: none;
         }
 
         .tube-liquid {
@@ -172,7 +173,7 @@
             right: 0;
             height: 30px;
             transition: height 1s ease-in-out, background-color 0.5s ease;
-            border-radius: 0 0 37px 37px;
+            clip-path: polygon(25% 0%, 75% 0%, 85% 100%, 15% 100%);
         }
 
         .test-tube[data-stage="1"] .tube-liquid {
@@ -788,8 +789,8 @@
             }
             
             .test-tube {
-                width: 60px;
-                height: 150px;
+                width: 80px;
+                height: 140px;
             }
             
             .pipeline-flow {

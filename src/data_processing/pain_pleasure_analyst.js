@@ -4,7 +4,7 @@
  * Provides evidence-based insights with statistical backing
  */
 
-import { BEHAVIORAL_STATISTICIAN_PROMPT } from '../prompts/universal-survey-prompts.js';
+import promptLoader from '../prompts/prompt-loader.js';
 
 class PainPleasureAnalyst {
     constructor(claudeClient) {
@@ -31,13 +31,13 @@ class PainPleasureAnalyst {
             const behavioralClusters = this.identifyBehavioralClusters(stage1Results, surveyData);
             
             // Build the behavioral statistician prompt
-            const prompt = BEHAVIORAL_STATISTICIAN_PROMPT(
-                stage1Results.demographic_context,
-                correlationInsights,
-                spendingPatterns,
-                behavioralClusters,
-                stage1Results.statistical_overview
-            );
+            const prompt = promptLoader.buildPrompt('prompt_2_BehavioralStatistician', {
+                demographic_context: stage1Results.demographic_context,
+                correlation_insights: correlationInsights,
+                spending_patterns: spendingPatterns,
+                behavioral_clusters: behavioralClusters,
+                statistical_overview: stage1Results.statistical_overview
+            });
 
             // Call Claude API for behavioral analysis
             const response = await this.claudeClient.messages.create({

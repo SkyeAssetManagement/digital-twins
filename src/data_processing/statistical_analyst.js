@@ -4,7 +4,7 @@
  * Generates correlation matrices and statistical visualizations
  */
 
-import { STATISTICAL_ANALYST_PROMPT } from '../prompts/universal-survey-prompts.js';
+import promptLoader from '../prompts/prompt-loader.js';
 
 class StatisticalAnalyst {
     constructor(claudeClient) {
@@ -29,12 +29,12 @@ class StatisticalAnalyst {
             const statisticalSummary = this.calculateBasicStatistics(responseData);
             
             // Build the statistical analyst prompt
-            const prompt = STATISTICAL_ANALYST_PROMPT(
+            const prompt = promptLoader.buildPrompt('prompt_1_StatsAnalyst', {
                 targetDemographic,
                 surveyContext,
-                questionsList,
+                questions: questionsList,
                 statisticalSummary
-            );
+            });
 
             // Call Claude API for statistical analysis
             const response = await this.claudeClient.messages.create({
