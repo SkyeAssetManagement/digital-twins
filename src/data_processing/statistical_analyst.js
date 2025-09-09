@@ -30,10 +30,10 @@ class StatisticalAnalyst {
             
             // Build the statistical analyst prompt
             const prompt = promptLoader.buildPrompt('prompt_1_StatsAnalyst', {
-                targetDemographic,
-                surveyContext,
-                questions: questionsList,
-                statisticalSummary
+                target_demographic: targetDemographic,
+                survey_context: surveyContext,
+                questions_list: questionsList,
+                statistical_summary: statisticalSummary
             });
 
             // Call Claude API for statistical analysis
