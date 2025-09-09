@@ -68,6 +68,12 @@ app.use('/api/survey-datasets', async (req, res) => {
   await surveyDatasetsHandler(req, res);
 });
 
+// Process Survey Upload API
+import processSurveyUploadHandler from './api/process-survey-upload.js';
+app.post('/api/process-survey-upload', async (req, res) => {
+  await processSurveyUploadHandler(req, res);
+});
+
 // Digital Twin Routes
 app.get('/api/digital-twins/personas', async (req, res) => {
   try {

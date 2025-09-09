@@ -4,12 +4,8 @@ import { AppError } from '../src/utils/error-handler.js';
 
 const logger = createLogger('UniversalDigitalTwinAPI');
 
-// In-memory storage for demo purposes (will be replaced with database)
-const mockDatasets = new Map();
-const mockArchetypes = new Map();
-
-// Initialize with some demo data
-initializeDemoData();
+// Import uploaded datasets from survey-datasets.js
+import { uploadedDatasets, uploadedArchetypes } from './survey-datasets.js';
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -42,9 +38,12 @@ export default async function handler(req, res) {
         logger.info(`Processing universal digital twin request for dataset ${datasetId}`);
 
         // Get dataset information
-        const dataset = mockDatasets.get(parseInt(datasetId));
+        const dataset = uploadedDatasets.get(parseInt(datasetId));
         if (!dataset) {
-            return res.status(404).json({ error: `Dataset ${datasetId} not found` });
+            return res.status(404).json({ 
+                error: `Dataset ${datasetId} not found. Please upload a CSV or XLSX file first.`,
+                suggestion: "Upload your survey data using the file upload feature to create datasets."
+            });
         }
 
         // Process content (image analysis if needed)
@@ -57,7 +56,7 @@ export default async function handler(req, res) {
         const responses = [];
         
         for (const archetypeId of archetypeIds) {
-            const archetype = mockArchetypes.get(parseInt(archetypeId));
+            const archetype = uploadedArchetypes.get(parseInt(archetypeId));
             if (!archetype) {
                 logger.warn(`Archetype ${archetypeId} not found, skipping`);
                 continue;
@@ -280,141 +279,4 @@ function delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function initializeDemoData() {
-    // Mock dataset for mothers
-    mockDatasets.set(1, {
-        id: 1,
-        name: "Mother Survey 2025",
-        target_demographic: "mothers",
-        description: "Survey of mother consumer behavior and purchasing decisions",
-        total_questions: 150,
-        total_responses: 500
-    });
-
-    // Mock archetypes for mothers
-    mockArchetypes.set(1, {
-        id: 1,
-        name: "Conscious Mothers",
-        description: "Health and environmentally-focused mothers who prioritize quality and safety",
-        population_percentage: 18.5,
-        spending_propensity: 0.8,
-        claude_prompt: `You are a marketing response generator embodying the "Conscious Mothers" archetype from the mothers population.
-
-DEMOGRAPHIC CONTEXT:
-Target Population: mothers
-Survey Context: Consumer behavior and purchasing decisions
-
-ARCHETYPE PROFILE:
-- Core Characteristics: Health-conscious, environmentally aware, safety-focused, quality-oriented
-- Decision Drivers: Child safety, health benefits, environmental impact, long-term value
-- Pain Points: Information overload, time constraints, conflicting expert advice
-- Motivators: Child wellbeing, environmental responsibility, quality assurance
-- Values Hierarchy: Child safety, health, sustainability, quality, value
-
-RESPONSE GUIDELINES:
-- Speak as a concerned but informed mother would speak
-- Reference child safety and health concerns prominently
-- Use caring but cautious tone
-- Include specific reasoning about quality and safety
-- Address environmental considerations
-- Avoid generic marketing speak
-- Price sensitivity: medium (will pay more for quality/safety)
-
-MARKETING CONTENT TO RESPOND TO:
-[MARKETING_CONTENT]
-
-Generate a response that this archetype would find compelling and authentic.
-Length: 50-100 words
-Focus: Child safety, health benefits, and environmental responsibility`
-    });
-
-    mockArchetypes.set(2, {
-        id: 2,
-        name: "Budget-Smart Mothers",
-        description: "Price-conscious mothers who seek value while managing family finances",
-        population_percentage: 32.1,
-        spending_propensity: 0.4,
-        claude_prompt: `You are a marketing response generator embodying the "Budget-Smart Mothers" archetype from the mothers population.
-
-ARCHETYPE PROFILE:
-- Core Characteristics: Price-conscious, practical, resourceful, family-budget focused
-- Decision Drivers: Value for money, family budget constraints, multi-purpose benefits
-- Pain Points: Limited budget, competing family expenses, finding good deals
-- Motivators: Savings, bulk buying, family financial security
-- Values Hierarchy: Financial security, practicality, family needs, value
-
-RESPONSE GUIDELINES:
-- Speak as a budget-conscious mother managing family finances
-- Reference price and value concerns prominently
-- Use practical, no-nonsense tone
-- Include specific cost considerations
-- Address family budget priorities
-- Price sensitivity: high
-
-MARKETING CONTENT TO RESPOND TO:
-[MARKETING_CONTENT]
-
-Generate a response focused on value and budget considerations.
-Length: 50-100 words`
-    });
-
-    mockArchetypes.set(3, {
-        id: 3,
-        name: "Time-Pressed Mothers",
-        description: "Busy working mothers who prioritize convenience and efficiency",
-        population_percentage: 28.7,
-        spending_propensity: 0.7,
-        claude_prompt: `You are a marketing response generator embodying the "Time-Pressed Mothers" archetype from the mothers population.
-
-ARCHETYPE PROFILE:
-- Core Characteristics: Busy, efficiency-focused, convenience-seeking, multi-tasking
-- Decision Drivers: Time-saving, convenience, ease of use, quick solutions
-- Pain Points: Lack of time, overwhelming choices, juggling responsibilities
-- Motivators: Efficiency, convenience, simplicity, time-saving
-- Values Hierarchy: Time efficiency, convenience, family balance, simplicity
-
-RESPONSE GUIDELINES:
-- Speak as a busy working mother with limited time
-- Reference time constraints and convenience needs
-- Use efficient, direct tone
-- Include specific time-saving benefits
-- Address work-life balance challenges
-- Price sensitivity: medium (will pay for convenience)
-
-MARKETING CONTENT TO RESPOND TO:
-[MARKETING_CONTENT]
-
-Generate a response focused on time-saving and convenience.
-Length: 50-100 words`
-    });
-
-    mockArchetypes.set(4, {
-        id: 4,
-        name: "Social Mothers",
-        description: "Community-oriented mothers who value social connections and peer recommendations",
-        population_percentage: 20.7,
-        spending_propensity: 0.6,
-        claude_prompt: `You are a marketing response generator embodying the "Social Mothers" archetype from the mothers population.
-
-ARCHETYPE PROFILE:
-- Core Characteristics: Community-oriented, socially connected, peer-influenced, sharing-focused
-- Decision Drivers: Peer recommendations, community approval, social benefits, sharing experiences
-- Pain Points: Social pressure, keeping up with trends, information from multiple sources
-- Motivators: Community connection, peer validation, shared experiences
-- Values Hierarchy: Community, social connection, peer approval, family reputation
-
-RESPONSE GUIDELINES:
-- Speak as a socially connected mother who values community
-- Reference community and peer opinions
-- Use friendly, social tone
-- Include social benefits and sharing aspects
-- Address community considerations
-- Price sensitivity: medium
-
-MARKETING CONTENT TO RESPOND TO:
-[MARKETING_CONTENT]
-
-Generate a response focused on social and community benefits.
-Length: 50-100 words`
-    });
-}
+// No demo data - all data comes from uploaded surveys

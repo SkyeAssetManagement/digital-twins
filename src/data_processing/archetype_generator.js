@@ -76,24 +76,23 @@ export class ArchetypeGenerator {
                 `${pattern}: ${JSON.stringify(data)}`
             ).join('\n') : 'Response patterns analysis not available';
 
-        return `You are a consumer psychology expert specializing in market segmentation. Analyze the provided survey data to create 4-6 distinct consumer archetypes for the identified demographic.
+        return `You are a data-driven consumer psychology expert. Your task is to analyze the actual survey response data and identify the natural consumer archetypes that emerge from the data patterns, without any preconceived notions or templates.
 
-REFERENCE FRAMEWORKS TO CONSIDER:
-- LOHAS Model: Leaders (16%), Leaning (40%), Learners (36%), Laggards (8%) - values-based segmentation
-- Generational Theory: Age-based behavioral patterns and preferences  
-- Psychographic Models: Values, attitudes, interests, lifestyle factors
-- Life Stage Models: Career, family, retirement phases
-- Economic Models: Income, spending priorities, financial security levels
+CRITICAL INSTRUCTIONS:
+- Let the data guide you completely - do not impose any existing frameworks
+- Only reference established frameworks (LOHAS, generational, etc.) if and when they naturally align with what you observe in the data
+- Create archetypes that authentically represent the actual response patterns, not theoretical segments
+- Base everything on the actual survey responses and behavioral clusters you identify
+- The number of archetypes should be determined by natural data clustering (3-7 archetypes typical)
 
-SURVEY ANALYSIS RESULTS:
+SURVEY DATA ANALYSIS:
 Target Demographic: ${demographicAnalysis.target_demographic}
 Survey Context: ${demographicAnalysis.survey_context}
-Reference Frameworks Used: ${demographicAnalysis.reference_frameworks.join(', ')}
 
-Key Categories Identified:
+Data-Driven Categories Identified:
 ${categoriesText}
 
-Response Patterns:
+Actual Response Patterns from Survey Data:
 ${patternsText}
 
 Survey Statistics:
@@ -101,79 +100,53 @@ Survey Statistics:
 - Completion Rate: ${statistics.completionRate?.toFixed(1)}%
 - Total Questions: ${Object.keys(statistics.fields || {}).length}
 
-ARCHETYPE CREATION REQUIREMENTS:
-1. Create 4-6 archetypes that are:
-   - Distinct and non-overlapping
-   - Representative of different behavioral patterns
-   - Predictive of consumer decision-making
-   - Contextually appropriate for this demographic
+DATA-DRIVEN ARCHETYPE CREATION PROCESS:
 
-2. For each archetype, define:
-   - NAME: Memorable, demographic-appropriate name
-   - SIZE: Estimated percentage of population  
-   - CORE_CHARACTERISTICS: Primary traits and behaviors
-   - DECISION_DRIVERS: What motivates their choices
-   - SPENDING_PATTERNS: How they approach purchases
-   - COMMUNICATION_PREFERENCES: How to reach them effectively
-   - PAIN_POINTS: Key challenges and concerns
-   - MOTIVATORS: What drives positive responses
-   - VALUES_HIERARCHY: Top 3-5 values in order of importance
-   - REFERENCE_FRAMEWORK_ALIGNMENT: How they relate to LOHAS/generational/other models
+1. **Pattern Recognition**: First, identify distinct behavioral patterns in the actual survey responses
+2. **Natural Clustering**: Group respondents based on similar response patterns, not predetermined categories  
+3. **Emergent Characteristics**: Let each cluster's characteristics emerge from the data, don't impose traits
+4. **Authentic Naming**: Create names that reflect the actual behaviors observed, not marketing labels
 
-3. Base archetypes on:
-   - Highest-scoring predictive categories
-   - Clear behavioral pattern differences  
-   - Spending propensity variations
-   - Values vs practical constraint trade-offs
+For each naturally emerging archetype, define:
+- **NAME**: Based on the dominant behavior pattern observed (not predetermined labels)
+- **DESCRIPTION**: What this group actually does/thinks based on survey responses
+- **SIZE**: Percentage based on actual data clustering
+- **BEHAVIORAL_SIGNATURE**: The unique response pattern that defines this group
+- **DECISION_LOGIC**: How this group actually makes decisions (from survey data)
+- **VALUE_DRIVERS**: What actually matters to them (from their responses)
+- **COMMUNICATION_STYLE**: How they naturally express preferences
+- **CONSTRAINTS**: What limits their choices (observed from data)
+- **MOTIVATIONAL_TRIGGERS**: What actually motivates them to act
 
-4. Ensure archetypes are:
-   - Actionable for marketing teams
-   - Authentic to this demographic's real characteristics
-   - Differentiating enough to warrant separate strategies
-   - Grounded in survey data insights
+VALIDATION CRITERIA:
+- Each archetype must represent a statistically significant cluster in the data
+- Archetypes must be clearly distinguishable in their response patterns
+- The combined archetypes must account for the majority of survey responses
+- Names and descriptions must reflect authentic behaviors, not aspirational marketing personas
 
-Create archetypes that marketing teams can immediately use for targeted campaigns while being authentic to this demographic's real characteristics and needs.
-
-Respond in JSON format:
+Respond in JSON format with archetypes that emerge naturally from the data:
 {
-  "archetype_framework": {
-    "methodology": "explanation of approach used",
-    "key_differentiators": ["primary factors that distinguish archetypes"],
-    "reference_frameworks_applied": ["LOHAS", "generational", "etc."],
-    "validation_approach": "how archetypes were validated against data"
+  "methodology": {
+    "approach": "data-driven clustering based on actual response patterns",
+    "primary_differentiators": ["the main factors that actually separate these groups in the data"],
+    "data_validation": "how the archetypes were validated against actual survey responses"
   },
   "archetypes": [
     {
-      "name": "Archetype Name",
-      "description": "2-3 sentence overview",
-      "population_percentage": 25.0,
-      "core_characteristics": ["trait1", "trait2", "trait3"],
-      "decision_drivers": ["driver1", "driver2", "driver3"],
-      "spending_patterns": {
-        "budget_allocation": "how they prioritize spending",
-        "price_sensitivity": "high/medium/low",
-        "purchase_triggers": ["trigger1", "trigger2"],
-        "brand_loyalty": "high/medium/low"
-      },
-      "communication_preferences": {
-        "tone": "preferred communication tone",
-        "channels": ["channel1", "channel2"],
-        "message_focus": "what to emphasize",
-        "avoid": ["what not to emphasize"]
-      },
-      "pain_points": ["pain1", "pain2", "pain3"],
-      "motivators": ["motivator1", "motivator2", "motivator3"],
-      "values_hierarchy": ["top_value", "second_value", "third_value"],
-      "reference_framework_alignment": {
-        "lohas_alignment": "Leader/Leaning/Learner/Laggard or N/A",
-        "generational_fit": "generation or life stage",
-        "psychographic_profile": "primary psychographic characteristics"
-      },
-      "marketing_implications": {
-        "ideal_products": ["product type1", "product type2"],
-        "messaging_strategy": "how to position messages",
-        "channel_strategy": "where to reach them",
-        "pricing_strategy": "pricing approach"
+      "name": "Data-Derived Name",
+      "description": "What this group actually does/thinks based on survey data",
+      "population_percentage": "actual percentage from data clustering",
+      "behavioral_signature": "the unique response pattern that defines this group",
+      "decision_logic": "how they actually make decisions based on survey responses",
+      "value_drivers": ["what genuinely matters to them from their responses"],
+      "communication_style": "how they naturally express preferences",
+      "constraints": ["what actually limits their choices"],
+      "motivational_triggers": ["what actually motivates action"],
+      "data_support": "statistical evidence supporting this archetype",
+      "marketing_approach": {
+        "messaging": "approach based on their actual values and constraints",
+        "channels": "where they're likely to be based on behaviors",
+        "timing": "when they make decisions based on patterns"
       }
     }
   ]

@@ -3,48 +3,22 @@
 ## Executive Summary
 This plan outlines the development of a comprehensive, generic pipeline to ingest any consumer survey data, categorize questions using Claude Opus 4.1, dynamically create population-specific archetypes, and build digital twin personas for targeted marketing responses. The system uses proven frameworks like LOHAS as reference points while allowing Claude Opus to generate contextually appropriate archetypes for any target demographic (mothers, retirees, teens, professionals, etc.).
 
-```mermaid
-flowchart TD
-    A[Survey Data<br/>Excel/CSV/JSON/TSV] --> B[Universal Data Ingestion]
-    B --> C[Format Detection & Header Analysis]
-    C --> D[Intelligent Concatenation & Cleaning]
-    D --> E[Question Extraction & Demographic Detection]
-    E --> F[Claude Opus 4.1<br/>Question Categorization]
-    F --> G[Dynamic Category Creation]
-    G --> H[Response Pattern Analysis]
-    H --> I[Claude Opus 4.1<br/>Archetype Generation]
-    I --> J[Population-Specific Archetypes<br/>4-6 personas per demographic]
-    J --> K[Response Scoring & Classification]
-    K --> L[Digital Twin Persona Engine<br/>Claude Opus 4.1 Only]
-    L --> M[Adaptive UI Interface]
-    M --> N[Marketing Response Generation]
-    
-    O[(Supabase Database)] --> P[survey_datasets]
-    O --> Q[survey_questions]
-    O --> R[survey_archetypes]
-    O --> S[survey_responses]
-    O --> T[digital_twin_personas]
-    
-    F -.-> O
-    I -.-> O
-    K -.-> O
-    L -.-> O
-    
-    U[Reference Frameworks<br/>LOHAS, Generational, etc.] -.-> I
-    
-    style A fill:#e1f5fe
-    style F fill:#fff3e0
-    style I fill:#fff3e0
-    style L fill:#fff3e0
-    style N fill:#e8f5e8
-```
-
 ## 1. System Architecture Overview
 
 ### 1.1 High-Level Flow
 ```
 Survey Data (Any Format) → Data Ingestion → Question Categorization (Claude Opus) → 
 Dynamic Archetype Creation → Response Scoring → Digital Twin Persona Engine → Adaptive UI
+```
+
+```mermaid
+flowchart TD
+    A[Survey Data<br/>Any Format] --> B[Data Ingestion]
+    B --> C[Question Categorization<br/>Claude Opus]
+    C --> D[Dynamic Archetype<br/>Creation]
+    D --> E[Response Scoring]
+    E --> F[Digital Twin<br/>Persona Engine]
+    F --> G[Adaptive UI]
 ```
 
 ### 1.2 Core Components
@@ -531,3 +505,293 @@ This comprehensive plan outlines a sophisticated pipeline for transforming mothe
 The phased approach ensures systematic development with proper testing and validation at each stage. The focus on Claude Opus 4.1 exclusively, combined with the mother-specific archetype framework, will create a powerful tool for targeted marketing campaign development.
 
 Key success factors include maintaining data quality throughout the pipeline, ensuring archetype accuracy through rigorous validation, and creating an intuitive user interface that enables marketing teams to leverage these insights effectively.
+
+## Appendices
+
+### Appendix A: Question Categorization Prompt
+
+```
+You are an expert consumer behavior analyst. Analyze the provided survey data to understand the target demographic and survey context, then create appropriate question categories and classify each question.
+
+SURVEY CONTEXT ANALYSIS:
+1. First, identify the target demographic from the survey questions and content
+2. Determine 4-6 meaningful categories that would be most relevant for this demographic's consumer behavior
+3. Consider proven frameworks (LOHAS, generational theory, psychographics) as reference points
+4. Focus on categories that would be predictive of purchasing behavior and decision-making
+
+TARGET DEMOGRAPHIC: [AUTO-DETECTED OR PROVIDED]
+SURVEY CONTEXT: [SURVEY DESCRIPTION/SAMPLE QUESTIONS]
+
+TASK: Create categories and classify each question
+
+Step 1 - Category Creation:
+Create 4-6 categories that are:
+- Relevant to this demographic's decision-making
+- Predictive of consumer behavior  
+- Distinct and non-overlapping
+- Based on psychological/behavioral drivers
+
+Step 2 - Question Classification:
+For each survey question, provide:
+- Category (from your created categories)
+- Confidence score (0-1)
+- Reasoning (2-3 sentences explaining the classification)
+- Predictive power estimate (0-1) for consumer behavior correlation
+- Behavioral insight (what this question reveals about the respondent)
+
+Questions to analyze:
+[CONCATENATED_QUESTIONS_LIST]
+
+Respond in JSON format:
+{
+  "demographic_analysis": {
+    "target_demographic": "identified demographic",
+    "survey_context": "survey purpose and scope",
+    "reference_frameworks": ["LOHAS", "generational", "etc."]
+  },
+  "categories": [
+    {
+      "name": "category name",
+      "description": "what this category measures",
+      "behavioral_significance": "why this matters for consumer behavior"
+    }
+  ],
+  "categorizations": [
+    {
+      "question": "question text",
+      "category": "assigned category",
+      "confidence": 0.95,
+      "reasoning": "explanation",
+      "predictive_power": 0.80,
+      "behavioral_insight": "what this reveals about respondent"
+    }
+  ]
+}
+```
+
+### Appendix B: Archetype Creation Prompt
+
+```
+You are a consumer psychology expert specializing in market segmentation. Analyze the provided survey data to create 4-6 distinct consumer archetypes for the identified demographic.
+
+REFERENCE FRAMEWORKS TO CONSIDER:
+- LOHAS Model: Leaders (16%), Leaning (40%), Learners (36%), Laggards (8%) - values-based segmentation
+- Generational Theory: Age-based behavioral patterns and preferences  
+- Psychographic Models: Values, attitudes, interests, lifestyle factors
+- Life Stage Models: Career, family, retirement phases
+- Economic Models: Income, spending priorities, financial security levels
+
+SURVEY ANALYSIS RESULTS:
+Target Demographic: [DETECTED_DEMOGRAPHIC]
+Key Predictive Categories: [HIGH_SCORING_CATEGORIES]
+Response Patterns: [BEHAVIORAL_CLUSTERS]
+Spending Correlation Data: [PREDICTIVE_INSIGHTS]
+
+ARCHETYPE CREATION REQUIREMENTS:
+1. Create 4-6 archetypes that are:
+   - Distinct and non-overlapping
+   - Representative of different behavioral patterns
+   - Predictive of consumer decision-making
+   - Contextually appropriate for this demographic
+
+2. For each archetype, define:
+   - NAME: Memorable, demographic-appropriate name
+   - SIZE: Estimated percentage of population  
+   - CORE CHARACTERISTICS: Primary traits and behaviors
+   - DECISION DRIVERS: What motivates their choices
+   - SPENDING PATTERNS: How they approach purchases
+   - COMMUNICATION PREFERENCES: How to reach them effectively
+   - PAIN POINTS: Key challenges and concerns
+   - MOTIVATORS: What drives positive responses
+   - REFERENCE FRAMEWORK ALIGNMENT: How they relate to LOHAS/generational/other models
+
+3. Base archetypes on:
+   - Highest-scoring predictive questions
+   - Clear behavioral pattern differences  
+   - Spending propensity variations
+   - Values vs practical constraint trade-offs
+
+Create archetypes that marketing teams can immediately use for targeted campaigns while being authentic to this demographic's real characteristics and needs.
+
+Respond in JSON format:
+{
+  "demographic_context": {
+    "target_demographic": "detected demographic",
+    "survey_scope": "survey context and purpose",
+    "reference_frameworks_used": ["LOHAS", "generational", "etc."],
+    "key_predictive_categories": ["category1", "category2", "etc."]
+  },
+  "archetypes": [
+    {
+      "name": "Archetype Name",
+      "size_percentage": 25,
+      "core_characteristics": [
+        "Primary trait 1",
+        "Primary trait 2",
+        "Primary trait 3"
+      ],
+      "decision_drivers": [
+        "Key motivator 1",
+        "Key motivator 2",
+        "Key motivator 3"
+      ],
+      "spending_patterns": {
+        "approach": "How they approach purchases",
+        "priorities": ["Priority 1", "Priority 2"],
+        "budget_consciousness": "High/Medium/Low",
+        "research_behavior": "Extensive/Moderate/Minimal"
+      },
+      "communication_preferences": {
+        "tone": "Preferred communication tone",
+        "channels": ["Channel 1", "Channel 2"],
+        "messaging_focus": "What resonates most"
+      },
+      "pain_points": [
+        "Challenge 1",
+        "Challenge 2",
+        "Challenge 3"
+      ],
+      "motivators": [
+        "Positive driver 1",
+        "Positive driver 2",
+        "Positive driver 3"
+      ],
+      "reference_framework_alignment": {
+        "lohas_segment": "Leaders/Leaning/Learners/Laggards",
+        "generational_traits": "Relevant generational characteristics",
+        "psychographic_profile": "VALS or similar classification"
+      },
+      "predictive_question_responses": {
+        "question_id_1": "expected_response_pattern",
+        "question_id_2": "expected_response_pattern"
+      }
+    }
+  ],
+  "validation_metrics": {
+    "distinctiveness_score": 0.85,
+    "behavioral_coverage": 0.92,
+    "predictive_validity": 0.78
+  }
+}
+```
+
+### Appendix C: Response Scoring Algorithm Prompt
+
+```
+You are a data scientist specializing in consumer behavior analysis. Create a comprehensive scoring system to classify survey respondents into the provided archetypes based on their survey responses.
+
+ARCHETYPE PROFILES:
+[ARCHETYPE_DATA_FROM_PREVIOUS_STEP]
+
+SURVEY QUESTIONS WITH CATEGORIZATION:
+[CATEGORIZED_QUESTIONS_WITH_PREDICTIVE_POWER_SCORES]
+
+SCORING SYSTEM REQUIREMENTS:
+1. Create a weighted scoring algorithm that:
+   - Uses predictive power scores as question weights
+   - Normalizes all response values to 0-1 scale
+   - Calculates similarity between respondent answers and archetype expected responses
+   - Generates confidence scores for archetype assignments
+
+2. For each respondent, calculate:
+   - Archetype similarity scores (0-1) for each archetype
+   - Primary archetype assignment (highest score above 0.6 threshold)
+   - Confidence level (0-1) based on score distribution
+   - Secondary archetype (if primary confidence < 0.8)
+
+3. Similarity calculation methods:
+   - Likert scales: Absolute difference normalized
+   - Multiple choice: Exact match (1.0) or no match (0.0)
+   - Numerical values: Normalized distance calculation
+   - Text responses: Semantic similarity or keyword matching
+
+4. Quality control measures:
+   - Flag low-confidence assignments (confidence < 0.6)
+   - Identify respondents with unclear archetype fit
+   - Calculate archetype population distributions
+   - Validate against expected archetype percentages
+
+IMPLEMENTATION SPECIFICATIONS:
+Provide the complete scoring algorithm in pseudocode format, including:
+- Data preprocessing steps
+- Normalization functions
+- Similarity calculation methods
+- Weighted scoring formulas
+- Confidence measurement calculations
+- Quality control validations
+
+Expected output format:
+{
+  "scoring_methodology": {
+    "weighting_approach": "description of how predictive power is used",
+    "normalization_method": "how responses are scaled to 0-1",
+    "similarity_functions": {
+      "likert_scales": "calculation method",
+      "multiple_choice": "matching approach",
+      "numerical_values": "distance calculation",
+      "text_responses": "semantic analysis method"
+    }
+  },
+  "algorithm_pseudocode": [
+    "Step 1: Data preprocessing and validation",
+    "Step 2: Response normalization",
+    "Step 3: Similarity score calculation",
+    "Step 4: Weighted archetype scoring",
+    "Step 5: Confidence measurement",
+    "Step 6: Assignment and validation"
+  ],
+  "quality_control": {
+    "confidence_thresholds": {
+      "high_confidence": 0.8,
+      "medium_confidence": 0.6,
+      "low_confidence": "< 0.6 - flag for review"
+    },
+    "validation_checks": [
+      "Population distribution alignment",
+      "Score distribution analysis",
+      "Outlier detection and handling"
+    ]
+  },
+  "implementation_code": {
+    "main_scoring_function": "complete function implementation",
+    "helper_functions": ["normalization", "similarity", "confidence"],
+    "data_structures": "required input/output formats"
+  }
+}
+```
+
+### Appendix D: Digital Twin Response Generation Prompt
+
+```
+You are a marketing response generator embodying the [ARCHETYPE_NAME] archetype from the [TARGET_DEMOGRAPHIC] population. 
+
+DEMOGRAPHIC CONTEXT:
+Target Population: [TARGET_DEMOGRAPHIC] (e.g., mothers, retirees, professionals)
+Survey Context: [SURVEY_CONTEXT]
+Reference Frameworks: [REFERENCE_FRAMEWORKS_USED]
+
+ARCHETYPE PROFILE:
+- Core Characteristics: [CHARACTERISTICS_LIST]
+- Decision Drivers: [DECISION_DRIVERS]
+- Spending Patterns: [SPENDING_BEHAVIOR]
+- Pain Points: [PAIN_POINTS]
+- Motivators: [PLEASURE_MOTIVATORS]
+- Communication Preferences: [COMM_STYLE]
+
+RESPONSE GUIDELINES:
+- Speak as someone in this archetype from this demographic would speak
+- Reference demographic-specific concerns and priorities
+- Use tone and language appropriate for this population
+- Include specific reasoning that resonates with this archetype
+- Address relevant pain points and motivators naturally
+- Avoid generic marketing speak
+- Reflect authentic characteristics of this demographic
+
+MARKETING CONTENT TO RESPOND TO:
+[MARKETING_CONTENT]
+
+Generate a response that this archetype would find compelling and authentic within their demographic context.
+Length: 50-100 words
+Tone: [ARCHETYPE_TONE]
+Focus: Address both rational and emotional motivators relevant to [TARGET_DEMOGRAPHIC]
+```

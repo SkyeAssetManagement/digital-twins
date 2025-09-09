@@ -54,49 +54,54 @@ export class QuestionCategorizer {
     async categorizeBatch(questions, targetDemographic, surveyContext) {
         const questionsList = questions.map((q, index) => `${index + 1}. ${q.fullQuestion || q.text}`).join('\n');
         
-        const prompt = `You are an expert consumer behavior analyst. Analyze the provided survey data to understand the target demographic and survey context, then create appropriate question categories and classify each question.
+        const prompt = `You are a data-driven survey analyst. Your task is to analyze the actual survey questions and let natural themes and categories emerge from the content itself, without imposing any predetermined frameworks.
 
-SURVEY CONTEXT ANALYSIS:
-1. First, identify the target demographic from the survey questions and content
-2. Determine 4-6 meaningful categories that would be most relevant for this demographic's consumer behavior
-3. Consider proven frameworks (LOHAS, generational theory, psychographics) as reference points
-4. Focus on categories that would be predictive of purchasing behavior and decision-making
+CRITICAL INSTRUCTIONS:
+- Analyze the questions themselves to understand what this survey is actually measuring
+- Let categories emerge naturally from the question content - don't impose theoretical frameworks
+- Only mention established frameworks (LOHAS, generational, etc.) if they naturally align with what the questions are actually asking
+- Focus on what the questions reveal about the respondents' actual decision-making processes
+- Create categories based on what the survey is genuinely trying to understand
 
-TARGET DEMOGRAPHIC: ${targetDemographic || 'AUTO-DETECT'}
-SURVEY CONTEXT: ${surveyContext || 'Consumer behavior survey'}
+TARGET DEMOGRAPHIC: ${targetDemographic || 'Will be determined from question content'}
+SURVEY CONTEXT: ${surveyContext || 'Will be determined from question analysis'}
 
-TASK: Create categories and classify each question
+ANALYSIS PROCESS:
 
-Step 1 - Category Creation:
-Create 4-6 categories that are:
-- Relevant to this demographic's decision-making
-- Predictive of consumer behavior  
-- Distinct and non-overlapping
-- Based on psychological/behavioral drivers
+Step 1 - Question Content Analysis:
+- Read through all questions to understand what they're actually measuring
+- Identify the natural themes that emerge from the question topics
+- Understand what aspects of behavior/attitudes the survey is exploring
 
-Step 2 - Question Classification:
-For each survey question, provide:
-- Category (from your created categories)
-- Confidence score (0-1)
-- Reasoning (2-3 sentences explaining the classification)
-- Predictive power estimate (0-1) for consumer behavior correlation
-- Behavioral insight (what this question reveals about the respondent)
+Step 2 - Natural Category Formation:
+- Group questions by their actual content themes, not predetermined categories
+- Create categories that reflect what the survey is genuinely asking about
+- Ensure categories represent distinct aspects of what's being measured
+- Number of categories should reflect natural groupings (typically 3-8)
+
+Step 3 - Data-Driven Classification:
+For each question, determine:
+- Which natural category it belongs to based on its actual content
+- How confident you are in this classification
+- What behavioral insight this question actually provides
+- How predictive this might be for understanding respondent behavior
 
 Questions to analyze:
 ${questionsList}
 
-Respond in JSON format:
+Respond in JSON format with categories that emerge from the actual question content:
 {
   "demographic_analysis": {
-    "target_demographic": "identified demographic",
-    "survey_context": "survey purpose and scope",
-    "reference_frameworks": ["LOHAS", "generational", "etc."]
+    "target_demographic": "what demographic this survey appears to target based on question content",
+    "survey_context": "what this survey is actually trying to understand based on the questions",
+    "survey_focus": "the main behavioral areas this survey explores"
   },
   "categories": [
     {
-      "name": "category name",
-      "description": "what this category measures",
-      "behavioral_significance": "why this matters for consumer behavior"
+      "name": "category name based on actual question themes",
+      "description": "what this group of questions actually measures",
+      "behavioral_significance": "what this tells us about respondent behavior",
+      "question_examples": ["example questions that fit this category"]
     }
   ],
   "categorizations": [
@@ -104,9 +109,9 @@ Respond in JSON format:
       "question": "question text",
       "category": "assigned category",
       "confidence": 0.95,
-      "reasoning": "explanation",
+      "reasoning": "why this question belongs in this category based on its content",
       "predictive_power": 0.80,
-      "behavioral_insight": "what this reveals about respondent"
+      "behavioral_insight": "what this specific question reveals about the respondent"
     }
   ]
 }`;

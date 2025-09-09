@@ -413,22 +413,60 @@
         <main class="main-content">
             <!-- Control Panel -->
             <div class="control-panel">
-                <!-- Dataset Selection -->
+                <!-- Dataset Upload/Selection -->
                 <div class="section">
                     <h3 class="section-title">
-                        📊 Survey Dataset Selection
+                        📊 Survey Data Upload & Selection
                     </h3>
-                    <div class="dataset-selector">
-                        <div class="form-group">
-                            <label class="form-label" for="datasetSelect">Choose Survey Dataset</label>
-                            <select id="datasetSelect" class="form-control">
-                                <option value="">Loading datasets...</option>
-                            </select>
+                    
+                    <!-- Upload New Dataset -->
+                    <div class="upload-section">
+                        <h4 style="margin-bottom: 15px; color: #495057;">Upload New Survey Data</h4>
+                        <form id="surveyUploadForm" enctype="multipart/form-data">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 15px;">
+                                <div class="form-group">
+                                    <label class="form-label" for="datasetName">Dataset Name *</label>
+                                    <input type="text" id="datasetName" name="datasetName" class="form-control" placeholder="e.g., Mother Survey 2025" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="targetDemographic">Target Demographic *</label>
+                                    <input type="text" id="targetDemographic" name="targetDemographic" class="form-control" placeholder="e.g., mothers, retirees, professionals" required>
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 15px;">
+                                <label class="form-label" for="description">Description (Optional)</label>
+                                <textarea id="description" name="description" class="form-control" rows="2" placeholder="Brief description of this survey dataset"></textarea>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 15px;">
+                                <label class="form-label" for="surveyFile">Survey File (CSV or Excel) *</label>
+                                <input type="file" id="surveyFile" name="surveyFile" class="form-control" accept=".csv,.xlsx,.xls" required>
+                                <div style="font-size: 0.9rem; color: #6c757d; margin-top: 5px;">
+                                    Supported formats: CSV, Excel (.xlsx, .xls). First row should contain question headers.
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary" id="uploadBtn">
+                                Upload & Process Survey
+                            </button>
+                        </form>
+                        <div id="uploadStatus" class="status-bar" style="margin-top: 15px;">
+                            <!-- Upload status will appear here -->
                         </div>
-                        <button type="button" class="btn btn-secondary" onclick="loadDatasets()">Refresh</button>
                     </div>
-                    <div id="datasetInfo" class="dataset-info hidden">
-                        <!-- Dataset info will be populated here -->
+
+                    <div style="margin: 30px 0; border-top: 1px solid #e9ecef; padding-top: 20px;">
+                        <h4 style="margin-bottom: 15px; color: #495057;">Select Existing Dataset</h4>
+                        <div class="dataset-selector">
+                            <div class="form-group">
+                                <label class="form-label" for="datasetSelect">Choose Existing Dataset</label>
+                                <select id="datasetSelect" class="form-control">
+                                    <option value="">No datasets uploaded yet</option>
+                                </select>
+                            </div>
+                            <button type="button" class="btn btn-secondary" onclick="loadDatasets()">Refresh</button>
+                        </div>
+                        <div id="datasetInfo" class="dataset-info hidden">
+                            <!-- Dataset info will be populated here -->
+                        </div>
                     </div>
                 </div>
 
@@ -438,7 +476,7 @@
                         👥 Archetype Selection
                     </h3>
                     <div id="archetypeGrid" class="archetype-grid">
-                        <p style="text-align: center; color: #6c757d; grid-column: 1/-1;">Select a dataset to view available archetypes</p>
+                        <p style="text-align: center; color: #6c757d; grid-column: 1/-1;">Upload your survey data (CSV/XLSX) to generate archetypes</p>
                     </div>
                 </div>
 
@@ -528,6 +566,9 @@
             // Dataset selection
             document.getElementById('datasetSelect').addEventListener('change', handleDatasetChange);
 
+            // Survey upload form
+            document.getElementById('surveyUploadForm').addEventListener('submit', handleSurveyUpload);
+
             // File upload
             const fileUploadArea = document.getElementById('fileUploadArea');
             const fileInput = document.getElementById('fileInput');
@@ -557,14 +598,86 @@
 
         function populateDatasetSelector() {
             const select = document.getElementById('datasetSelect');
-            select.innerHTML = '<option value="">Select a survey dataset...</option>';
             
-            datasets.forEach(dataset => {
-                const option = document.createElement('option');
-                option.value = dataset.id;
-                option.textContent = `${dataset.name} (${dataset.target_demographic})`;
-                select.appendChild(option);
-            });
+            if (datasets.length === 0) {
+                select.innerHTML = '<option value="">No datasets uploaded yet</option>';
+            } else {
+                select.innerHTML = '<option value="">Select a survey dataset...</option>';
+                
+                datasets.forEach(dataset => {
+                    const option = document.createElement('option');
+                    option.value = dataset.id;
+                    option.textContent = `${dataset.name} (${dataset.target_demographic})`;
+                    select.appendChild(option);
+                });
+            }
+        }
+
+        async function handleSurveyUpload(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const uploadBtn = document.getElementById('uploadBtn');
+            const uploadStatus = document.getElementById('uploadStatus');
+            
+            try {
+                // Update UI to show uploading
+                uploadBtn.disabled = true;
+                uploadBtn.innerHTML = '<span class="loading"></span> Processing...';
+                showUploadStatus('Uploading and processing survey data...', 'info');
+                
+                const response = await fetch('/api/process-survey-upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showUploadStatus(
+                        `✅ ${result.message}! Dataset "${result.dataset.name}" created with ${result.dataset.total_questions} questions and ${result.dataset.total_responses} responses.`, 
+                        'success'
+                    );
+                    
+                    // Reset form
+                    document.getElementById('surveyUploadForm').reset();
+                    
+                    // Reload datasets to show the new one
+                    await loadDatasets();
+                    
+                    // Auto-select the new dataset
+                    document.getElementById('datasetSelect').value = result.dataset.id;
+                    handleDatasetChange({ target: { value: result.dataset.id } });
+                    
+                } else {
+                    showUploadStatus(`❌ ${result.error}: ${result.details || ''}`, 'error');
+                }
+                
+            } catch (error) {
+                console.error('Upload error:', error);
+                showUploadStatus(`❌ Upload failed: ${error.message}`, 'error');
+            } finally {
+                uploadBtn.disabled = false;
+                uploadBtn.innerHTML = 'Upload & Process Survey';
+            }
+        }
+
+        function showUploadStatus(message, type) {
+            const uploadStatus = document.getElementById('uploadStatus');
+            const statusClass = type === 'success' ? 'success' : type === 'error' ? 'error' : 'info';
+            
+            uploadStatus.innerHTML = `
+                <div class="status-text" style="color: ${type === 'success' ? '#2e7d32' : type === 'error' ? '#c62828' : '#1976d2'}">
+                    ${message}
+                </div>
+            `;
+            uploadStatus.classList.add('show');
+            
+            if (type === 'success') {
+                setTimeout(() => {
+                    uploadStatus.classList.remove('show');
+                }, 10000); // Hide success messages after 10 seconds
+            }
         }
 
         function handleDatasetChange(event) {
@@ -615,7 +728,7 @@
 
         function hideArchetypes() {
             const grid = document.getElementById('archetypeGrid');
-            grid.innerHTML = '<p style="text-align: center; color: #6c757d; grid-column: 1/-1;">Select a dataset to view available archetypes</p>';
+            grid.innerHTML = '<p style="text-align: center; color: #6c757d; grid-column: 1/-1;">Upload your survey data (CSV/XLSX) to generate archetypes</p>';
             selectedArchetypes = [];
         }
 
