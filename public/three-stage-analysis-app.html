@@ -469,12 +469,71 @@
                     <div class="section-title">
                         📊 Dataset Selection
                     </div>
-                    <div class="form-group">
-                        <label class="form-label" for="datasetSelect">Select Survey Dataset</label>
-                        <select id="datasetSelect" class="form-control">
-                            <option value="">Choose a dataset...</option>
-                        </select>
+                    
+                    <!-- Dataset Selection Options -->
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                            <input type="radio" name="datasetOption" value="existing" id="existingDatasetOption" checked>
+                            <span class="form-label" style="margin: 0;">Use Existing Dataset</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 10px;">
+                            <input type="radio" name="datasetOption" value="upload" id="uploadDatasetOption">
+                            <span class="form-label" style="margin: 0;">Upload New Survey File</span>
+                        </label>
                     </div>
+
+                    <!-- Existing Dataset Selection -->
+                    <div id="existingDatasetSection">
+                        <div class="form-group">
+                            <label class="form-label" for="datasetSelect">Select Survey Dataset</label>
+                            <select id="datasetSelect" class="form-control">
+                                <option value="">Choose a dataset...</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Upload New Dataset Section -->
+                    <div id="uploadDatasetSection" style="display: none;">
+                        <form id="surveyUploadForm" enctype="multipart/form-data">
+                            <div class="form-group">
+                                <label class="form-label" for="datasetName">Dataset Name *</label>
+                                <input type="text" id="datasetName" name="datasetName" class="form-control" 
+                                       placeholder="e.g., Environmental Consumer Survey 2024" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label" for="uploadTargetDemographic">Target Demographic *</label>
+                                <input type="text" id="uploadTargetDemographic" name="targetDemographic" class="form-control" 
+                                       placeholder="e.g., Environmentally-conscious consumers aged 25-45" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label" for="description">Description (Optional)</label>
+                                <textarea id="description" name="description" class="form-control" rows="2"
+                                         placeholder="Brief description of the survey purpose and methodology"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="surveyFile">Survey File (CSV or Excel) *</label>
+                                <div style="position: relative;">
+                                    <input type="file" id="surveyFile" name="surveyFile" class="form-control" 
+                                           accept=".csv,.xlsx,.xls" required style="padding-top: 15px;">
+                                    <div style="font-size: 0.8rem; color: #6c757d; margin-top: 5px;">
+                                        Supported formats: CSV, XLSX, XLS • Max size: 50MB
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="margin-top: 20px;">
+                                <button type="submit" id="uploadBtn" class="btn">
+                                    📤 Upload & Process Survey
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <div id="uploadStatus" style="margin-top: 15px;"></div>
+                    </div>
+
                     <div id="datasetInfo" class="alert alert-info hidden">
                         <span>📋</span>
                         <div id="datasetDetails"></div>
@@ -627,7 +686,18 @@
         // Initialize the application
         document.addEventListener('DOMContentLoaded', function() {
             loadDatasets();
+            setupEventListeners();
         });
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Radio button listeners for dataset option switching
+            document.getElementById('existingDatasetOption').addEventListener('change', handleDatasetOptionChange);
+            document.getElementById('uploadDatasetOption').addEventListener('change', handleDatasetOptionChange);
+            
+            // Upload form listener
+            document.getElementById('surveyUploadForm').addEventListener('submit', handleSurveyUpload);
+        }
 
         // Load available datasets
         async function loadDatasets() {
@@ -710,6 +780,107 @@
             document.getElementById('datasetInfo').classList.add('hidden');
         }
 
+        // Handle dataset option radio button changes
+        function handleDatasetOptionChange(event) {
+            const option = event.target.value;
+            const existingSection = document.getElementById('existingDatasetSection');
+            const uploadSection = document.getElementById('uploadDatasetSection');
+            
+            if (option === 'existing') {
+                existingSection.style.display = 'block';
+                uploadSection.style.display = 'none';
+                // Clear any selected dataset from upload
+                selectedDataset = null;
+                hideDatasetInfo();
+            } else if (option === 'upload') {
+                existingSection.style.display = 'none';
+                uploadSection.style.display = 'block';
+                // Clear any selected dataset from dropdown
+                document.getElementById('datasetSelect').value = '';
+                selectedDataset = null;
+                hideDatasetInfo();
+            }
+        }
+
+        // Handle survey file upload
+        async function handleSurveyUpload(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const uploadBtn = document.getElementById('uploadBtn');
+            const uploadStatus = document.getElementById('uploadStatus');
+            
+            try {
+                // Update UI to show uploading
+                uploadBtn.disabled = true;
+                uploadBtn.innerHTML = '<span class="loading"></span> Processing...';
+                showUploadStatus('Uploading and processing survey data...', 'info');
+                
+                const response = await fetch('/api/process-survey-upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showUploadStatus(
+                        `✅ ${result.message}! Dataset "${result.dataset.name}" created with ${result.dataset.total_questions} questions and ${result.dataset.total_responses} responses.`, 
+                        'success'
+                    );
+                    
+                    // Set the uploaded dataset as selected
+                    selectedDataset = {
+                        id: result.dataset.id,
+                        name: result.dataset.name,
+                        target_demographic: result.dataset.target_demographic,
+                        description: result.dataset.description,
+                        total_questions: result.dataset.total_questions,
+                        total_responses: result.dataset.total_responses
+                    };
+                    
+                    // Show dataset info
+                    showDatasetInfo();
+                    
+                    // Reset form
+                    document.getElementById('surveyUploadForm').reset();
+                    
+                    // Reload datasets to show the new one in the dropdown
+                    await loadDatasets();
+                    
+                } else {
+                    showUploadStatus(`❌ ${result.error}: ${result.details || ''}`, 'error');
+                }
+                
+            } catch (error) {
+                console.error('Upload error:', error);
+                showUploadStatus(`❌ Upload failed: ${error.message}`, 'error');
+            } finally {
+                uploadBtn.disabled = false;
+                uploadBtn.innerHTML = '📤 Upload & Process Survey';
+            }
+        }
+
+        // Show upload status messages
+        function showUploadStatus(message, type) {
+            const statusDiv = document.getElementById('uploadStatus');
+            const alertClass = `alert alert-${type === 'error' ? 'error' : type === 'success' ? 'success' : 'info'}`;
+            
+            statusDiv.innerHTML = `
+                <div class="${alertClass}">
+                    <span>${type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️'}</span>
+                    <div>${message}</div>
+                </div>
+            `;
+            
+            // Auto-clear after 10 seconds for success/info messages
+            if (type !== 'error') {
+                setTimeout(() => {
+                    statusDiv.innerHTML = '';
+                }, 10000);
+            }
+        }
+
         // Start the 3-stage analysis
         async function startThreeStageAnalysis() {
             if (!selectedDataset) {
@@ -718,8 +889,13 @@
             }
 
             const startBtn = document.getElementById('startAnalysisBtn');
-            const targetDemographic = document.getElementById('targetDemographic').value;
+            let targetDemographic = document.getElementById('targetDemographic').value;
             const surveyContext = document.getElementById('surveyContext').value;
+
+            // If no target demographic specified and we have it from the dataset, use that
+            if (!targetDemographic && selectedDataset.target_demographic) {
+                targetDemographic = selectedDataset.target_demographic;
+            }
 
             try {
                 // Update UI
