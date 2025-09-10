@@ -2,6 +2,10 @@
  * Database utilities for file storage and survey data management
  */
 
+// Ensure environment variables are loaded
+import dotenv from 'dotenv';
+dotenv.config();
+
 import pkg from 'pg';
 const { Client, Pool } = pkg;
 import yaml from 'yaml';
@@ -20,22 +24,37 @@ async function initializeDatabase() {
     if (dbPool) return dbPool;
 
     try {
-        // Load database config
-        const configPath = path.join(process.cwd(), 'dbConfig.yaml');
-        const configFile = await fs.readFile(configPath, 'utf8');
-        const dbConfig = yaml.parse(configFile);
+        let dbConfig;
 
-        dbPool = new Pool({
-            host: dbConfig.host,
-            port: dbConfig.port,
-            database: dbConfig.database,
-            user: dbConfig.user,
-            password: dbConfig.password,
-            ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-            max: 10,
-            idleTimeoutMillis: 30000,
-            connectionTimeoutMillis: 2000,
-        });
+        // Try environment variable first (serverless-friendly)
+        if (process.env.DATABASE_URL) {
+            logger.info('Using DATABASE_URL from environment');
+            dbPool = new Pool({
+                connectionString: process.env.DATABASE_URL,
+                ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+                max: 10,
+                idleTimeoutMillis: 30000,
+                connectionTimeoutMillis: 2000,
+            });
+        } else {
+            // Fallback to dbConfig.yaml for local development
+            logger.info('Using dbConfig.yaml file');
+            const configPath = path.join(process.cwd(), 'dbConfig.yaml');
+            const configFile = await fs.readFile(configPath, 'utf8');
+            dbConfig = yaml.parse(configFile);
+
+            dbPool = new Pool({
+                host: dbConfig.host,
+                port: dbConfig.port,
+                database: dbConfig.database,
+                user: dbConfig.user,
+                password: dbConfig.password,
+                ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+                max: 10,
+                idleTimeoutMillis: 30000,
+                connectionTimeoutMillis: 2000,
+            });
+        }
 
         logger.info('Database connection pool initialized');
         return dbPool;

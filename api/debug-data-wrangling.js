@@ -69,7 +69,7 @@ export default async function handler(req, res) {
                         apiKey: process.env.ANTHROPIC_API_KEY
                     });
                     
-                    // Get file from database or use default document ID
+                    // Get file from database using document ID
                     const documentId = req.body.documentId || 1; // Default to document ID 1 for testing
                     logger.info(`Loading document from database: ID ${documentId}`);
                     
@@ -164,6 +164,7 @@ export default async function handler(req, res) {
                         columnMapping: wrangler.columnMapping,
                         concatenatedHeaders: wrangler.concatenatedHeaders.slice(0, 10), // First 10 for display
                         abbreviatedHeaders: wrangler.abbreviatedHeaders.slice(0, 10), // First 10 for display
+                        comparisonData: wrangler.comparisonData ? wrangler.comparisonData.slice(0, 5) : [], // First 5 for display
                         storedInDatabase: true,
                         note: `Complete serverless pipeline: processed ${wrangler.concatenatedHeaders.length} columns, stored results in database`
                     };
