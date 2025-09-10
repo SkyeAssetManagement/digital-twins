@@ -11,9 +11,9 @@ const logger = {
 };
 
 export default async function handler(req, res) {
-    // Set JSON header immediately
-    res.setHeader('Content-Type', 'application/json');
     try {
+        // Set JSON header immediately
+        res.setHeader('Content-Type', 'application/json');
         logger.info('Debug data wrangling API called');
         
         if (req.method !== 'POST') {

@@ -1,8 +1,9 @@
 /**
  * Simple test API to debug the 500 error
+ * Vercel serverless function format
  */
 
-export default async function handler(req, res) {
+export default function handler(req, res) {
     try {
         console.log('Test debug API called');
         
@@ -39,4 +40,5 @@ export default async function handler(req, res) {
             timestamp: new Date().toISOString()
         });
     }
+}
 }
