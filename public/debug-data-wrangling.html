@@ -198,6 +198,13 @@
                 this.fileId = null;
                 this.steps = [
                     {
+                        id: 'debug_environment',
+                        title: 'Debug Environment & Database',
+                        description: 'Test environment variables, database connection, and system info',
+                        completed: false,
+                        result: null
+                    },
+                    {
                         id: 'load_file',
                         title: 'Load Raw File',
                         description: 'Load and examine the uploaded file structure',

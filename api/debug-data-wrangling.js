@@ -27,6 +27,82 @@ export default async function handler(req, res) {
         let result;
 
         switch (step) {
+            case 'debug_environment':
+                try {
+                    logger.info('Running environment and database debug checks');
+                    
+                    // Load environment variables
+                    const dotenv = await import('dotenv');
+                    dotenv.config();
+                    
+                    const debugInfo = {
+                        system: {
+                            nodeVersion: process.version,
+                            platform: process.platform,
+                            cwd: process.cwd(),
+                            timestamp: new Date().toISOString()
+                        },
+                        environment: {
+                            NODE_ENV: process.env.NODE_ENV,
+                            DATABASE_URL_exists: !!process.env.DATABASE_URL,
+                            DATABASE_URL_preview: process.env.DATABASE_URL ? process.env.DATABASE_URL.substring(0, 30) + '...' : 'NOT SET',
+                            ANTHROPIC_API_KEY_exists: !!process.env.ANTHROPIC_API_KEY,
+                            ANTHROPIC_API_KEY_preview: process.env.ANTHROPIC_API_KEY ? process.env.ANTHROPIC_API_KEY.substring(0, 20) + '...' : 'NOT SET'
+                        }
+                    };
+                    
+                    // Test database connection
+                    try {
+                        const { initializeDatabase } = await import('../src/utils/database.js');
+                        const pool = await initializeDatabase();
+                        
+                        // Test a simple query
+                        const client = await pool.connect();
+                        const testResult = await client.query('SELECT NOW() as current_time');
+                        client.release();
+                        
+                        debugInfo.database = {
+                            connection_status: 'SUCCESS',
+                            current_time: testResult.rows[0].current_time,
+                            pool_info: {
+                                totalCount: pool.totalCount,
+                                idleCount: pool.idleCount,
+                                waitingCount: pool.waitingCount
+                            }
+                        };
+                        
+                        // Test getting documents
+                        const { getSourceDocuments } = await import('../src/utils/database.js');
+                        const docsResult = await getSourceDocuments();
+                        debugInfo.database.documents_count = docsResult.success ? docsResult.documents.length : 0;
+                        debugInfo.database.sample_documents = docsResult.success ? docsResult.documents.slice(0, 3) : [];
+                        
+                    } catch (dbError) {
+                        debugInfo.database = {
+                            connection_status: 'FAILED',
+                            error: dbError.message,
+                            error_code: dbError.code,
+                            error_stack: dbError.stack.split('\n').slice(0, 5)
+                        };
+                    }
+                    
+                    result = {
+                        success: true,
+                        debugInfo: debugInfo,
+                        note: 'Environment and database debug information collected'
+                    };
+                    
+                } catch (error) {
+                    logger.error('Debug environment failed:', error);
+                    result = {
+                        success: false,
+                        error: error.message,
+                        errorStack: error.stack,
+                        note: 'Debug environment check failed'
+                    };
+                }
+                break;
+                
             case 'load_file':
                 result = {
                     success: true,
@@ -58,6 +134,14 @@ export default async function handler(req, res) {
             case 'get_llm_analysis':
                 try {
                     logger.info('Starting improved LLM analysis pipeline with full file processing');
+                    
+                    // Ensure environment variables are loaded
+                    const dotenv = await import('dotenv');
+                    dotenv.config();
+                    
+                    // Debug: Log environment variable status
+                    logger.info(`DATABASE_URL exists: ${!!process.env.DATABASE_URL}`);
+                    logger.info(`ANTHROPIC_API_KEY exists: ${!!process.env.ANTHROPIC_API_KEY}`);
                     
                     // Import required modules
                     const { Anthropic } = await import('@anthropic-ai/sdk');

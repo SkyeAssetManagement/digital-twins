@@ -26,9 +26,10 @@ async function initializeDatabase() {
     try {
         let dbConfig;
 
-        // Try environment variable first (serverless-friendly)
+        // Try environment variable first (serverless-friendly)  
         if (process.env.DATABASE_URL) {
-            logger.info('Using DATABASE_URL from environment');
+            logger.info('Using DATABASE_URL from environment variable');
+            logger.info(`DATABASE_URL starts with: ${process.env.DATABASE_URL.substring(0, 20)}...`);
             dbPool = new Pool({
                 connectionString: process.env.DATABASE_URL,
                 ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
@@ -37,23 +38,49 @@ async function initializeDatabase() {
                 connectionTimeoutMillis: 2000,
             });
         } else {
-            // Fallback to dbConfig.yaml for local development
-            logger.info('Using dbConfig.yaml file');
-            const configPath = path.join(process.cwd(), 'dbConfig.yaml');
-            const configFile = await fs.readFile(configPath, 'utf8');
-            dbConfig = yaml.parse(configFile);
+            logger.warn('DATABASE_URL not found in environment, trying dbConfig.yaml');
+            
+            // Try to construct DATABASE_URL from .env file manually
+            const dbHost = process.env.DB_HOST || 'aws-0-us-east-2.pooler.supabase.com';
+            const dbUser = process.env.DB_USER || 'postgres.qbgffhgtwcvrjmqbdabe';
+            const dbPass = process.env.DB_PASS || 'ILoveOutremer55%27s';
+            const dbName = process.env.DB_NAME || 'postgres';
+            const dbPort = process.env.DB_PORT || '5432';
+            
+            if (dbHost && dbUser && dbPass) {
+                const constructedUrl = `postgresql://${dbUser}:${dbPass}@${dbHost}:${dbPort}/${dbName}`;
+                logger.info('Using constructed DATABASE_URL from individual env vars');
+                dbPool = new Pool({
+                    connectionString: constructedUrl,
+                    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+                    max: 10,
+                    idleTimeoutMillis: 30000,
+                    connectionTimeoutMillis: 2000,
+                });
+            } else {
+                // Final fallback to dbConfig.yaml for local development
+                logger.info('Falling back to dbConfig.yaml file');
+                try {
+                    const configPath = path.join(process.cwd(), 'dbConfig.yaml');
+                    const configFile = await fs.readFile(configPath, 'utf8');
+                    dbConfig = yaml.parse(configFile);
 
-            dbPool = new Pool({
-                host: dbConfig.host,
-                port: dbConfig.port,
-                database: dbConfig.database,
-                user: dbConfig.user,
-                password: dbConfig.password,
-                ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-                max: 10,
-                idleTimeoutMillis: 30000,
-                connectionTimeoutMillis: 2000,
-            });
+                    dbPool = new Pool({
+                        host: dbConfig.host,
+                        port: dbConfig.port,
+                        database: dbConfig.database,
+                        user: dbConfig.user,
+                        password: dbConfig.password,
+                        ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+                        max: 10,
+                        idleTimeoutMillis: 30000,
+                        connectionTimeoutMillis: 2000,
+                    });
+                } catch (configError) {
+                    logger.error('Failed to read dbConfig.yaml:', configError);
+                    throw new Error('No database configuration found. Set DATABASE_URL environment variable or ensure dbConfig.yaml exists.');
+                }
+            }
         }
 
         logger.info('Database connection pool initialized');
