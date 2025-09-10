@@ -385,10 +385,15 @@
                         step.completed = true;
                         this.currentStep = Math.min(this.currentStep + 1, this.steps.length - 1);
                     } else {
-                        step.error = data.error;
+                        console.error('API returned error:', data);
+                        step.error = data.error || 'Unknown API error';
+                        if (data.stack) {
+                            console.error('Server stack trace:', data.stack);
+                        }
                     }
 
                 } catch (error) {
+                    console.error('Step execution error:', error);
                     step.error = `Network error: ${error.message}`;
                 } finally {
                     step.loading = false;

@@ -10,37 +10,65 @@ const logger = createLogger('DebugDataWranglingAPI');
 
 export default async function handler(req, res) {
     try {
+        logger.info('Debug data wrangling API called');
+        
         if (req.method !== 'POST') {
+            logger.error('Invalid method:', req.method);
             return res.status(405).json({ error: 'Method not allowed' });
         }
 
+        logger.info('Request body:', req.body);
         const { step, filePath, previousResult } = req.body;
+
+        if (!step) {
+            logger.error('No step provided in request');
+            return res.status(400).json({ error: 'Step is required' });
+        }
 
         logger.info(`Debug data wrangling step: ${step}`);
 
-        const debugger = new DataWranglingDebugger();
+        const debuggerInstance = new DataWranglingDebugger();
         let result;
 
         switch (step) {
             case 'load_file':
-                result = await debugger.loadFile(filePath);
+                logger.info('Executing load_file step');
+                result = await debuggerInstance.loadFile(filePath);
                 break;
             case 'analyze_structure':
-                result = await debugger.analyzeStructure(previousResult.rawData);
+                logger.info('Executing analyze_structure step');
+                if (!previousResult?.rawData) {
+                    throw new Error('Previous step result with rawData is required');
+                }
+                result = await debuggerInstance.analyzeStructure(previousResult.rawData);
                 break;
             case 'get_llm_analysis':
-                result = await debugger.getLLMAnalysis(previousResult.rawData);
+                logger.info('Executing get_llm_analysis step');
+                if (!previousResult?.rawData) {
+                    throw new Error('Previous step result with rawData is required');
+                }
+                result = await debuggerInstance.getLLMAnalysis(previousResult.rawData);
                 break;
             case 'apply_wrangling_plan':
-                result = await debugger.applyWranglingPlan(previousResult.rawData, previousResult.llmAnalysis);
+                logger.info('Executing apply_wrangling_plan step');
+                if (!previousResult?.rawData || !previousResult?.llmAnalysis) {
+                    throw new Error('Previous step results with rawData and llmAnalysis are required');
+                }
+                result = await debuggerInstance.applyWranglingPlan(previousResult.rawData, previousResult.llmAnalysis);
                 break;
             case 'validate_output':
-                result = await debugger.validateOutput(previousResult.processedData);
+                logger.info('Executing validate_output step');
+                if (!previousResult?.processedData) {
+                    throw new Error('Previous step result with processedData is required');
+                }
+                result = await debuggerInstance.validateOutput(previousResult.processedData);
                 break;
             default:
+                logger.error('Unknown step:', step);
                 return res.status(400).json({ error: `Unknown step: ${step}` });
         }
 
+        logger.info('Step completed successfully');
         return res.json({
             success: true,
             step: step,
@@ -49,11 +77,14 @@ export default async function handler(req, res) {
         });
 
     } catch (error) {
-        logger.error('Debug data wrangling failed', error);
+        logger.error('Debug data wrangling failed:', error);
+        logger.error('Error stack:', error.stack);
+        
         res.status(500).json({ 
             success: false, 
             error: error.message,
             stack: error.stack,
+            errorType: error.constructor.name,
             timestamp: new Date().toISOString()
         });
     }
