@@ -5,9 +5,6 @@
 
 import { createLogger } from '../src/utils/logger.js';
 import { getIntelligentDataPreprocessor } from '../src/data_processing/intelligent_data_preprocessor.js';
-import XLSX from 'xlsx';
-import fs from 'fs';
-import path from 'path';
 
 const logger = createLogger('DebugDataWranglingAPI');
 
@@ -66,47 +63,75 @@ class DataWranglingDebugger {
     
     /**
      * Step 1: Load and examine raw file data
+     * For Vercel deployment, we'll simulate the file loading with sample data
      */
     async loadFile(filePath) {
         logger.info(`Loading file for debug: ${filePath}`);
         
-        // Use the test file path
-        const actualPath = path.resolve('./data/datasets/mums/Detail_Parents Survey.xlsx');
-        
-        if (!fs.existsSync(actualPath)) {
-            throw new Error(`File not found: ${actualPath}`);
-        }
-
-        // Read the Excel file
-        const workbook = XLSX.readFile(actualPath);
-        const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
-        
-        // Convert to JSON with options to preserve structure
-        const rawData = XLSX.utils.sheet_to_json(worksheet, { 
-            header: 1, // Use array of arrays format
-            raw: false, // Keep formatted values
-            defval: '' // Default value for empty cells
-        });
-
-        // Get file info
-        const stats = fs.statSync(actualPath);
+        // Since we can't access the actual file on Vercel, let's create sample data
+        // that represents what the Excel file structure would look like
+        const rawData = this.generateSampleExcelData();
         
         return {
-            filePath: actualPath,
-            fileSize: stats.size,
+            filePath: filePath || './data/datasets/mums/Detail_Parents Survey.xlsx',
+            fileSize: 2458624, // Simulated file size
             totalRows: rawData.length,
             totalColumns: rawData[0]?.length || 0,
             firstFewRows: rawData.slice(0, 5),
-            sheetName: sheetName,
+            sheetName: 'Sheet1',
             rawDataSample: {
                 row0: rawData[0],
                 row1: rawData[1], 
                 row2: rawData[2],
                 row3: rawData[3]
             },
-            rawData: rawData // Full data for next step
+            rawData: rawData, // Full data for next step
+            note: "This is simulated data representing the Excel file structure on Vercel deployment"
         };
+    }
+
+    /**
+     * Generate sample data that represents the problematic Excel structure
+     */
+    generateSampleExcelData() {
+        // This represents what we think the actual Excel file looks like
+        // based on the issues we're seeing in the output
+        return [
+            // Row 0: Main question headers (many empty cells)
+            ['Are you?', '', '', 'How old are you?', '', 'In which State or Territory do you currently live?', '', 'Are you currently pregnant?', '', 'How many children', 'Essential OilEssential oils are concentrated extracts from different plants that are used in aromatherapy, cosmetics and cooking. When it comes to Essential Oil, please indicate your views about the following statements.Essential oil are just as good as chemical products', '', ''],
+            
+            // Row 1: Sub-questions or "Response" labels
+            ['- Response', 'Response', 'Other Response', '- Response', 'Age Response', '- Response', 'State Response', '- Response', 'Pregnancy Response', '- Response', '- Response', 'Response', 'Additional Response'],
+            
+            // Row 2: More metadata or empty
+            ['', '', '', '', '', '', '', '', '', '', '', '', ''],
+            
+            // Row 3: First actual respondent data
+            ['Female', 'Female', '', '25-34', '25-34', 'NSW', 'NSW', 'No', 'No', '2', 'Strongly Agree', 'Agree', ''],
+            
+            // Row 4: Second respondent (some missing data)
+            ['Male', 'Male', '', '35-44', '', 'VIC', '', 'No', '', '1', 'Agree', '', ''],
+            
+            // Row 5: Third respondent
+            ['Female', '', '', '18-24', '18-24', 'QLD', 'QLD', 'Yes', 'Yes', '0', 'Neutral', 'Neutral', ''],
+            
+            // Add more rows to simulate a larger dataset
+            ...Array.from({length: 97}, (_, i) => [
+                Math.random() > 0.5 ? 'Female' : 'Male',
+                Math.random() > 0.5 ? 'Female' : 'Male',
+                '',
+                ['18-24', '25-34', '35-44', '45-54'][Math.floor(Math.random() * 4)],
+                ['18-24', '25-34', '35-44', '45-54'][Math.floor(Math.random() * 4)],
+                ['NSW', 'VIC', 'QLD', 'SA', 'WA'][Math.floor(Math.random() * 5)],
+                ['NSW', 'VIC', 'QLD', 'SA', 'WA'][Math.floor(Math.random() * 5)],
+                Math.random() > 0.8 ? 'Yes' : 'No',
+                Math.random() > 0.8 ? 'Yes' : 'No',
+                Math.floor(Math.random() * 5).toString(),
+                ['Strongly Agree', 'Agree', 'Neutral', 'Disagree', 'Strongly Disagree'][Math.floor(Math.random() * 5)],
+                ['Strongly Agree', 'Agree', 'Neutral', 'Disagree', 'Strongly Disagree'][Math.floor(Math.random() * 5)],
+                ''
+            ])
+        ];
     }
 
     /**
@@ -332,14 +357,46 @@ class DataWranglingDebugger {
     }
 
     buildAnalysisPrompt(dataSample) {
-        // This should match the actual prompt used in the preprocessor
-        return `# Survey Data Structure Analysis
+        // Import the actual prompt from the data wrangling system
+        const DATA_WRANGLING_PROMPT = `# Advanced Survey Data Structure Analysis & Correction
 
-Analyze this Excel/CSV data structure and provide a wrangling plan:
+You are an expert survey data analyst specializing in complex Excel/CSV structures. Your mission is to extract clean, usable survey data while preserving ALL response information and creating meaningful, concise headers.
 
+## CRITICAL REQUIREMENTS:
+1. **PRESERVE ALL DATA**: Never truncate or lose respondent answers - every response row must remain complete
+2. **SIMPLIFY HEADERS**: Extract concise, meaningful question text - remove verbose descriptions and explanations
+3. **HANDLE MATRIX QUESTIONS**: Detect questions with sub-parts and create clear, individual column headers
+4. **MAINTAIN DATA INTEGRITY**: Ensure response data aligns perfectly with cleaned headers
+
+## Input Data Structure
 ${dataSample.map((row, i) => `Row ${i}: ${JSON.stringify(row.slice(0, 10))}`).join('\n')}
 
-Return JSON with analysis and wrangling plan.`;
+Return a JSON response with this exact structure:
+{
+  "analysis": {
+    "structure_type": "survey_matrix | simple_survey | complex_multi_row",
+    "question_extraction_strategy": "row_1_only | combine_rows | matrix_expansion", 
+    "header_pattern": "single_row | multi_row | complex_multi_row",
+    "question_rows": [1, 2],
+    "data_start_row": 3,
+    "issues_detected": ["verbose_descriptions", "matrix_questions_detected", "response_label_suffixes"],
+    "total_columns": 253,
+    "estimated_clean_questions": 45
+  },
+  "wrangling_plan": {
+    "step_1": {
+      "action": "identify_matrix_questions",
+      "description": "Detect questions with multiple sub-parts that need individual headers"
+    },
+    "step_2": {
+      "action": "extract_clean_headers", 
+      "rules": ["Remove verbose descriptions", "Remove '- Response' suffixes", "Extract core question text"],
+      "description": "Create concise, meaningful headers"
+    }
+  }
+}`;
+
+        return DATA_WRANGLING_PROMPT;
     }
 
     async applyWranglingStep(data, stepData) {
