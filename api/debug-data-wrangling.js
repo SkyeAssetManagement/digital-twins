@@ -3,12 +3,16 @@
  * Allows examination of each stage of the data processing
  */
 
-import { createLogger } from '../src/utils/logger.js';
-import { getIntelligentDataPreprocessor } from '../src/data_processing/intelligent_data_preprocessor.js';
-
-const logger = createLogger('DebugDataWranglingAPI');
+// Simple logging for debugging
+const logger = {
+    info: (...args) => console.log('[INFO]', ...args),
+    error: (...args) => console.error('[ERROR]', ...args),
+    warn: (...args) => console.warn('[WARN]', ...args)
+};
 
 export default async function handler(req, res) {
+    // Set JSON header immediately
+    res.setHeader('Content-Type', 'application/json');
     try {
         logger.info('Debug data wrangling API called');
         
@@ -388,7 +392,11 @@ class DataWranglingDebugger {
     async getLLMAnalysis(rawData, params = {}) {
         logger.info('Getting LLM analysis of data structure');
         
-        const preprocessor = await getIntelligentDataPreprocessor();
+        // Simplified LLM call for testing
+        const anthropic = await import('@anthropic-ai/sdk');
+        const client = new anthropic.default({ 
+            apiKey: process.env.ANTHROPIC_API_KEY 
+        });
         
         const rowsToExamine = params.rowsToExamine || 5;
         const skipRows = params.topRowsToIgnore || 0;
@@ -403,17 +411,45 @@ class DataWranglingDebugger {
         
         logger.info('Sending prompt to LLM:', { promptLength: prompt.length });
         
-        // Call LLM and capture full response
-        const llmResponse = await preprocessor.analyzeDataStructure(dataSample);
+        // Direct LLM call
+        const response = await client.messages.create({
+            model: 'claude-opus-4-1-20250805',
+            max_tokens: 4000,
+            temperature: 0.2,
+            messages: [{
+                role: 'user',
+                content: prompt
+            }]
+        });
+        
+        const responseText = response.content[0].text;
+        
+        // Try to parse JSON from response
+        let llmResponse;
+        try {
+            const jsonMatch = responseText.match(/```json\s*([\s\S]*?)\s*```/) || responseText.match(/\{[\s\S]*\}/);
+            if (jsonMatch) {
+                llmResponse = JSON.parse(jsonMatch[1] || jsonMatch[0]);
+            } else {
+                throw new Error('No JSON found in LLM response');
+            }
+        } catch (parseError) {
+            logger.error('Failed to parse LLM response:', parseError);
+            llmResponse = {
+                success: false,
+                error: 'Failed to parse LLM response',
+                rawResponse: responseText
+            };
+        }
         
         return {
             inputData: dataSample,
             promptSent: prompt,
-            llmRawResponse: llmResponse.rawResponse || 'Not captured',
+            llmRawResponse: responseText,
             llmParsedResponse: llmResponse,
-            analysisSuccess: llmResponse.success,
+            analysisSuccess: llmResponse.success !== false,
             errorIfAny: llmResponse.error,
-            processingTime: llmResponse.processingTime || 'Not measured'
+            processingTime: 'Not measured'
         };
     }
 

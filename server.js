@@ -89,6 +89,12 @@ app.post('/api/debug-data-wrangling', async (req, res) => {
   await debugDataWranglingHandler(req, res);
 });
 
+// Test Debug API
+import testDebugHandler from './api/test-debug.js';
+app.post('/api/test-debug', async (req, res) => {
+  await testDebugHandler(req, res);
+});
+
 // Upload Temp File API
 import uploadTempFileHandler from './api/upload-temp-file.js';
 app.post('/api/upload-temp-file', async (req, res) => {
