@@ -89,13 +89,13 @@ export default async function handler(req, res) {
 
         // Ensure all responses have safe fallback properties for frontend
         const safeResult = {
-            ...result,
-            emptyRows: result.emptyRows || [],
-            headerPatterns: result.headerPatterns || {
+            emptyRows: [],
+            headerPatterns: {
                 multiRowHeaders: false,
                 metadataInHeaders: false,
                 hasMatrixQuestions: false
-            }
+            },
+            ...result,  // This should come AFTER defaults to override them
         };
 
         return res.status(200).json({
