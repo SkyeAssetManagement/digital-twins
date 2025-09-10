@@ -166,10 +166,11 @@ class DataWranglingDebugger {
     }
 
     /**
-     * Step 2: Analyze raw structure without LLM
+     * Step 2: Basic structure analysis (no pattern detection - leave that to LLM)
+     * Only provide raw statistics - no assumptions about survey structure
      */
     async analyzeStructure(rawData) {
-        logger.info('Analyzing raw data structure');
+        logger.info('Analyzing raw data structure - basic stats only');
         
         const analysis = {
             totalRows: rawData.length,
@@ -178,7 +179,7 @@ class DataWranglingDebugger {
             rowAnalysis: []
         };
 
-        // Analyze first 10 rows in detail
+        // Analyze first 10 rows with purely descriptive statistics
         for (let i = 0; i < Math.min(10, rawData.length); i++) {
             const row = rawData[i];
             const rowAnalysis = {
@@ -186,10 +187,10 @@ class DataWranglingDebugger {
                 cellCount: row.length,
                 emptyCells: row.filter(cell => !cell || cell === '').length,
                 nonEmptyCells: row.filter(cell => cell && cell !== '').length,
-                cells: row.slice(0, 10), // First 10 cells only
+                cells: row.slice(0, 10), // First 10 cells for debugging
                 avgCellLength: row.reduce((sum, cell) => sum + (cell ? cell.toString().length : 0), 0) / row.length,
-                hasLongText: row.some(cell => cell && cell.toString().length > 50),
-                duplicatedValues: this.findDuplicates(row)
+                maxCellLength: Math.max(...row.map(cell => cell ? cell.toString().length : 0)),
+                uniqueValues: new Set(row.filter(cell => cell && cell !== '')).size
             };
             
             analysis.rowAnalysis.push(rowAnalysis);
@@ -199,8 +200,9 @@ class DataWranglingDebugger {
             }
         }
 
-        // Look for header patterns
-        analysis.headerPatterns = this.detectHeaderPatterns(rawData.slice(0, 5));
+        // Provide only raw data samples for LLM analysis
+        analysis.rawDataSample = rawData.slice(0, 10).map(row => row.slice(0, 15));
+        analysis.note = "Raw statistics only - all pattern detection and structural analysis handled by LLM";
         
         return analysis;
     }
@@ -354,113 +356,48 @@ class DataWranglingDebugger {
         return Array.from(dupes);
     }
 
-    detectHeaderPatterns(rows) {
-        const patterns = {
-            multiRowHeaders: false,
-            emptyHeaderCells: false,
-            metadataInHeaders: false,
-            matrixQuestions: false
-        };
-
-        // Check for multi-row headers - improved logic
-        if (rows.length >= 2) {
-            const row0 = rows[0] || [];
-            const row1 = rows[1] || [];
-            
-            // Check if row 0 has empty cells
-            const row0Empty = row0.filter(cell => !cell || cell === '').length;
-            
-            // Check if row 1 contains response metadata
-            const row1HasResponseLabels = row1.filter(cell => 
-                cell && typeof cell === 'string' && 
-                (cell.toLowerCase().includes('response') || 
-                 cell.toLowerCase().includes('answer'))
-            ).length;
-            
-            // Multi-row headers if:
-            // 1. Row 0 has empty cells AND row 1 has content, OR
-            // 2. Row 1 contains "Response" type labels
-            if ((row0Empty > 0 && row1.filter(cell => cell && cell !== '').length > 0) || 
-                row1HasResponseLabels > 0) {
-                patterns.multiRowHeaders = true;
-            }
-        }
-
-        // Check for empty cells in any header row
-        for (let i = 0; i < Math.min(3, rows.length); i++) {
-            const row = rows[i] || [];
-            const emptyCells = row.filter(cell => !cell || cell === '').length;
-            if (emptyCells > 0) {
-                patterns.emptyHeaderCells = true;
-                break;
-            }
-        }
-
-        // Check for metadata patterns in any of the first 3 rows
-        for (let i = 0; i < Math.min(3, rows.length); i++) {
-            const row = rows[i] || [];
-            row.forEach(cell => {
-                if (cell && typeof cell === 'string') {
-                    if (cell.toLowerCase().includes('response') || 
-                        cell.toLowerCase().includes('answer') ||
-                        cell.includes('- Response')) {
-                        patterns.metadataInHeaders = true;
-                    }
-                }
-            });
-        }
-
-        // Check for matrix questions (very long headers suggesting combined questions)
-        rows.forEach(row => {
-            row.forEach(cell => {
-                if (cell && typeof cell === 'string' && cell.length > 100) {
-                    patterns.matrixQuestions = true;
-                }
-            });
-        });
-
-        return patterns;
-    }
+    // REMOVED: detectHeaderPatterns method - all pattern detection now handled by LLM
 
     buildAnalysisPrompt(dataSample) {
-        // Import the actual prompt from the data wrangling system
-        const DATA_WRANGLING_PROMPT = `# Advanced Survey Data Structure Analysis & Correction
+        // Build the generic data analysis prompt that works for any survey structure
+        const DATA_WRANGLING_PROMPT = `# Generic Survey Data Structure Analysis
 
-You are an expert survey data analyst specializing in complex Excel/CSV structures. Your mission is to extract clean, usable survey data while preserving ALL response information and creating meaningful, concise headers.
+You are an expert data analyst. Analyze this tabular data and determine how to clean it into a proper survey format.
 
-## CRITICAL REQUIREMENTS:
-1. **PRESERVE ALL DATA**: Never truncate or lose respondent answers - every response row must remain complete
-2. **SIMPLIFY HEADERS**: Extract concise, meaningful question text - remove verbose descriptions and explanations
-3. **HANDLE MATRIX QUESTIONS**: Detect questions with sub-parts and create clear, individual column headers
-4. **MAINTAIN DATA INTEGRITY**: Ensure response data aligns perfectly with cleaned headers
+## Data Sample (first 5 rows, up to 20 columns):
+${dataSample.map((row, i) => `Row ${i}: [${row.map(cell => `"${cell || ''}"`).join(', ')}]`).join('\n')}
 
-## Input Data Structure
-${dataSample.map((row, i) => `Row ${i}: ${JSON.stringify(row.slice(0, 10))}`).join('\n')}
+## Your Task:
+1. Identify which rows contain question headers vs actual response data
+2. Determine if headers span multiple rows and need combining
+3. Detect any matrix questions that should be split into separate columns
+4. Create a plan to extract clean, concise question headers
+5. Ensure all response data is preserved
 
-Return a JSON response with this exact structure:
+## Required JSON Response Format:
 {
+  "success": true,
   "analysis": {
-    "structure_type": "survey_matrix | simple_survey | complex_multi_row",
-    "question_extraction_strategy": "row_1_only | combine_rows | matrix_expansion", 
-    "header_pattern": "single_row | multi_row | complex_multi_row",
-    "question_rows": [1, 2],
-    "data_start_row": 3,
-    "issues_detected": ["verbose_descriptions", "matrix_questions_detected", "response_label_suffixes"],
-    "total_columns": 253,
-    "estimated_clean_questions": 45
+    "structure_type": "<describe what you see>",
+    "question_rows": [<array of row indices containing headers>],
+    "data_start_row": <first row with actual responses>,
+    "header_issues": ["<list of problems found>"],
+    "recommended_approach": "<your strategy>"
   },
   "wrangling_plan": {
     "step_1": {
-      "action": "identify_matrix_questions",
-      "description": "Detect questions with multiple sub-parts that need individual headers"
+      "action": "<action_name>",
+      "description": "<what this step does>",
+      "target_rows": [<affected rows>]
     },
     "step_2": {
-      "action": "extract_clean_headers", 
-      "rules": ["Remove verbose descriptions", "Remove '- Response' suffixes", "Extract core question text"],
-      "description": "Create concise, meaningful headers"
+      "action": "<action_name>",
+      "description": "<what this step does>"
     }
   }
-}`;
+}
+
+Analyze the structure and provide a generic cleaning approach that would work for similar datasets.`;
 
         return DATA_WRANGLING_PROMPT;
     }
