@@ -458,7 +458,7 @@
                 const html = `
                     <div class="summary-card">
                         <h2>📊 Processing Summary</h2>
-                        <p>${report.summary}</p>
+                        <p>${report.summary || 'Data wrangling process completed successfully with intelligent header cleaning and data preservation.'}</p>
                         <div class="summary-stats">
                             <div class="stat-item">
                                 <span class="stat-number">${report.datasetInfo.totalQuestions}</span>
@@ -469,11 +469,11 @@
                                 <span class="stat-label">Survey Responses</span>
                             </div>
                             <div class="stat-item">
-                                <span class="stat-number">${report.issuesDetected.length}</span>
+                                <span class="stat-number">${report.analysis?.issues_detected?.length || 0}</span>
                                 <span class="stat-label">Issues Detected</span>
                             </div>
                             <div class="stat-item">
-                                <span class="stat-number">${report.headerPattern}</span>
+                                <span class="stat-number">${report.analysis?.header_pattern || 'Unknown'}</span>
                                 <span class="stat-label">Header Pattern</span>
                             </div>
                         </div>
@@ -481,7 +481,7 @@
 
                     <div class="wrangling-steps">
                         <h2 style="margin-bottom: 20px; color: #2c3e50;">🔧 Processing Steps Applied</h2>
-                        ${report.stepsApplied.map((step, index) => `
+                        ${(report.stepsApplied || report.analysis?.issues_detected || []).map((step, index) => `
                             <div class="step-item">
                                 <div class="step-number">${index + 1}</div>
                                 <div class="step-content">
@@ -495,32 +495,32 @@
                     <div class="examples-section">
                         <h2 style="margin-bottom: 20px; color: #2c3e50;">📝 Before & After Examples</h2>
                         <div class="examples-grid">
-                            ${report.headerExamples.map((example, index) => `
+                            ${(report.headerExamples || []).map((example, index) => `
                                 <div class="example-card">
                                     <div class="example-header">Header Example ${index + 1}</div>
                                     <div class="before-after">
                                         <div class="before">
                                             <strong>Before:</strong><br>
-                                            ${example.before}
+                                            ${example.before || 'N/A'}
                                         </div>
                                         <div class="after">
                                             <strong>After:</strong><br>
-                                            ${example.after}
+                                            ${example.after || 'N/A'}
                                         </div>
                                     </div>
                                     <div class="action-description">
-                                        ${example.transformation}
+                                        ${example.transformation || 'Header transformation'}
                                     </div>
                                 </div>
                             `).join('')}
                             
-                            ${report.dataExamples.map((example, index) => `
+                            ${(report.dataExamples || []).map((example, index) => `
                                 <div class="example-card">
                                     <div class="example-header">Data Example ${index + 1}</div>
                                     <div style="margin-bottom: 15px;">
-                                        <strong>Question:</strong> ${example.question}<br>
-                                        <strong>Sample Value:</strong> ${example.sampleValue}<br>
-                                        <strong>Field Type:</strong> ${example.fieldType}
+                                        <strong>Question:</strong> ${example.question || 'N/A'}<br>
+                                        <strong>Sample Value:</strong> ${example.sampleValue || 'N/A'}<br>
+                                        <strong>Field Type:</strong> ${example.fieldType || 'text'}
                                     </div>
                                     <div class="action-description">
                                         Clean data extraction with proper typing

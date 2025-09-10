@@ -41,7 +41,9 @@ export default async function handler(req, res) {
             questionsCount: dataset.survey_data?.questions?.length || 0,
             responsesCount: dataset.survey_data?.responses?.length || 0,
             questionsType: Array.isArray(dataset.survey_data?.questions) ? 'array' : typeof dataset.survey_data?.questions,
-            responsesType: Array.isArray(dataset.survey_data?.responses) ? 'array' : typeof dataset.survey_data?.responses
+            responsesType: Array.isArray(dataset.survey_data?.responses) ? 'array' : typeof dataset.survey_data?.responses,
+            firstQuestion: dataset.survey_data?.questions?.[0],
+            firstResponse: dataset.survey_data?.responses?.[0]
         });
 
         // Check if dataset has wrangling report
@@ -52,18 +54,34 @@ export default async function handler(req, res) {
         }
 
         // Enhance report with additional examples
-        const enhancedReport = {
-            ...dataset.wrangling_report,
-            datasetInfo: {
-                name: dataset.name,
-                originalFile: dataset.file_info?.original_name || 'Unknown',
-                totalQuestions: dataset.total_questions || 0,
-                totalResponses: dataset.total_responses || 0,
-                processingStatus: dataset.processing_status || 'unknown'
-            },
-            headerExamples: generateHeaderExamples(dataset),
-            dataExamples: generateDataExamples(dataset)
-        };
+        let enhancedReport;
+        try {
+            logger.info('Generating header examples...');
+            const headerExamples = generateHeaderExamples(dataset);
+            logger.info(`Generated ${headerExamples.length} header examples`);
+            
+            logger.info('Generating data examples...');
+            const dataExamples = generateDataExamples(dataset);
+            logger.info(`Generated ${dataExamples.length} data examples`);
+            
+            enhancedReport = {
+                ...dataset.wrangling_report,
+                datasetInfo: {
+                    name: dataset.name,
+                    originalFile: dataset.file_info?.original_name || 'Unknown',
+                    totalQuestions: dataset.total_questions || 0,
+                    totalResponses: dataset.total_responses || 0,
+                    processingStatus: dataset.processing_status || 'unknown'
+                },
+                headerExamples: headerExamples,
+                dataExamples: dataExamples
+            };
+            logger.info('Enhanced report created successfully');
+        } catch (error) {
+            logger.error('Error creating enhanced report:', error);
+            logger.error('Error stack:', error.stack);
+            throw new AppError(`Failed to generate report examples: ${error.message}`);
+        }
 
         logger.info(`Retrieved wrangling report for dataset ${datasetId}`);
 
