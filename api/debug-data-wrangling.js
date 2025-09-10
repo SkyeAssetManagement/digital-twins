@@ -87,10 +87,21 @@ export default async function handler(req, res) {
                 return res.status(400).json({ error: `Unknown step: ${step}` });
         }
 
+        // Ensure all responses have safe fallback properties for frontend
+        const safeResult = {
+            ...result,
+            emptyRows: result.emptyRows || [],
+            headerPatterns: result.headerPatterns || {
+                multiRowHeaders: false,
+                metadataInHeaders: false,
+                hasMatrixQuestions: false
+            }
+        };
+
         return res.status(200).json({
             success: true,
             step: step,
-            result: result,
+            result: safeResult,
             timestamp: new Date().toISOString()
         });
 
