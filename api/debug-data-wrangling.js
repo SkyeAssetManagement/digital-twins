@@ -41,10 +41,17 @@ export default async function handler(req, res) {
         switch (step) {
             case 'load_file':
                 logger.info('Executing load_file step');
-                if (fileId) {
-                    result = await debuggerInstance.loadFileById(fileId, params);
-                } else {
-                    result = await debuggerInstance.loadFile(filePath);
+                try {
+                    if (fileId) {
+                        logger.info(`Loading file by ID: ${fileId}`);
+                        result = await debuggerInstance.loadFileById(fileId, params);
+                    } else {
+                        logger.info(`Loading fallback file: ${filePath}`);
+                        result = await debuggerInstance.loadFile(filePath);
+                    }
+                } catch (error) {
+                    logger.error('Load file step failed:', error);
+                    throw new Error(`File loading failed: ${error.message}`);
                 }
                 break;
             case 'analyze_structure':
@@ -92,13 +99,21 @@ export default async function handler(req, res) {
         logger.error('Debug data wrangling failed:', error);
         logger.error('Error stack:', error.stack);
         
-        res.status(500).json({ 
+        // Ensure we always return JSON, never HTML
+        const errorResponse = { 
             success: false, 
-            error: error.message,
-            stack: error.stack,
+            error: error.message || 'Unknown error occurred',
+            step: req.body?.step || 'unknown',
             errorType: error.constructor.name,
             timestamp: new Date().toISOString()
-        });
+        };
+        
+        // Add stack trace only in development
+        if (process.env.NODE_ENV === 'development') {
+            errorResponse.stack = error.stack;
+        }
+        
+        res.status(500).json(errorResponse);
     }
 }
 
@@ -147,7 +162,15 @@ class DataWranglingDebugger {
             };
         } catch (error) {
             logger.error('Failed to load file by ID:', error);
-            throw new Error(`File loading failed: ${error.message}`);
+            
+            // If file loading fails, provide helpful error message
+            if (!global.tempFileStorage) {
+                throw new Error('No files have been uploaded yet. Please upload a file first.');
+            } else if (!global.tempFileStorage.has(fileId)) {
+                throw new Error(`File ${fileId} not found. It may have expired or been deleted.`);
+            } else {
+                throw new Error(`File parsing failed: ${error.message}`);
+            }
         }
     }
     
@@ -155,29 +178,34 @@ class DataWranglingDebugger {
      * Parse file buffer based on file type
      */
     async parseFileBuffer(buffer, filename, mimeType) {
-        const XLSX = await import('xlsx');
-        
-        if (mimeType.includes('spreadsheet') || filename.match(/\.(xlsx|xls)$/i)) {
-            // Parse Excel file
-            const workbook = XLSX.default.read(buffer, { type: 'buffer' });
-            const sheetName = workbook.SheetNames[0];
-            const worksheet = workbook.Sheets[sheetName];
-            const jsonData = XLSX.default.utils.sheet_to_json(worksheet, {
-                header: 1, // Return array of arrays
-                defval: '', // Use empty string for null cells
-                raw: false // Convert everything to strings
-            });
-            return jsonData;
-        } else if (mimeType.includes('csv') || filename.match(/\.csv$/i)) {
-            // Parse CSV file
-            const csvText = buffer.toString('utf8');
-            const rows = csvText.split('\n').map(row => {
-                // Simple CSV parsing - could be enhanced for quoted fields
-                return row.split(',').map(cell => cell.trim());
-            });
-            return rows.filter(row => row.some(cell => cell)); // Remove empty rows
-        } else {
-            throw new Error(`Unsupported file type: ${mimeType}`);
+        try {
+            if (mimeType.includes('spreadsheet') || filename.match(/\.(xlsx|xls)$/i)) {
+                // Parse Excel file - use dynamic import for serverless compatibility
+                const XLSX = await import('xlsx');
+                const workbook = XLSX.read ? XLSX.read(buffer, { type: 'buffer' }) : XLSX.default.read(buffer, { type: 'buffer' });
+                const sheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[sheetName];
+                const utils = XLSX.utils || XLSX.default.utils;
+                const jsonData = utils.sheet_to_json(worksheet, {
+                    header: 1, // Return array of arrays
+                    defval: '', // Use empty string for null cells
+                    raw: false // Convert everything to strings
+                });
+                return jsonData;
+            } else if (mimeType.includes('csv') || filename.match(/\.csv$/i)) {
+                // Parse CSV file
+                const csvText = buffer.toString('utf8');
+                const rows = csvText.split('\n').map(row => {
+                    // Simple CSV parsing - could be enhanced for quoted fields
+                    return row.split(',').map(cell => cell.trim());
+                });
+                return rows.filter(row => row.some(cell => cell)); // Remove empty rows
+            } else {
+                throw new Error(`Unsupported file type: ${mimeType}`);
+            }
+        } catch (error) {
+            logger.error('File parsing failed:', error);
+            throw new Error(`File parsing failed: ${error.message}`);
         }
     }
     
@@ -185,40 +213,48 @@ class DataWranglingDebugger {
      * Step 1b: Load file from path (fallback)
      */
     async loadFile(filePath) {
-        logger.info(`Loading file for debug: ${filePath}`);
+        logger.info(`Loading fallback file data: ${filePath}`);
         
         try {
-            // Load the actual processed survey data since we can't access raw files on Vercel
+            // Since we can't access actual files on Vercel, load sample data that represents the structure
+            // This provides a working demo when no file is uploaded
             const actualSurveyData = await this.loadActualSurveyData();
             
             return {
                 filePath: filePath || './data/datasets/mums/Detail_Parents Survey.xlsx',
-                fileSize: 624907, // Actual file size
+                fileSize: 624907,
                 totalRows: actualSurveyData.length,
                 totalColumns: actualSurveyData[0]?.length || 0,
                 firstFewRows: actualSurveyData.slice(0, 5),
                 sheetName: 'Sheet1',
                 rawDataSample: {
-                    row0: actualSurveyData[0]?.slice(0, 15), // Show first 15 columns
+                    row0: actualSurveyData[0]?.slice(0, 15),
                     row1: actualSurveyData[1]?.slice(0, 15), 
                     row2: actualSurveyData[2]?.slice(0, 15),
                     row3: actualSurveyData[3]?.slice(0, 15)
                 },
-                rawData: actualSurveyData, // Full data for next step
-                note: "Actual survey data loaded - 1106 rows x 253 columns with multi-row header structure"
+                rawData: actualSurveyData,
+                note: "Demo data - represents typical survey structure. Upload your own file for analysis of your actual data."
             };
         } catch (error) {
-            logger.error('Failed to load actual survey data:', error);
-            // Fallback to generated data if loading fails
-            const rawData = this.generateSampleExcelData();
+            logger.error('Failed to load demo data:', error);
+            
+            // Final fallback - minimal working data
+            const fallbackData = [
+                ['Question 1', 'Question 2', 'Question 3'],
+                ['Response', 'Response', 'Response'],
+                ['Answer A1', 'Answer B1', 'Answer C1'],
+                ['Answer A2', 'Answer B2', 'Answer C2']
+            ];
+            
             return {
-                filePath: filePath,
-                fileSize: 624907,
-                totalRows: rawData.length,
-                totalColumns: rawData[0]?.length || 0,
-                firstFewRows: rawData.slice(0, 5),
-                rawData: rawData,
-                note: "Fallback: Generated sample data due to loading error"
+                filePath: 'fallback_data.csv',
+                fileSize: 1024,
+                totalRows: fallbackData.length,
+                totalColumns: fallbackData[0]?.length || 0,
+                firstFewRows: fallbackData,
+                rawData: fallbackData,
+                note: "Minimal fallback data - please upload a file for proper analysis"
             };
         }
     }
