@@ -4,10 +4,7 @@
 
 import { createLogger } from '../src/utils/logger.js';
 import { AppError } from '../src/utils/error-handler.js';
-import { getIntelligentDataPreprocessor } from '../src/data_processing/intelligent_data_preprocessor.js';
 import { uploadedDatasets, initializationPromise, isInitialized } from './survey-datasets.js';
-import path from 'path';
-import fs from 'fs';
 
 const logger = createLogger('ExportCleanCSVAPI');
 
@@ -42,46 +39,45 @@ export default async function handler(req, res) {
             });
         }
 
+        // Check if survey data exists
+        if (!dataset.survey_data || !dataset.survey_data.questions || !dataset.survey_data.responses) {
+            logger.error('Dataset missing survey data for export:', {
+                hasSurveyData: !!dataset.survey_data,
+                hasQuestions: !!(dataset.survey_data?.questions),
+                hasResponses: !!(dataset.survey_data?.responses)
+            });
+            return res.status(400).json({ 
+                error: 'Dataset does not have survey data available for export' 
+            });
+        }
+
         // Prepare clean data for export
         const cleanData = {
-            headers: dataset.survey_data.questions.map(q => q.text),
+            headers: dataset.survey_data.questions.map(q => q.text || q.id || 'Unknown Question'),
             responses: dataset.survey_data.responses
         };
-
-        // Get preprocessor to export CSV
-        const preprocessor = await getIntelligentDataPreprocessor();
         
-        // Create temporary export file
-        const exportDir = './exports';
-        if (!fs.existsSync(exportDir)) {
-            fs.mkdirSync(exportDir, { recursive: true });
-        }
+        logger.info(`Preparing CSV export for dataset ${datasetId}:`, {
+            headerCount: cleanData.headers.length,
+            responseCount: cleanData.responses.length,
+            firstFewHeaders: cleanData.headers.slice(0, 3)
+        });
 
+        // Generate CSV content in memory (Vercel-compatible)
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
         const fileName = `${dataset.name.replace(/[^a-zA-Z0-9]/g, '_')}_clean_${timestamp}.csv`;
-        const exportPath = path.join(exportDir, fileName);
+        
+        // Generate CSV content
+        const csvContent = generateCSVContent(cleanData);
 
-        // Export to CSV
-        const exportResult = await preprocessor.exportAsCSV(cleanData, exportPath);
+        // Set headers for file download
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+        res.setHeader('Content-Length', Buffer.byteLength(csvContent, 'utf8'));
 
-        if (exportResult.success) {
-            // Read the file and send as download
-            const fileContent = fs.readFileSync(exportPath, 'utf8');
-            
-            // Clean up temporary file
-            fs.unlinkSync(exportPath);
+        logger.info(`Exported clean CSV for dataset ${datasetId}: ${cleanData.responses.length} rows, ${cleanData.headers.length} columns`);
 
-            // Set headers for file download
-            res.setHeader('Content-Type', 'text/csv');
-            res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
-            res.setHeader('Content-Length', Buffer.byteLength(fileContent, 'utf8'));
-
-            logger.info(`Exported clean CSV for dataset ${datasetId}: ${exportResult.rows} rows`);
-
-            return res.status(200).send(fileContent);
-        } else {
-            throw new AppError('Failed to export CSV file');
-        }
+        return res.status(200).send(csvContent);
 
     } catch (error) {
         logger.error('CSV export failed', error);
@@ -91,4 +87,39 @@ export default async function handler(req, res) {
             timestamp: new Date().toISOString()
         });
     }
+}
+
+/**
+ * Generate CSV content from clean data
+ */
+function generateCSVContent(cleanData) {
+    const { headers, responses } = cleanData;
+    
+    // Helper function to escape CSV fields
+    function escapeCSVField(field) {
+        if (field === null || field === undefined) return '';
+        const str = String(field);
+        // If field contains comma, quote, or newline, wrap in quotes and escape internal quotes
+        if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
+            return '"' + str.replace(/"/g, '""') + '"';
+        }
+        return str;
+    }
+    
+    // Create CSV content
+    let csvContent = '';
+    
+    // Add header row
+    csvContent += headers.map(escapeCSVField).join(',') + '\n';
+    
+    // Add data rows
+    for (const response of responses) {
+        const row = headers.map(header => {
+            const value = response[header];
+            return escapeCSVField(value);
+        });
+        csvContent += row.join(',') + '\n';
+    }
+    
+    return csvContent;
 }
