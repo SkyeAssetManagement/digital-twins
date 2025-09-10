@@ -435,10 +435,22 @@
                 this.hideError();
 
                 try {
+                    console.log('Loading wrangling report for dataset:', datasetId);
                     const response = await fetch(`/api/data-wrangling-report?datasetId=${datasetId}`);
                     const data = await response.json();
+                    
+                    console.log('Wrangling report response:', data);
 
                     if (data.success) {
+                        console.log('Report structure:', {
+                            hasReport: !!data.report,
+                            reportKeys: data.report ? Object.keys(data.report) : [],
+                            hasAnalysis: !!data.report?.analysis,
+                            analysisKeys: data.report?.analysis ? Object.keys(data.report.analysis) : [],
+                            hasDatasetInfo: !!data.report?.datasetInfo,
+                            hasHeaderExamples: !!data.report?.headerExamples,
+                            hasDataExamples: !!data.report?.dataExamples
+                        });
                         this.displayReport(data.report);
                     } else {
                         let errorMessage = data.error || 'Failed to load wrangling report';
@@ -448,6 +460,8 @@
                         this.showError(errorMessage);
                     }
                 } catch (error) {
+                    console.error('Error loading wrangling report:', error);
+                    console.error('Error stack:', error.stack);
                     this.showError('Failed to load wrangling report: ' + error.message);
                 } finally {
                     this.hideLoading();
@@ -455,7 +469,18 @@
             }
 
             displayReport(report) {
-                const html = `
+                console.log('Displaying report:', report);
+                console.log('Report properties:', {
+                    summary: report.summary,
+                    datasetInfo: report.datasetInfo,
+                    analysis: report.analysis,
+                    headerExamples: report.headerExamples,
+                    dataExamples: report.dataExamples,
+                    stepsApplied: report.stepsApplied
+                });
+                
+                try {
+                    const html = `
                     <div class="summary-card">
                         <h2>📊 Processing Summary</h2>
                         <p>${report.summary || 'Data wrangling process completed successfully with intelligent header cleaning and data preservation.'}</p>
@@ -540,8 +565,16 @@
                     </div>
                 `;
 
+                console.log('HTML template generated successfully');
                 this.reportContent.innerHTML = html;
                 this.reportContent.style.display = 'block';
+                console.log('Report displayed successfully');
+                
+                } catch (error) {
+                    console.error('Error in displayReport:', error);
+                    console.error('Error stack:', error.stack);
+                    this.showError('Failed to display report: ' + error.message);
+                }
             }
 
             async exportCleanCSV() {
