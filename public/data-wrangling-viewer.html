@@ -579,11 +579,19 @@
 
             async exportCleanCSV() {
                 const datasetId = this.datasetSelect.value;
-                if (!datasetId) return;
+                if (!datasetId) {
+                    console.error('No dataset selected for CSV export');
+                    return;
+                }
+
+                console.log('Starting CSV export for dataset:', datasetId);
 
                 try {
                     const response = await fetch(`/api/export-clean-csv?datasetId=${datasetId}`);
+                    console.log('CSV export response status:', response.status);
+                    
                     if (response.ok) {
+                        console.log('CSV export successful, creating download...');
                         const blob = await response.blob();
                         const url = window.URL.createObjectURL(blob);
                         const a = document.createElement('a');
@@ -593,10 +601,21 @@
                         a.click();
                         window.URL.revokeObjectURL(url);
                         document.body.removeChild(a);
+                        console.log('CSV download initiated successfully');
                     } else {
-                        this.showError('Failed to export CSV');
+                        // Get the actual error message from the API
+                        let errorMessage = 'Failed to export CSV';
+                        try {
+                            const errorData = await response.json();
+                            errorMessage = errorData.error || errorMessage;
+                            console.error('CSV export API error:', errorData);
+                        } catch (e) {
+                            console.error('Could not parse error response:', e);
+                        }
+                        this.showError(errorMessage);
                     }
                 } catch (error) {
+                    console.error('CSV export error:', error);
                     this.showError('Export failed: ' + error.message);
                 }
             }

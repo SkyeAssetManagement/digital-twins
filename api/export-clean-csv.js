@@ -22,15 +22,26 @@ export default async function handler(req, res) {
 
         const { datasetId, reportId } = req.query;
 
+        logger.info(`CSV export request for dataset: ${datasetId}`);
+
         if (!datasetId) {
+            logger.error('No dataset ID provided in CSV export request');
             return res.status(400).json({ error: 'Dataset ID is required' });
         }
 
         // Get dataset
         const dataset = uploadedDatasets.get(parseInt(datasetId));
         if (!dataset) {
+            logger.error(`Dataset ${datasetId} not found. Available datasets:`, Array.from(uploadedDatasets.keys()));
             return res.status(404).json({ error: `Dataset ${datasetId} not found` });
         }
+
+        logger.info(`Found dataset for export:`, {
+            id: dataset.id,
+            name: dataset.name,
+            status: dataset.processing_status,
+            hasSurveyData: !!dataset.survey_data
+        });
 
         // Check if dataset has been processed
         if (dataset.processing_status !== 'completed') {
