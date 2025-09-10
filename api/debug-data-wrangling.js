@@ -55,31 +55,35 @@ export default async function handler(req, res) {
             case 'get_llm_analysis':
                 result = {
                     success: true,
-                    analysisSuccess: true,
-                    headersDetected: true,
-                    multiRowHeaders: true,
-                    matrixQuestions: true,
-                    note: 'LLM analysis complete - complex survey structure detected'
+                    analysisSuccess: "NA",
+                    headersDetected: "NA", 
+                    multiRowHeaders: "NA",
+                    matrixQuestions: "NA",
+                    promptLength: "NA",
+                    llmResponse: "NA",
+                    note: 'No actual LLM analysis implemented - returning NA per project standards'
                 };
                 break;
                 
             case 'apply_wrangling_plan':
                 result = {
                     success: true,
-                    processedRows: 1104,  // Total - headers
-                    cleanedColumns: 253,
-                    headersCreated: true,
-                    note: 'Data wrangling complete - clean dataset created'
+                    processedRows: "NA",
+                    cleanedColumns: "NA",
+                    headersCreated: "NA",
+                    wranglingPlan: "NA",
+                    note: 'No actual wrangling implemented - returning NA per project standards'
                 };
                 break;
                 
             case 'validate_output':
                 result = {
                     success: true,
-                    validationPassed: true,
-                    finalRows: 1104,
-                    finalColumns: 253,
-                    note: 'Output validation successful - data ready for analysis'
+                    validationPassed: "NA",
+                    finalRows: "NA",
+                    finalColumns: "NA",
+                    validationErrors: "NA",
+                    note: 'No actual validation implemented - returning NA per project standards'
                 };
                 break;
                 
