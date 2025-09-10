@@ -2,7 +2,7 @@
   "name": "digital-twin-consumer-tester",
   "version": "1.0.0",
   "type": "module",
-  "main": "server.js",
+  "main": "index.js",
   "scripts": {
     "dev": "node server.js",
     "init-dataset": "node scripts/init-dataset.js",
