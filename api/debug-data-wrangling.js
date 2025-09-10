@@ -42,6 +42,12 @@ export default async function handler(req, res) {
                     totalColumns: 253,
                     headerRows: [0, 1], 
                     dataStartRow: 2,
+                    emptyRows: [],  // Empty array for now
+                    headerPatterns: {
+                        multiRowHeaders: true,
+                        metadataInHeaders: true,
+                        hasMatrixQuestions: true
+                    },
                     note: 'Structure analysis complete - detected multi-row headers'
                 };
                 break;
