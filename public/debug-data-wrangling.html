@@ -248,10 +248,15 @@
                     div.classList.add('error');
                 }
 
+                // Allow running current step OR next step if previous is completed
+                const canRun = (index === this.currentStep) || 
+                              (index === this.currentStep + 1 && index > 0 && this.steps[index - 1].completed) ||
+                              (index === 0); // Always allow Step 1
+                
                 const buttonHtml = `
                     <button class="step-button" 
-                            ${index !== this.currentStep || step.loading ? 'disabled' : ''}>
-                        ${step.loading ? 'Processing...' : 'Run Step'}
+                            ${!canRun || step.loading || step.completed ? 'disabled' : ''}>
+                        ${step.loading ? 'Processing...' : step.completed ? 'Completed' : 'Run Step'}
                         ${step.loading ? '<span class="loading"></span>' : ''}
                     </button>
                 `;
@@ -268,7 +273,7 @@
 
                 // Add event listener after creating the element
                 const button = div.querySelector('.step-button');
-                if (button && !button.disabled) {
+                if (button && !step.completed && !step.loading) {
                     button.addEventListener('click', () => this.runStep(step.id));
                 }
 
