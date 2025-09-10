@@ -139,6 +139,7 @@ export class ImprovedDataWrangler {
 
     /**
      * Step 3: Bottom row concatenates itself and rows above, separated by |
+     * Only process columns up to the rightmost filled column in header rows
      */
     concatenateHeaders() {
         if (!this.filledHeaders || this.filledHeaders.length === 0) {
@@ -147,7 +148,20 @@ export class ImprovedDataWrangler {
 
         console.log('Concatenating headers with | separator...');
         
-        const numColumns = this.filledHeaders[0]?.length || 0;
+        // Find rightmost filled column in header rows
+        let rightmostFilledColumn = 0;
+        for (const headerRow of this.filledHeaders) {
+            for (let colIdx = headerRow.length - 1; colIdx >= 0; colIdx--) {
+                if (headerRow[colIdx] && headerRow[colIdx].trim()) {
+                    rightmostFilledColumn = Math.max(rightmostFilledColumn, colIdx);
+                    break;
+                }
+            }
+        }
+        
+        const numColumns = rightmostFilledColumn + 1; // Include the rightmost filled column
+        console.log(`Processing columns 0 to ${rightmostFilledColumn} (rightmost filled column)`);
+        
         this.concatenatedHeaders = [];
         
         for (let colIdx = 0; colIdx < numColumns; colIdx++) {

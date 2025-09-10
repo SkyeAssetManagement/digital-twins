@@ -57,119 +57,76 @@ export default async function handler(req, res) {
                 
             case 'get_llm_analysis':
                 try {
-                    logger.info('Starting real LLM analysis with Claude');
+                    logger.info('Starting improved LLM analysis pipeline with full file processing');
                     
-                    // Get previous step data (should contain file structure info)
-                    const fileData = req.body.previousStepData || {};
-                    const analysisParams = req.body.analysisParams || { rowsToExamine: 5, topRowsToIgnore: 0 };
-                    
-                    // Import Anthropic SDK
+                    // Import required modules
                     const { Anthropic } = await import('@anthropic-ai/sdk');
+                    const { ImprovedDataWrangler } = await import('../src/utils/improvedDataWrangler.js');
+                    const fs = await import('fs/promises');
+                    
+                    // Initialize components
                     const anthropic = new Anthropic({
                         apiKey: process.env.ANTHROPIC_API_KEY
                     });
-
-                    // Sample data for analysis (in real implementation, this would come from file upload)
-                    const sampleDataRows = [
-                        ['', '', 'When considering these types of products, how important are the following aspects to you in deciding which one to purchase: (select one per aspect)', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-                        ['', '', 'Price', 'Quality', 'Brand', 'Features', 'Design', 'Reviews', 'Availability', 'Customer Service', 'Warranty', 'Sustainability', 'Innovation', 'Compatibility', 'Ease of Use', 'Support', 'Reputation'],
-                        ['Respondent 1', '25-34', '4', '5', '3', '4', '2', '4', '3', '2', '3', '2', '3', '4', '5', '3', '4'],
-                        ['Respondent 2', '35-44', '5', '4', '4', '3', '3', '5', '4', '3', '4', '3', '4', '3', '4', '4', '3'],
-                        ['Respondent 3', '25-34', '3', '5', '2', '5', '4', '3', '2', '4', '2', '4', '2', '5', '3', '2', '5']
-                    ];
-
-                    // Build enhanced analysis prompt for executable instructions
-                    const prompt = `# Data Structure Analysis for Survey Data Wrangling
-
-You are analyzing survey data to create an EXECUTABLE cleaning plan with specific instructions.
-
-## Data Sample (first 5 rows):
-${sampleDataRows.map((row, i) => `Row ${i}: [${row.map(cell => `"${cell || ''}"`).join(', ')}]`).join('\n')}
-
-## Analysis Parameters:
-- Total rows to examine: ${sampleDataRows.length}
-- Total columns: ${sampleDataRows[0]?.length || 0}
-- Skip top rows: ${analysisParams.topRowsToIgnore || 0}
-
-## Your Task:
-Return a JSON object with EXECUTABLE cleaning instructions:
-
-{
-  "headerAnalysis": {
-    "headerRows": [array of row indexes that are headers],
-    "dataStartRow": number,
-    "explanation": "brief explanation"
-  },
-  "executablePlan": {
-    "removeRows": [array of row indexes to remove],
-    "renameColumns": {
-      "0": "new_name_for_column_0",
-      "1": "new_name_for_column_1"
-    },
-    "combineHeaders": {
-      "enabled": true/false,
-      "startColumn": number,
-      "endColumn": number,
-      "prefix": "prefix_for_combined_headers",
-      "questionText": "main question text",
-      "subLabels": ["array", "of", "sublabels"]
-    },
-    "dataValidation": {
-      "numericColumns": [array of column indexes that should be numeric],
-      "expectedRange": {"min": 1, "max": 5},
-      "missingValueHandling": "strategy"
-    }
-  },
-  "matrixQuestions": {
-    "detected": true/false,
-    "count": number,
-    "details": [array of matrix question objects]
-  },
-  "qualityAssessment": {
-    "completeness": "percentage or assessment",
-    "issues": ["array of issues found"],
-    "recommendations": ["array of recommendations"]
-  }
-}
-
-CRITICAL: Return ONLY valid JSON. No markdown formatting, no explanatory text, just the JSON object.`;
-
-                    logger.info(`Sending prompt to Claude (${prompt.length} characters)`);
-
-                    // Make actual API call to Claude
-                    const response = await anthropic.messages.create({
-                        model: 'claude-opus-4-1-20250805',
-                        max_tokens: 4000,
-                        temperature: 0.2,
-                        messages: [{
-                            role: 'user',
-                            content: prompt
-                        }]
-                    });
-
-                    const llmResponseText = response.content[0].text;
-                    logger.info(`Received LLM response (${llmResponseText.length} characters)`);
-
-                    // Try to parse JSON response
-                    let analysisResults;
-                    try {
-                        analysisResults = JSON.parse(llmResponseText);
-                    } catch (parseError) {
-                        logger.warn('Failed to parse LLM response as JSON, using text response');
-                        analysisResults = {
-                            rawResponse: llmResponseText,
-                            parseError: 'LLM response was not valid JSON'
-                        };
+                    
+                    // Load actual Excel file (not sample data)
+                    const filePath = req.body.filePath || './data/datasets/mums/Detail_Parents Survey.xlsx';
+                    logger.info(`Loading actual Excel file: ${filePath}`);
+                    
+                    const fileBuffer = await fs.readFile(filePath);
+                    const wrangler = new ImprovedDataWrangler(process.env.ANTHROPIC_API_KEY);
+                    
+                    // Step 1: Load data
+                    const loadResult = wrangler.loadExcelData(fileBuffer);
+                    if (!loadResult.success) {
+                        throw new Error(`Failed to load Excel file: ${loadResult.error}`);
                     }
+                    
+                    // Step 2: Determine header rows
+                    const headerResult = wrangler.determineHeaderRows();
+                    if (!headerResult.success) {
+                        throw new Error(`Failed to determine headers: ${headerResult.error}`);
+                    }
+                    
+                    // Step 3: Forward fill headers
+                    const fillResult = wrangler.forwardFillHeaders();
+                    if (!fillResult.success) {
+                        throw new Error(`Failed to forward fill: ${fillResult.error}`);
+                    }
+                    
+                    // Step 4: Concatenate ALL headers (not just sample)
+                    const concatResult = wrangler.concatenateHeaders();
+                    if (!concatResult.success) {
+                        throw new Error(`Failed to concatenate: ${concatResult.error}`);
+                    }
+                    
+                    logger.info(`Processing ${wrangler.concatenatedHeaders.length} concatenated headers for LLM abbreviation`);
+                    
+                    // Step 5: LLM abbreviation of ALL concatenated headers
+                    const abbrevResult = await wrangler.llmAbbreviateHeaders(25);
+                    if (!abbrevResult.success) {
+                        throw new Error(`Failed to abbreviate: ${abbrevResult.error}`);
+                    }
+                    
+                    // Step 6: Create column mapping
+                    const mappingResult = await wrangler.createColumnMapping();
+                    if (!mappingResult.success) {
+                        throw new Error(`Failed to create mapping: ${mappingResult.error}`);
+                    }
+                    
+                    logger.info(`Successfully processed ${wrangler.concatenatedHeaders.length} columns with full pipeline`);
 
                     result = {
                         success: true,
                         analysisSuccess: true,
-                        promptLength: prompt.length,
-                        responseLength: llmResponseText.length,
-                        llmAnalysis: analysisResults,
-                        rawLlmResponse: llmResponseText.substring(0, 1000) + '...', // Truncated for display
-                        note: 'Real LLM analysis completed using Claude Opus 4.1'
+                        totalColumnsProcessed: wrangler.concatenatedHeaders.length,
+                        headerRows: wrangler.headerRows,
+                        dataStartRow: wrangler.dataStartRow,
+                        columnMapping: wrangler.columnMapping,
+                        concatenatedHeaders: wrangler.concatenatedHeaders.slice(0, 10), // First 10 for display
+                        abbreviatedHeaders: wrangler.abbreviatedHeaders.slice(0, 10), // First 10 for display
+                        filesGenerated: ['column_mapping.json'],
+                        note: `Complete improved pipeline processed ${wrangler.concatenatedHeaders.length} columns with LLM abbreviation and dictionary generation`
                     };
 
                 } catch (error) {
@@ -189,12 +146,22 @@ CRITICAL: Return ONLY valid JSON. No markdown formatting, no explanatory text, j
                     logger.info('Starting real data wrangling process');
                     
                     // Get LLM analysis from previous step
-                    const llmAnalysis = req.body.llmAnalysis || {};
+                    const previousResult = req.body.previousResult || {};
+                    const llmAnalysis = previousResult.llmAnalysis || req.body.llmAnalysis || {};
                     const executablePlan = llmAnalysis.executablePlan || {};
                     
-                    if (!executablePlan.removeRows && !executablePlan.renameColumns) {
+                    logger.info('Previous result keys:', Object.keys(previousResult));
+                    logger.info('LLM analysis keys:', Object.keys(llmAnalysis));
+                    logger.info('Executable plan keys:', Object.keys(executablePlan));
+                    
+                    // Debug: log what we actually received
+                    logger.info('Full previousResult:', JSON.stringify(previousResult, null, 2));
+                    
+                    if (!executablePlan || (Object.keys(executablePlan).length === 0)) {
                         throw new Error('No executable plan found - run LLM analysis first');
                     }
+                    
+                    logger.info('Found executable plan with keys:', Object.keys(executablePlan));
 
                     // Start with sample data (in real implementation, load from uploaded file)
                     let workingData = [

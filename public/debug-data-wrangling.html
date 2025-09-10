@@ -424,7 +424,17 @@
 
                 try {
                     // Get previous result for chaining
-                    const previousResult = stepIndex > 0 ? this.steps[stepIndex - 1].result : null;
+                    let previousResult = null;
+                    
+                    // Special handling for apply_wrangling_plan - needs LLM analysis result
+                    if (stepId === 'apply_wrangling_plan') {
+                        // Find the get_llm_analysis step result
+                        const llmAnalysisStep = this.steps.find(s => s.id === 'get_llm_analysis');
+                        previousResult = llmAnalysisStep ? llmAnalysisStep.result : null;
+                    } else {
+                        // For other steps, use the immediate previous step
+                        previousResult = stepIndex > 0 ? this.steps[stepIndex - 1].result : null;
+                    }
                     
                     // Get analysis parameters from UI
                     const analysisParams = {
