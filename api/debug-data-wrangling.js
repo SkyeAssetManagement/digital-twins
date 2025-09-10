@@ -362,24 +362,59 @@ class DataWranglingDebugger {
             matrixQuestions: false
         };
 
-        // Check for multi-row headers
+        // Check for multi-row headers - improved logic
         if (rows.length >= 2) {
-            const row1Empty = rows[0].filter(cell => !cell || cell === '').length;
-            const row2Empty = rows[1].filter(cell => !cell || cell === '').length;
+            const row0 = rows[0] || [];
+            const row1 = rows[1] || [];
             
-            if (row1Empty > 0 && row2Empty > 0) {
+            // Check if row 0 has empty cells
+            const row0Empty = row0.filter(cell => !cell || cell === '').length;
+            
+            // Check if row 1 contains response metadata
+            const row1HasResponseLabels = row1.filter(cell => 
+                cell && typeof cell === 'string' && 
+                (cell.toLowerCase().includes('response') || 
+                 cell.toLowerCase().includes('answer'))
+            ).length;
+            
+            // Multi-row headers if:
+            // 1. Row 0 has empty cells AND row 1 has content, OR
+            // 2. Row 1 contains "Response" type labels
+            if ((row0Empty > 0 && row1.filter(cell => cell && cell !== '').length > 0) || 
+                row1HasResponseLabels > 0) {
                 patterns.multiRowHeaders = true;
             }
         }
 
-        // Check for metadata patterns
-        rows.forEach(row => {
+        // Check for empty cells in any header row
+        for (let i = 0; i < Math.min(3, rows.length); i++) {
+            const row = rows[i] || [];
+            const emptyCells = row.filter(cell => !cell || cell === '').length;
+            if (emptyCells > 0) {
+                patterns.emptyHeaderCells = true;
+                break;
+            }
+        }
+
+        // Check for metadata patterns in any of the first 3 rows
+        for (let i = 0; i < Math.min(3, rows.length); i++) {
+            const row = rows[i] || [];
             row.forEach(cell => {
                 if (cell && typeof cell === 'string') {
                     if (cell.toLowerCase().includes('response') || 
-                        cell.toLowerCase().includes('answer')) {
+                        cell.toLowerCase().includes('answer') ||
+                        cell.includes('- Response')) {
                         patterns.metadataInHeaders = true;
                     }
+                }
+            });
+        }
+
+        // Check for matrix questions (very long headers suggesting combined questions)
+        rows.forEach(row => {
+            row.forEach(cell => {
+                if (cell && typeof cell === 'string' && cell.length > 100) {
+                    patterns.matrixQuestions = true;
                 }
             });
         });
