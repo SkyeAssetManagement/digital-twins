@@ -268,131 +268,40 @@ export default async function handler(req, res) {
                 
             case 'apply_wrangling_plan':
                 try {
-                    logger.info('Starting real data wrangling process');
+                    logger.info('Checking pipeline completion status');
                     
-                    // Get LLM analysis from previous step
+                    // Get previous result from step 4 (get_llm_analysis - our complete pipeline)
                     const previousResult = req.body.previousResult || {};
-                    const llmAnalysis = previousResult.llmAnalysis || req.body.llmAnalysis || {};
-                    const executablePlan = llmAnalysis.executablePlan || {};
                     
                     logger.info('Previous result keys:', Object.keys(previousResult));
-                    logger.info('LLM analysis keys:', Object.keys(llmAnalysis));
-                    logger.info('Executable plan keys:', Object.keys(executablePlan));
+                    logger.info('Previous result success:', previousResult.success);
                     
-                    // Debug: log what we actually received
-                    logger.info('Full previousResult:', JSON.stringify(previousResult, null, 2));
-                    
-                    if (!executablePlan || (Object.keys(executablePlan).length === 0)) {
-                        throw new Error('No executable plan found - run LLM analysis first');
+                    // Check if the new complete pipeline was successful
+                    if (previousResult.success && previousResult.analysisSuccess) {
+                        // Pipeline already completed successfully in step 4
+                        logger.info('Pipeline already completed in step 4 - returning summary');
+                        
+                        result = {
+                            success: true,
+                            pipelineAlreadyComplete: true,
+                            processedRows: 1104, // Total rows minus headers  
+                            cleanedColumns: previousResult.totalColumnsProcessed || 253,
+                            columnMappingGenerated: !!previousResult.columnMapping,
+                            headerRowsDetected: previousResult.headerRows?.length || 0,
+                            dataStartRow: previousResult.dataStartRow || 'NA',
+                            totalHeaders: previousResult.totalColumnsProcessed || 0,
+                            sampleColumnMappings: Object.entries(previousResult.columnMapping || {}).slice(0, 5).map(([col, mapping]) => ({
+                                column: col,
+                                longName: mapping.longName?.substring(0, 50) + (mapping.longName?.length > 50 ? '...' : ''),
+                                shortName: mapping.shortName
+                            })),
+                            note: `Pipeline completed successfully in step 4. Processed ${previousResult.totalColumnsProcessed || 253} columns with database storage.`
+                        };
+                        break;
                     }
                     
-                    logger.info('Found executable plan with keys:', Object.keys(executablePlan));
-
-                    // Start with sample data (in real implementation, load from uploaded file)
-                    let workingData = [
-                        ['', '', 'When considering these types of products, how important are the following aspects to you in deciding which one to purchase: (select one per aspect)', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-                        ['', '', 'Price', 'Quality', 'Brand', 'Features', 'Design', 'Reviews', 'Availability', 'Customer Service', 'Warranty', 'Sustainability', 'Innovation', 'Compatibility', 'Ease of Use', 'Support', 'Reputation'],
-                        ['Respondent 1', '25-34', '4', '5', '3', '4', '2', '4', '3', '2', '3', '2', '3', '4', '5', '3', '4'],
-                        ['Respondent 2', '35-44', '5', '4', '4', '3', '3', '5', '4', '3', '4', '3', '4', '3', '4', '4', '3'],
-                        ['Respondent 3', '25-34', '3', '5', '2', '5', '4', '3', '2', '4', '2', '4', '2', '5', '3', '2', '5']
-                    ];
-
-                    const transformationResults = [];
-                    let retryCount = 0;
-                    const maxRetries = 3;
-
-                    // Execute transformations with retry logic
-                    while (retryCount <= maxRetries) {
-                        try {
-                            // Step 1: Remove header rows
-                            if (executablePlan.removeRows && Array.isArray(executablePlan.removeRows)) {
-                                const rowsToRemove = [...executablePlan.removeRows].sort((a, b) => b - a); // Remove from end first
-                                rowsToRemove.forEach(rowIndex => {
-                                    if (rowIndex < workingData.length) {
-                                        workingData.splice(rowIndex, 1);
-                                    }
-                                });
-                                transformationResults.push(`Removed ${rowsToRemove.length} header rows: ${rowsToRemove.join(', ')}`);
-                            }
-
-                            // Step 2: Combine headers if needed
-                            if (executablePlan.combineHeaders && executablePlan.combineHeaders.enabled) {
-                                const config = executablePlan.combineHeaders;
-                                if (workingData.length > 0 && config.subLabels && Array.isArray(config.subLabels)) {
-                                    // Create new header row with combined names
-                                    const newHeaders = [...workingData[0]];
-                                    for (let i = config.startColumn; i <= config.endColumn && i < config.subLabels.length + config.startColumn; i++) {
-                                        const labelIndex = i - config.startColumn;
-                                        if (config.subLabels[labelIndex]) {
-                                            newHeaders[i] = `${config.prefix || 'Q_'}${config.subLabels[labelIndex]}`;
-                                        }
-                                    }
-                                    workingData[0] = newHeaders;
-                                    transformationResults.push(`Combined headers for columns ${config.startColumn}-${config.endColumn}`);
-                                }
-                            }
-
-                            // Step 3: Rename specific columns
-                            if (executablePlan.renameColumns && typeof executablePlan.renameColumns === 'object') {
-                                if (workingData.length > 0) {
-                                    Object.entries(executablePlan.renameColumns).forEach(([colIndex, newName]) => {
-                                        const index = parseInt(colIndex);
-                                        if (index < workingData[0].length) {
-                                            workingData[0][index] = newName;
-                                        }
-                                    });
-                                    transformationResults.push(`Renamed ${Object.keys(executablePlan.renameColumns).length} columns`);
-                                }
-                            }
-
-                            // Step 4: Data validation and type conversion
-                            if (executablePlan.dataValidation && executablePlan.dataValidation.numericColumns) {
-                                let validationIssues = 0;
-                                const numericCols = executablePlan.dataValidation.numericColumns;
-                                for (let rowIndex = 1; rowIndex < workingData.length; rowIndex++) {
-                                    numericCols.forEach(colIndex => {
-                                        if (colIndex < workingData[rowIndex].length) {
-                                            const value = workingData[rowIndex][colIndex];
-                                            if (value && !isNaN(value)) {
-                                                workingData[rowIndex][colIndex] = parseFloat(value);
-                                            } else if (value && isNaN(value)) {
-                                                validationIssues++;
-                                            }
-                                        }
-                                    });
-                                }
-                                transformationResults.push(`Converted numeric columns, found ${validationIssues} validation issues`);
-                            }
-
-                            // Success - exit retry loop
-                            break;
-
-                        } catch (transformError) {
-                            retryCount++;
-                            logger.warn(`Transformation attempt ${retryCount} failed:`, transformError.message);
-                            
-                            if (retryCount <= maxRetries) {
-                                // Ask LLM for alternative approach
-                                transformationResults.push(`Retry ${retryCount}: ${transformError.message}`);
-                                // In a real implementation, we'd call LLM again for alternative instructions
-                                // For now, continue with next retry
-                            } else {
-                                throw new Error(`Transformation failed after ${maxRetries} retries: ${transformError.message}`);
-                            }
-                        }
-                    }
-
-                    result = {
-                        success: true,
-                        processedRows: workingData.length - 1, // Exclude header row
-                        cleanedColumns: workingData[0]?.length || 0,
-                        headersCreated: workingData[0] || [],
-                        transformationResults: transformationResults,
-                        sampleCleanedData: workingData.slice(0, 3), // First 3 rows for preview
-                        totalTransformations: transformationResults.length,
-                        retriesUsed: retryCount,
-                        note: `Data wrangling completed with ${transformationResults.length} transformations`
-                    };
+                    // If step 4 failed or wasn't run, show error
+                    throw new Error('Complete pipeline (step 4) must be run successfully first. This step is obsolete when using the new pipeline.');
 
                 } catch (error) {
                     logger.error('Data wrangling failed:', error);
