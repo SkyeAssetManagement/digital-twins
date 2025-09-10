@@ -87,15 +87,11 @@ export default async function handler(req, res) {
                 return res.status(400).json({ error: `Unknown step: ${step}` });
         }
 
-        // Ensure all responses have safe fallback properties for frontend
+        // NO FALLBACKS - Return "NA" for missing data per CLAUDE.md rules
         const safeResult = {
-            emptyRows: [],
-            headerPatterns: {
-                multiRowHeaders: false,
-                metadataInHeaders: false,
-                hasMatrixQuestions: false
-            },
-            ...result,  // This should come AFTER defaults to override them
+            ...result,
+            emptyRows: result.emptyRows || "NA",
+            headerPatterns: result.headerPatterns || "NA"
         };
 
         return res.status(200).json({
