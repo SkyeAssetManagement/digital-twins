@@ -62,18 +62,25 @@ export default async function handler(req, res) {
                     // Import required modules
                     const { Anthropic } = await import('@anthropic-ai/sdk');
                     const { ImprovedDataWrangler } = await import('../src/utils/improvedDataWrangler.js');
-                    const fs = await import('fs/promises');
+                    const { getSourceDocumentById } = await import('../src/utils/database.js');
                     
                     // Initialize components
                     const anthropic = new Anthropic({
                         apiKey: process.env.ANTHROPIC_API_KEY
                     });
                     
-                    // Load actual Excel file (not sample data)
-                    const filePath = req.body.filePath || './data/datasets/mums/Detail_Parents Survey.xlsx';
-                    logger.info(`Loading actual Excel file: ${filePath}`);
+                    // Get file from database or use default document ID
+                    const documentId = req.body.documentId || 1; // Default to document ID 1 for testing
+                    logger.info(`Loading document from database: ID ${documentId}`);
                     
-                    const fileBuffer = await fs.readFile(filePath);
+                    const docResult = await getSourceDocumentById(documentId, true);
+                    if (!docResult.success) {
+                        throw new Error(`Failed to retrieve document: ${docResult.error}`);
+                    }
+                    
+                    // Convert base64 to buffer
+                    const fileBuffer = Buffer.from(docResult.document.file_content_base64, 'base64');
+                    logger.info(`Loaded ${fileBuffer.length} bytes from database`);
                     const wrangler = new ImprovedDataWrangler(process.env.ANTHROPIC_API_KEY);
                     
                     // Step 1: Load data
@@ -116,17 +123,49 @@ export default async function handler(req, res) {
                     
                     logger.info(`Successfully processed ${wrangler.concatenatedHeaders.length} columns with full pipeline`);
 
+                    // Step 7: Generate comparison table in memory
+                    const tableResult = await wrangler.generateComparisonTable();
+                    if (!tableResult.success) {
+                        throw new Error(`Comparison table failed: ${tableResult.error}`);
+                    }
+
+                    // Store results back to database
+                    const { updateSourceDocumentStatus } = await import('../src/utils/database.js');
+                    
+                    const wranglingReport = {
+                        totalColumns: wrangler.concatenatedHeaders.length,
+                        headerRows: wrangler.headerRows,
+                        dataStartRow: wrangler.dataStartRow,
+                        columnMapping: wrangler.columnMapping,
+                        comparisonData: wrangler.comparisonData,
+                        pipelineSteps: [
+                            'loadExcelData',
+                            'determineHeaderRows', 
+                            'forwardFillHeaders',
+                            'concatenateHeaders',
+                            'llmAbbreviateHeaders',
+                            'createColumnMapping',
+                            'generateComparisonTable'
+                        ],
+                        processedAt: new Date().toISOString()
+                    };
+                    
+                    await updateSourceDocumentStatus(documentId, 'processed', wranglingReport);
+                    logger.info(`Stored wrangling results for document ${documentId} in database`);
+
                     result = {
                         success: true,
                         analysisSuccess: true,
+                        documentId: documentId,
+                        documentName: docResult.document.name,
                         totalColumnsProcessed: wrangler.concatenatedHeaders.length,
                         headerRows: wrangler.headerRows,
                         dataStartRow: wrangler.dataStartRow,
                         columnMapping: wrangler.columnMapping,
                         concatenatedHeaders: wrangler.concatenatedHeaders.slice(0, 10), // First 10 for display
                         abbreviatedHeaders: wrangler.abbreviatedHeaders.slice(0, 10), // First 10 for display
-                        filesGenerated: ['column_mapping.json'],
-                        note: `Complete improved pipeline processed ${wrangler.concatenatedHeaders.length} columns with LLM abbreviation and dictionary generation`
+                        storedInDatabase: true,
+                        note: `Complete serverless pipeline: processed ${wrangler.concatenatedHeaders.length} columns, stored results in database`
                     };
 
                 } catch (error) {

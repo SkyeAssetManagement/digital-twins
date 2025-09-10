@@ -5,7 +5,6 @@
 
 import Anthropic from '@anthropic-ai/sdk';
 import * as XLSX from 'xlsx';
-import fs from 'fs/promises';
 
 export class ImprovedDataWrangler {
     constructor(apiKey) {
@@ -296,6 +295,7 @@ Use the original column numbers (not 0-indexed for this batch).`;
 
     /**
      * Step 5: Save column mapping with number, longName, shortName
+     * Returns mapping in memory (no file writes for serverless)
      */
     async createColumnMapping() {
         if (!this.concatenatedHeaders || !this.abbreviatedHeaders) {
@@ -318,12 +318,8 @@ Use the original column numbers (not 0-indexed for this batch).`;
             };
         }
         
-        // Save to JSON file
-        const mappingJson = JSON.stringify(this.columnMapping, null, 2);
-        await fs.writeFile('column_mapping.json', mappingJson, 'utf-8');
-        
         console.log(`Column mapping created for ${Object.keys(this.columnMapping).length} columns`);
-        console.log('Saved to column_mapping.json');
+        console.log('Column mapping stored in memory (serverless mode)');
         
         return { success: true, mappingCount: Object.keys(this.columnMapping).length };
     }
@@ -365,36 +361,12 @@ Use the original column numbers (not 0-indexed for this batch).`;
             });
         }
         
-        // Create CSV content
-        const csvHeader = 'Column,Row_0_Header,Row_1_Header,Row_2_Header,Row_3_Header,Forward_Filled_Concatenated,LLM_Abbreviated\n';
-        const csvRows = comparisonData.map(row => 
-            `${row.Column},"${row.Row_0_Header}","${row.Row_1_Header}","${row.Row_2_Header}","${row.Row_3_Header}","${row.Forward_Filled_Concatenated}","${row.LLM_Abbreviated}"`
-        ).join('\n');
+        console.log('Comparison table generated in memory (serverless mode):');
+        console.log(`- ${comparisonData.length} columns processed`);
+        console.log('- Data ready for database storage');
         
-        await fs.writeFile('improved_column_comparison.csv', csvHeader + csvRows, 'utf-8');
-        
-        // Create markdown format
-        let markdownContent = `# Improved Column Comparison - All ${comparisonData.length} Columns\n\n`;
-        markdownContent += "| Column | Row 0 Header | Row 1 Header | Row 2 Header | Row 3 Header | Forward Filled Concatenated | LLM Abbreviated |\n";
-        markdownContent += "|--------|-------------|-------------|-------------|-------------|-----------------------------|-----------------|\n";
-        
-        for (const row of comparisonData) {
-            const col = row.Column;
-            const row0 = String(row.Row_0_Header).replace(/\|/g, '\\|');
-            const row1 = String(row.Row_1_Header).replace(/\|/g, '\\|');
-            const row2 = String(row.Row_2_Header).replace(/\|/g, '\\|');
-            const row3 = String(row.Row_3_Header).replace(/\|/g, '\\|');
-            const concat = String(row.Forward_Filled_Concatenated).replace(/\|/g, '\\|');
-            const abbrev = String(row.LLM_Abbreviated).replace(/\|/g, '\\|');
-            
-            markdownContent += `| ${col} | \`${row0}\` | \`${row1}\` | \`${row2}\` | \`${row3}\` | \`${concat}\` | \`${abbrev}\` |\n`;
-        }
-        
-        await fs.writeFile('improved_column_comparison.md', markdownContent, 'utf-8');
-        
-        console.log('Comparison table generated:');
-        console.log('- improved_column_comparison.csv');
-        console.log('- improved_column_comparison.md');
+        // Store comparison data for return (no file writes in serverless)
+        this.comparisonData = comparisonData;
         
         return { success: true, rows: comparisonData.length };
     }
