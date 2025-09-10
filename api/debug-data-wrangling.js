@@ -1,4 +1,7 @@
-// Simple working version of debug data wrangling API
+// Enhanced data wrangling API with improved pipeline
+import { ImprovedDataWrangler } from '../src/utils/improvedDataWrangler.js';
+import { Buffer } from 'buffer';
+
 const logger = {
     info: (...args) => console.log('[INFO]', ...args),
     error: (...args) => console.error('[ERROR]', ...args),
@@ -311,6 +314,54 @@ CRITICAL: Return ONLY valid JSON. No markdown formatting, no explanatory text, j
                 }
                 break;
                 
+            case 'run_improved_pipeline':
+                try {
+                    logger.info('Starting improved data wrangling pipeline');
+                    
+                    // Get file data from request (base64 encoded Excel file)
+                    const { fileData, fileName } = req.body;
+                    
+                    if (!fileData) {
+                        throw new Error('No file data provided for improved pipeline');
+                    }
+                    
+                    // Convert base64 to buffer
+                    const buffer = Buffer.from(fileData.split(',')[1], 'base64');
+                    
+                    // Initialize improved data wrangler
+                    const wrangler = new ImprovedDataWrangler(process.env.ANTHROPIC_API_KEY);
+                    
+                    // Run the complete pipeline
+                    const pipelineResult = await wrangler.runPipeline(buffer);
+                    
+                    if (!pipelineResult.success) {
+                        throw new Error(`Pipeline failed: ${pipelineResult.error}`);
+                    }
+                    
+                    result = {
+                        success: true,
+                        pipelineCompleted: true,
+                        totalColumns: pipelineResult.results.totalColumns,
+                        headerRows: pipelineResult.results.headerRows,
+                        dataStartRow: pipelineResult.results.dataStartRow,
+                        comparisonRows: pipelineResult.results.comparisonRows,
+                        columnMapping: pipelineResult.results.columnMapping,
+                        filesGenerated: ['column_mapping.json', 'improved_column_comparison.csv', 'improved_column_comparison.md'],
+                        note: 'Improved pipeline completed - column mapping and comparison files generated'
+                    };
+
+                } catch (error) {
+                    logger.error('Improved pipeline failed:', error);
+                    result = {
+                        success: false,
+                        pipelineCompleted: false,
+                        error: error.message,
+                        totalColumns: 0,
+                        note: 'Improved pipeline failed - check file format and API connectivity'
+                    };
+                }
+                break;
+
             case 'validate_output':
                 result = {
                     success: true,

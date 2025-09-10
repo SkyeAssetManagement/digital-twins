@@ -226,6 +226,13 @@
                         result: null
                     },
                     {
+                        id: 'run_improved_pipeline',
+                        title: 'Run Improved Pipeline',
+                        description: 'Execute the complete improved data wrangling pipeline with 4-header support',
+                        completed: false,
+                        result: null
+                    },
+                    {
                         id: 'validate_output',
                         title: 'Validate Output',
                         description: 'Validate the final processed data quality',
@@ -368,6 +375,31 @@
                             </div>
                         `;
                         break;
+                    case 'run_improved_pipeline':
+                        summary = `
+                            <div class="summary-stats">
+                                <div class="stat-item">
+                                    <span class="stat-number">${result.pipelineCompleted ? '✅' : '❌'}</span>
+                                    <span class="stat-label">Pipeline Status</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-number">${result.totalColumns || 0}</span>
+                                    <span class="stat-label">Columns Processed</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-number">${result.headerRows ? result.headerRows.length : 0}</span>
+                                    <span class="stat-label">Header Rows</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-number">${result.dataStartRow || 'N/A'}</span>
+                                    <span class="stat-label">Data Start Row</span>
+                                </div>
+                            </div>
+                            <div style="margin-top: 15px;">
+                                <p><strong>Files Generated:</strong> ${result.filesGenerated ? result.filesGenerated.join(', ') : 'None'}</p>
+                            </div>
+                        `;
+                        break;
                 }
 
                 return `
@@ -407,11 +439,29 @@
                         analysisParams: analysisParams
                     };
                     
-                    // Add file info if available
-                    if (this.fileId) {
-                        requestBody.fileId = this.fileId;
+                    // Special handling for improved pipeline step
+                    if (stepId === 'run_improved_pipeline') {
+                        if (this.fileId) {
+                            // Get file data from server if uploaded
+                            const fileResponse = await fetch(`/api/get-temp-file?file_id=${this.fileId}`);
+                            if (fileResponse.ok) {
+                                const fileData = await fileResponse.text();
+                                requestBody.fileData = fileData;
+                                requestBody.fileName = `uploaded_file_${this.fileId}.xlsx`;
+                            } else {
+                                throw new Error('Failed to retrieve uploaded file data');
+                            }
+                        } else {
+                            // Use default file path for other steps
+                            requestBody.filePath = './data/datasets/mums/Detail_Parents Survey.xlsx';
+                        }
                     } else {
-                        requestBody.filePath = './data/datasets/mums/Detail_Parents Survey.xlsx';
+                        // Add file info for regular steps
+                        if (this.fileId) {
+                            requestBody.fileId = this.fileId;
+                        } else {
+                            requestBody.filePath = './data/datasets/mums/Detail_Parents Survey.xlsx';
+                        }
                     }
                     
                     const response = await fetch('/api/debug-data-wrangling', {
