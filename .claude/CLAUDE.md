@@ -112,3 +112,4 @@ npm run format       # Auto-format code
 - Accuracy over simplicity: Preserve complexity when needed
 - Quality over speed: Better to do it right than do it twice
 - NEVER HAVE FALLBACKS!!!!  Have NA if there is no data.  Please add to CLAUDE.md
+- never skip because of connectivity or other challenges - work it out, even if you need the users help

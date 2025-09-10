@@ -5,7 +5,7 @@
 import { createLogger } from '../src/utils/logger.js';
 import { AppError } from '../src/utils/error-handler.js';
 import { getIntelligentDataPreprocessor } from '../src/data_processing/intelligent_data_preprocessor.js';
-import { uploadedDatasets } from './survey-datasets.js';
+import { uploadedDatasets, initializationPromise, isInitialized } from './survey-datasets.js';
 import path from 'path';
 import fs from 'fs';
 
@@ -13,6 +13,12 @@ const logger = createLogger('ExportCleanCSVAPI');
 
 export default async function handler(req, res) {
     try {
+        // Ensure initialization is complete before processing requests
+        if (!isInitialized && initializationPromise) {
+            logger.info('Waiting for dataset initialization to complete for CSV export...');
+            await initializationPromise;
+        }
+        
         if (req.method !== 'GET') {
             return res.status(405).json({ error: 'Method not allowed' });
         }

@@ -10,13 +10,29 @@ const logger = createLogger('SurveyDatasetsAPI');
 const uploadedDatasets = new Map();
 const uploadedArchetypes = new Map();
 
-// Initialize with pre-loaded datasets - async but don't block startup
-initializePreloadedDatasets().catch(error => {
-    logger.error('Failed to initialize preloaded datasets during startup:', error);
-});
+// Track initialization status
+let initializationPromise = null;
+let isInitialized = false;
+
+// Initialize with pre-loaded datasets
+initializationPromise = initializePreloadedDatasets()
+    .then(() => {
+        isInitialized = true;
+        logger.info('Preloaded datasets initialization completed');
+    })
+    .catch(error => {
+        logger.error('Failed to initialize preloaded datasets during startup:', error);
+        isInitialized = false;
+    });
 
 export default async function handler(req, res) {
     try {
+        // Ensure initialization is complete before processing requests
+        if (!isInitialized && initializationPromise) {
+            logger.info('Waiting for dataset initialization to complete...');
+            await initializationPromise;
+        }
+        
         if (req.method === 'GET') {
             return handleGetDatasets(req, res);
         } else if (req.method === 'POST') {
@@ -315,4 +331,4 @@ function inferQuestionType(header) {
 
 // Mock data generation functions removed - now using intelligent data preprocessing
 
-export { uploadedDatasets, uploadedArchetypes };
+export { uploadedDatasets, uploadedArchetypes, initializationPromise, isInitialized };
