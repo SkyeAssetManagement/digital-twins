@@ -202,6 +202,14 @@ export class IntelligentDataPreprocessor {
                 logger.info(`Applying wrangling step: ${step.action}`);
                 
                 switch (step.action) {
+                    case 'identify_matrix_questions':
+                        // This step is handled in extract_clean_headers
+                        break;
+                        
+                    case 'extract_clean_headers':
+                        headers = this.extractAndCleanHeaders(processedData, analysis, step.rules || []);
+                        break;
+                        
                     case 'extract_questions_from_row':
                         headers = this.extractQuestions(processedData, step.target_row - 1);
                         break;
@@ -222,6 +230,11 @@ export class IntelligentDataPreprocessor {
                                 step.separator || ' - '
                             );
                         }
+                        break;
+                        
+                    case 'validate_data_integrity':
+                        // Data integrity validation - ensure we have headers for all columns
+                        this.validateDataIntegrity(processedData, headers, dataStartRow);
                         break;
                 }
             }
@@ -319,6 +332,115 @@ export class IntelligentDataPreprocessor {
             }
         });
         return fields;
+    }
+
+    /**
+     * Extract and clean headers using enhanced logic
+     */
+    extractAndCleanHeaders(data, analysis, rules) {
+        const questionRows = analysis.analysis.question_rows || [1];
+        let rawHeaders = [];
+        
+        // Extract headers from specified rows
+        if (questionRows.length === 1) {
+            const rowIndex = questionRows[0] - 1;
+            rawHeaders = this.extractQuestions(data, rowIndex);
+        } else {
+            // Multiple rows - concatenate intelligently
+            rawHeaders = this.concatenateMultiRowHeaders(
+                data, 
+                questionRows.map(r => r - 1), 
+                ' - '
+            );
+        }
+        
+        // Apply header cleaning rules
+        const cleanedHeaders = rawHeaders.map(header => this.cleanHeaderText(header, rules));
+        
+        // Forward fill empty headers
+        return this.forwardFillHeaders(cleanedHeaders);
+    }
+    
+    /**
+     * Clean individual header text according to rules
+     */
+    cleanHeaderText(header, rules) {
+        if (!header || !header.trim()) return '';
+        
+        let cleaned = header.trim();
+        
+        // Apply generic cleaning rules
+        // Remove "- Response" suffixes
+        cleaned = cleaned.replace(/\s*-\s*Response\s*$/i, '');
+        
+        // Remove verbose descriptions (look for repeated words or very long text)
+        if (cleaned.length > 100) {
+            // Try to extract the actual question from verbose text
+            const questionPatterns = [
+                /please indicate your (agreement|views|feedback).*?:\s*(.+)/i,
+                /when it comes to.*?please indicate.*?:\s*(.+)/i,
+                /.*?\?\s*-\s*(.+)/,
+                /^(.+?)\s*(are|is|do|does|how|what|when|where|why).{20,}$/i
+            ];
+            
+            for (const pattern of questionPatterns) {
+                const match = cleaned.match(pattern);
+                if (match && match[1] && match[1].length < cleaned.length / 2) {
+                    cleaned = match[1].trim();
+                    break;
+                }
+            }
+            
+            // If still too long, truncate intelligently
+            if (cleaned.length > 80) {
+                const sentences = cleaned.split(/[.!?]/);
+                if (sentences.length > 1 && sentences[0].length > 10) {
+                    cleaned = sentences[0].trim();
+                }
+            }
+        }
+        
+        // Handle matrix question expansion
+        cleaned = this.expandMatrixQuestionHeader(cleaned);
+        
+        // Final cleanup
+        cleaned = cleaned.replace(/\s+/g, ' ').trim();
+        
+        return cleaned;
+    }
+    
+    /**
+     * Expand matrix question headers to be more descriptive
+     */
+    expandMatrixQuestionHeader(header) {
+        // Look for patterns where we can make headers more descriptive
+        if (header.match(/^(baby|child|product|brand)/i) && header.length < 20) {
+            // This might be a sub-question that needs context
+            // Keep as is for now - context will be added by forward fill
+            return header;
+        }
+        
+        return header;
+    }
+    
+    /**
+     * Validate data integrity after processing
+     */
+    validateDataIntegrity(data, headers, dataStartRow) {
+        const dataRows = data.slice(dataStartRow);
+        const maxColumns = Math.max(...dataRows.map(row => row.length));
+        
+        if (headers.length !== maxColumns) {
+            logger.warn(`Header count (${headers.length}) doesn't match data columns (${maxColumns})`);
+        }
+        
+        // Check for empty response rows
+        const emptyRows = dataRows.filter(row => !row || row.every(cell => !cell || cell === ''));
+        if (emptyRows.length > 0) {
+            logger.warn(`Found ${emptyRows.length} empty response rows`);
+        }
+        
+        return true;
     }
 
     /**
