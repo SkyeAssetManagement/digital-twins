@@ -83,6 +83,12 @@ app.get('/api/export-clean-csv', async (req, res) => {
   await exportCleanCSVHandler(req, res);
 });
 
+// Debug Data Wrangling API
+import debugDataWranglingHandler from './api/debug-data-wrangling.js';
+app.post('/api/debug-data-wrangling', async (req, res) => {
+  await debugDataWranglingHandler(req, res);
+});
+
 // 3-Stage Pipeline Analysis API
 import threeStageAnalysisHandler, { 
   getAnalysisStatus, 
