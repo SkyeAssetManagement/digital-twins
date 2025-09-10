@@ -89,6 +89,12 @@ app.post('/api/debug-data-wrangling', async (req, res) => {
   await debugDataWranglingHandler(req, res);
 });
 
+// Upload Temp File API
+import uploadTempFileHandler from './api/upload-temp-file.js';
+app.post('/api/upload-temp-file', async (req, res) => {
+  await uploadTempFileHandler(req, res);
+});
+
 // 3-Stage Pipeline Analysis API
 import threeStageAnalysisHandler, { 
   getAnalysisStatus, 

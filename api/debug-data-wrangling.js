@@ -18,7 +18,15 @@ export default async function handler(req, res) {
         }
 
         logger.info('Request body:', req.body);
-        const { step, filePath, previousResult } = req.body;
+        const { step, filePath, fileId, analysisParams, previousResult } = req.body;
+        
+        // Default analysis parameters
+        const params = {
+            rowsToExamine: 5,
+            topRowsToIgnore: 0,
+            maxColumns: 50, // Limit columns shown in preview
+            ...analysisParams
+        };
 
         if (!step) {
             logger.error('No step provided in request');
@@ -33,21 +41,25 @@ export default async function handler(req, res) {
         switch (step) {
             case 'load_file':
                 logger.info('Executing load_file step');
-                result = await debuggerInstance.loadFile(filePath);
+                if (fileId) {
+                    result = await debuggerInstance.loadFileById(fileId, params);
+                } else {
+                    result = await debuggerInstance.loadFile(filePath);
+                }
                 break;
             case 'analyze_structure':
                 logger.info('Executing analyze_structure step');
                 if (!previousResult?.rawData) {
                     throw new Error('Previous step result with rawData is required');
                 }
-                result = await debuggerInstance.analyzeStructure(previousResult.rawData);
+                result = await debuggerInstance.analyzeStructure(previousResult.rawData, params);
                 break;
             case 'get_llm_analysis':
                 logger.info('Executing get_llm_analysis step');
                 if (!previousResult?.rawData) {
                     throw new Error('Previous step result with rawData is required');
                 }
-                result = await debuggerInstance.getLLMAnalysis(previousResult.rawData);
+                result = await debuggerInstance.getLLMAnalysis(previousResult.rawData, params);
                 break;
             case 'apply_wrangling_plan':
                 logger.info('Executing apply_wrangling_plan step');
@@ -93,7 +105,84 @@ export default async function handler(req, res) {
 class DataWranglingDebugger {
     
     /**
-     * Step 1: Load actual file data using the existing survey dataset
+     * Step 1a: Load file by ID from temporary storage
+     */
+    async loadFileById(fileId, params = {}) {
+        logger.info(`Loading file by ID: ${fileId}`);
+        
+        try {
+            // Get file from temporary storage
+            if (!global.tempFileStorage || !global.tempFileStorage.has(fileId)) {
+                throw new Error(`File not found: ${fileId}`);
+            }
+            
+            const fileRecord = global.tempFileStorage.get(fileId);
+            logger.info(`File found: ${fileRecord.filename}, Size: ${fileRecord.original_size} bytes`);
+            
+            // Decode base64 data and parse
+            const buffer = Buffer.from(fileRecord.file_data_base64, 'base64');
+            const rawData = await this.parseFileBuffer(buffer, fileRecord.filename, fileRecord.mime_type);
+            
+            // Apply analysis parameters
+            const rowsToShow = Math.min(params.rowsToExamine || 5, rawData.length);
+            const skipRows = params.topRowsToIgnore || 0;
+            const analysisData = rawData.slice(skipRows);
+            
+            return {
+                fileId: fileId,
+                filePath: fileRecord.filename,
+                fileSize: fileRecord.original_size,
+                totalRows: rawData.length,
+                totalColumns: rawData[0]?.length || 0,
+                analysisParams: params,
+                firstFewRows: analysisData.slice(0, rowsToShow),
+                rawDataSample: {
+                    row0: analysisData[0]?.slice(0, params.maxColumns || 20),
+                    row1: analysisData[1]?.slice(0, params.maxColumns || 20),
+                    row2: analysisData[2]?.slice(0, params.maxColumns || 20),
+                    row3: analysisData[3]?.slice(0, params.maxColumns || 20)
+                },
+                rawData: rawData, // Full data for next step
+                note: `Real file loaded: ${fileRecord.filename} (${rawData.length} rows × ${rawData[0]?.length || 0} cols). Analysis: examining ${rowsToShow} rows, skipping ${skipRows} top rows.`
+            };
+        } catch (error) {
+            logger.error('Failed to load file by ID:', error);
+            throw new Error(`File loading failed: ${error.message}`);
+        }
+    }
+    
+    /**
+     * Parse file buffer based on file type
+     */
+    async parseFileBuffer(buffer, filename, mimeType) {
+        const XLSX = await import('xlsx');
+        
+        if (mimeType.includes('spreadsheet') || filename.match(/\.(xlsx|xls)$/i)) {
+            // Parse Excel file
+            const workbook = XLSX.default.read(buffer, { type: 'buffer' });
+            const sheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[sheetName];
+            const jsonData = XLSX.default.utils.sheet_to_json(worksheet, {
+                header: 1, // Return array of arrays
+                defval: '', // Use empty string for null cells
+                raw: false // Convert everything to strings
+            });
+            return jsonData;
+        } else if (mimeType.includes('csv') || filename.match(/\.csv$/i)) {
+            // Parse CSV file
+            const csvText = buffer.toString('utf8');
+            const rows = csvText.split('\n').map(row => {
+                // Simple CSV parsing - could be enhanced for quoted fields
+                return row.split(',').map(cell => cell.trim());
+            });
+            return rows.filter(row => row.some(cell => cell)); // Remove empty rows
+        } else {
+            throw new Error(`Unsupported file type: ${mimeType}`);
+        }
+    }
+    
+    /**
+     * Step 1b: Load file from path (fallback)
      */
     async loadFile(filePath) {
         logger.info(`Loading file for debug: ${filePath}`);
@@ -211,10 +300,10 @@ class DataWranglingDebugger {
     }
 
     /**
-     * Step 2: Basic structure analysis (no pattern detection - leave that to LLM)
+     * Step 2: Basic structure analysis with configurable parameters
      * Only provide raw statistics - no assumptions about survey structure
      */
-    async analyzeStructure(rawData) {
+    async analyzeStructure(rawData, params = {}) {
         logger.info('Analyzing raw data structure - basic stats only');
         
         const analysis = {
@@ -224,9 +313,13 @@ class DataWranglingDebugger {
             rowAnalysis: []
         };
 
-        // Analyze first 10 rows with purely descriptive statistics
-        for (let i = 0; i < Math.min(10, rawData.length); i++) {
-            const row = rawData[i];
+        const rowsToAnalyze = Math.min(params.rowsToExamine || 5, rawData.length);
+        const skipRows = params.topRowsToIgnore || 0;
+        const analysisData = rawData.slice(skipRows);
+        
+        // Analyze configurable number of rows with purely descriptive statistics
+        for (let i = 0; i < Math.min(rowsToAnalyze + 5, analysisData.length); i++) {
+            const row = analysisData[i];
             const rowAnalysis = {
                 rowIndex: i,
                 cellCount: row.length,
@@ -246,25 +339,31 @@ class DataWranglingDebugger {
         }
 
         // Provide only raw data samples for LLM analysis
-        analysis.rawDataSample = rawData.slice(0, 10).map(row => row.slice(0, 15));
-        analysis.note = "Raw statistics only - all pattern detection and structural analysis handled by LLM";
+        analysis.rawDataSample = analysisData.slice(0, rowsToAnalyze).map(row => row.slice(0, params.maxColumns || 20));
+        analysis.analysisParams = params;
+        analysis.note = `Raw statistics only - examining ${rowsToAnalyze} rows (skipping ${skipRows} top rows). All pattern detection handled by LLM.`;
         
         return analysis;
     }
 
     /**
-     * Step 3: Get LLM analysis with full prompt and response
+     * Step 3: Get LLM analysis with configurable parameters
      */
-    async getLLMAnalysis(rawData) {
+    async getLLMAnalysis(rawData, params = {}) {
         logger.info('Getting LLM analysis of data structure');
         
         const preprocessor = await getIntelligentDataPreprocessor();
         
-        // Prepare data sample for LLM (first 5 rows, first 20 columns)
-        const dataSample = rawData.slice(0, 5).map(row => row.slice(0, 20));
+        const rowsToExamine = params.rowsToExamine || 5;
+        const skipRows = params.topRowsToIgnore || 0;
+        const maxColumns = params.maxColumns || 20;
+        
+        // Prepare data sample for LLM based on parameters
+        const analysisData = rawData.slice(skipRows);
+        const dataSample = analysisData.slice(0, rowsToExamine).map(row => row.slice(0, maxColumns));
         
         // Get the actual prompt that will be sent
-        const prompt = this.buildAnalysisPrompt(dataSample);
+        const prompt = this.buildAnalysisPrompt(dataSample, params);
         
         logger.info('Sending prompt to LLM:', { promptLength: prompt.length });
         
@@ -403,37 +502,52 @@ class DataWranglingDebugger {
 
     // REMOVED: detectHeaderPatterns method - all pattern detection now handled by LLM
 
-    buildAnalysisPrompt(dataSample) {
+    buildAnalysisPrompt(dataSample, params = {}) {
+        const rowCount = dataSample.length;
+        const colCount = dataSample[0]?.length || 0;
+        const skipRows = params.topRowsToIgnore || 0;
+        
         // Build the generic data analysis prompt that works for any survey structure
-        const DATA_WRANGLING_PROMPT = `# Generic Survey Data Structure Analysis
+        const DATA_WRANGLING_PROMPT = `# Generic Data Structure Analysis
 
-You are an expert data analyst. Analyze this tabular data and determine how to clean it into a proper survey format.
+You are an expert data analyst. Analyze this tabular data and determine how to clean it into a proper format.
 
-## Data Sample (first 5 rows, up to 20 columns):
-${dataSample.map((row, i) => `Row ${i}: [${row.map(cell => `"${cell || ''}"`).join(', ')}]`).join('\n')}
+## Analysis Parameters:
+- Examining: ${rowCount} rows, ${colCount} columns
+- Top rows ignored: ${skipRows}
+- This represents the ${skipRows > 0 ? `data starting from row ${skipRows}` : 'beginning of the file'}
+
+## Data Sample:
+${dataSample.map((row, i) => `Row ${skipRows + i}: [${row.map(cell => `"${cell || ''}"`).join(', ')}]`).join('\n')}
 
 ## Your Task:
-1. Identify which rows contain question headers vs actual response data
-2. Determine if headers span multiple rows and need combining
-3. Detect any matrix questions that should be split into separate columns
-4. Create a plan to extract clean, concise question headers
-5. Ensure all response data is preserved
+1. Identify which rows contain headers vs actual data
+2. Determine if headers span multiple rows and need combining  
+3. Detect any matrix/grid questions that should be handled specially
+4. Create a plan to extract clean, meaningful column headers
+5. Ensure all data is preserved during cleaning
+6. Account for the ${skipRows} rows that were skipped at the beginning
 
 ## Required JSON Response Format:
 {
   "success": true,
   "analysis": {
-    "structure_type": "<describe what you see>",
-    "question_rows": [<array of row indices containing headers>],
-    "data_start_row": <first row with actual responses>,
+    "structure_type": "<describe what you see - survey, data table, report, etc>",
+    "question_rows": [<array of row indices containing headers, relative to original file>],
+    "data_start_row": <first row with actual data, relative to original file>,
     "header_issues": ["<list of problems found>"],
-    "recommended_approach": "<your strategy>"
+    "recommended_approach": "<your strategy>",
+    "column_analysis": {
+      "total_columns": ${colCount},
+      "empty_columns": "<count of consistently empty columns>",
+      "pattern_detected": "<single_row_headers|multi_row_headers|matrix_questions|mixed>"
+    }
   },
   "wrangling_plan": {
     "step_1": {
       "action": "<action_name>",
       "description": "<what this step does>",
-      "target_rows": [<affected rows>]
+      "target_rows": [<affected rows, relative to original file>]
     },
     "step_2": {
       "action": "<action_name>",
