@@ -118,13 +118,14 @@
         }
         .loading {
             display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #007bff;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #007bff;
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin-left: 10px;
+            margin-left: 8px;
+            vertical-align: middle;
         }
         @keyframes spin {
             0% { transform: rotate(0deg); }
@@ -172,6 +173,7 @@
     <script>
         class DataWranglingDebugger {
             constructor() {
+                console.log('DataWranglingDebugger constructor called');
                 this.steps = [
                     {
                         id: 'load_file',
@@ -211,17 +213,27 @@
                 ];
                 
                 this.currentStep = 0;
+                console.log(`Initialized with ${this.steps.length} steps`);
                 this.render();
             }
 
             render() {
+                console.log('Rendering debugger interface...');
                 const container = document.getElementById('steps-container');
+                if (!container) {
+                    console.error('steps-container element not found!');
+                    return;
+                }
+                
                 container.innerHTML = '';
 
                 this.steps.forEach((step, index) => {
+                    console.log(`Creating step element for: ${step.title}`);
                     const stepElement = this.createStepElement(step, index);
                     container.appendChild(stepElement);
                 });
+                
+                console.log('Render complete');
             }
 
             createStepElement(step, index) {
@@ -236,22 +248,29 @@
                     div.classList.add('error');
                 }
 
+                const buttonHtml = `
+                    <button class="step-button" 
+                            ${index !== this.currentStep || step.loading ? 'disabled' : ''}>
+                        ${step.loading ? 'Processing...' : 'Run Step'}
+                        ${step.loading ? '<span class="loading"></span>' : ''}
+                    </button>
+                `;
+
                 div.innerHTML = `
                     <div class="step-header">
                         <div class="step-number">${index + 1}</div>
                         <div class="step-title">${step.title}</div>
                     </div>
                     <div class="step-description">${step.description}</div>
-                    
-                    <button class="step-button" 
-                            onclick="debugger.runStep('${step.id}')" 
-                            ${index !== this.currentStep || step.loading ? 'disabled' : ''}>
-                        ${step.loading ? 'Processing...' : 'Run Step'}
-                        ${step.loading ? '<div class="loading"></div>' : ''}
-                    </button>
-                    
+                    ${buttonHtml}
                     ${step.result ? this.renderResult(step) : ''}
                 `;
+
+                // Add event listener after creating the element
+                const button = div.querySelector('.step-button');
+                if (button && !button.disabled) {
+                    button.addEventListener('click', () => this.runStep(step.id));
+                }
 
                 return div;
             }
@@ -378,9 +397,24 @@
             }
         }
 
-        // Initialize debugger
-        const debugger = new DataWranglingDebugger();
-        window.debugger = debugger; // For console access
+        // Initialize debugger when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Page loaded, initializing debugger...');
+            try {
+                const debuggerInstance = new DataWranglingDebugger();
+                window.debuggerInstance = debuggerInstance; // For console access
+                console.log('Debugger initialized successfully');
+            } catch (error) {
+                console.error('Failed to initialize debugger:', error);
+                document.getElementById('steps-container').innerHTML = `
+                    <div style="color: red; padding: 20px;">
+                        <h3>❌ Error Initializing Debugger</h3>
+                        <p>${error.message}</p>
+                        <p>Check the browser console for more details.</p>
+                    </div>
+                `;
+            }
+        });
     </script>
 </body>
 </html>
