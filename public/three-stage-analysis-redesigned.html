@@ -1148,13 +1148,25 @@
             const uploadZone = document.getElementById('uploadZone');
             const fileInput = document.getElementById('fileInput');
             
-            uploadZone.addEventListener('click', () => fileInput.click());
-            uploadZone.addEventListener('dragover', handleDragOver);
-            uploadZone.addEventListener('drop', handleDrop);
-            fileInput.addEventListener('change', handleFileSelect);
+            if (uploadZone && fileInput) {
+                uploadZone.addEventListener('click', () => fileInput.click());
+                uploadZone.addEventListener('dragover', handleDragOver);
+                uploadZone.addEventListener('drop', handleDrop);
+                fileInput.addEventListener('change', handleFileSelect);
+            } else {
+                console.warn('Upload elements not found during initialization:', { 
+                    uploadZone: !!uploadZone, 
+                    fileInput: !!fileInput 
+                });
+            }
 
-            // Process button
-            document.getElementById('processBtn').addEventListener('click', processUploadedFile);
+            // Process button (may not be visible initially)
+            const processBtn = document.getElementById('processBtn');
+            if (processBtn) {
+                processBtn.addEventListener('click', processUploadedFile);
+            } else {
+                console.warn('Process button not found during initialization - will be attached when form becomes visible');
+            }
 
             // Analysis button
             document.getElementById('startAnalysisBtn').addEventListener('click', startAnalysis);
@@ -1278,6 +1290,13 @@
             // Show upload form
             document.getElementById('uploadForm').classList.remove('hidden');
             
+            // Attach process button event listener if not already attached
+            const processBtn = document.getElementById('processBtn');
+            if (processBtn && !processBtn.hasAttribute('data-listener-attached')) {
+                processBtn.addEventListener('click', processUploadedFile);
+                processBtn.setAttribute('data-listener-attached', 'true');
+            }
+            
             // Pre-fill dataset name from filename
             const nameInput = document.getElementById('datasetName');
             if (!nameInput.value) {
@@ -1294,23 +1313,48 @@
         }
 
         async function processUploadedFile() {
+            // Step 1: Check if upload section is visible
+            const uploadSection = document.getElementById('uploadSection');
+            if (uploadSection && uploadSection.classList.contains('hidden')) {
+                showAlert('Please select "Upload New Dataset" first to access file upload.', 'warning');
+                return;
+            }
+            
+            // Step 2: Check if upload form is visible (requires file selection)
+            const uploadForm = document.getElementById('uploadForm');
+            if (uploadForm && uploadForm.classList.contains('hidden')) {
+                showAlert('Please select a file first to complete the upload form.', 'warning');
+                return;
+            }
+            
+            // Step 3: Get DOM elements with comprehensive error handling
             const fileInput = document.getElementById('fileInput');
             const nameInput = document.getElementById('datasetName');
             const demoInput = document.getElementById('targetDemo');
             const descInput = document.getElementById('description');
             const processBtn = document.getElementById('processBtn');
 
-            // Add null checks for DOM elements
-            if (!fileInput) {
-                showAlert('File input element not found. Please refresh the page.', 'error');
-                return;
-            }
-            if (!nameInput) {
-                showAlert('Dataset name input not found. Please refresh the page.', 'error');
-                return;
-            }
-            if (!demoInput) {
-                showAlert('Target demographic input not found. Please refresh the page.', 'error');
+            // Step 4: Validate DOM elements exist
+            const missingElements = [];
+            if (!fileInput) missingElements.push('File input');
+            if (!nameInput) missingElements.push('Dataset name input');
+            if (!demoInput) missingElements.push('Target demographic input');
+            if (!processBtn) missingElements.push('Process button');
+            
+            if (missingElements.length > 0) {
+                const uploadVisible = uploadSection && !uploadSection.classList.contains('hidden');
+                const formVisible = uploadForm && !uploadForm.classList.contains('hidden');
+                
+                let message = `Missing form elements: ${missingElements.join(', ')}.`;
+                if (!uploadVisible) {
+                    message += ' Please select "Upload New Dataset" first.';
+                } else if (!formVisible) {
+                    message += ' Please select a file first.';
+                } else {
+                    message += ' Please refresh the page.';
+                }
+                
+                showAlert(message, 'error');
                 return;
             }
 
