@@ -456,30 +456,8 @@
                         analysisParams: analysisParams
                     };
                     
-                    // Special handling for improved pipeline step
-                    if (stepId === 'run_improved_pipeline') {
-                        if (this.fileId) {
-                            // Get file data from server if uploaded
-                            const fileResponse = await fetch(`/api/get-temp-file?file_id=${this.fileId}`);
-                            if (fileResponse.ok) {
-                                const fileData = await fileResponse.text();
-                                requestBody.fileData = fileData;
-                                requestBody.fileName = `uploaded_file_${this.fileId}.xlsx`;
-                            } else {
-                                throw new Error('Failed to retrieve uploaded file data');
-                            }
-                        } else {
-                            // Use default file path for other steps
-                            requestBody.filePath = './data/datasets/mums/Detail_Parents Survey.xlsx';
-                        }
-                    } else {
-                        // Add file info for regular steps
-                        if (this.fileId) {
-                            requestBody.fileId = this.fileId;
-                        } else {
-                            requestBody.filePath = 'data/datasets/mums/Detail_Parents Survey.xlsx';
-                        }
-                    }
+                    // All steps now use database approach - no more temp files or local file paths
+                    requestBody.documentId = 1; // Use document ID 1 which contains our test Excel file
                     
                     const response = await fetch('/api/debug-data-wrangling', {
                         method: 'POST',
