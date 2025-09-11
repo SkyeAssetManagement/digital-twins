@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Three Stage Analysis - Fixed</title>
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0; 
+            padding: 20px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            background: white; 
+            border-radius: 12px; 
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header { 
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); 
+            padding: 30px; 
+            color: white; 
+            text-align: center;
+        }
+        .content { padding: 30px; }
+        .hidden { display: none !important; }
+        .section { 
+            margin: 20px 0; 
+            padding: 20px; 
+            border: 1px solid #e0e0e0; 
+            border-radius: 8px; 
+        }
+        .radio-option { 
+            display: inline-block; 
+            margin: 10px 15px 10px 0; 
+            padding: 15px 20px; 
+            border: 2px solid #e0e0e0; 
+            border-radius: 8px; 
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .radio-option.selected { 
+            border-color: #4facfe; 
+            background: #f0f9ff; 
+        }
+        .radio-option input { margin-right: 8px; }
+        .upload-zone { 
+            border: 2px dashed #ccc; 
+            padding: 40px 20px; 
+            text-align: center; 
+            cursor: pointer; 
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .upload-zone:hover { 
+            border-color: #4facfe; 
+            background: #f9f9f9; 
+        }
+        .form-group { margin: 15px 0; }
+        .form-label { 
+            display: block; 
+            margin-bottom: 5px; 
+            font-weight: 600; 
+            color: #333;
+        }
+        .form-control { 
+            width: 100%; 
+            padding: 12px; 
+            border: 1px solid #ddd; 
+            border-radius: 6px; 
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+        .form-control:focus { 
+            outline: none; 
+            border-color: #4facfe; 
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+        .btn { 
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); 
+            color: white; 
+            border: none; 
+            padding: 12px 24px; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-weight: 600;
+            transition: transform 0.2s ease;
+        }
+        .btn:hover { transform: translateY(-1px); }
+        .btn:disabled { 
+            opacity: 0.6; 
+            cursor: not-allowed; 
+            transform: none;
+        }
+        .alert { 
+            padding: 15px; 
+            margin: 15px 0; 
+            border-radius: 6px; 
+            border: 1px solid transparent;
+        }
+        .alert-success { 
+            background: #d4edda; 
+            border-color: #c3e6cb; 
+            color: #155724; 
+        }
+        .alert-warning { 
+            background: #fff3cd; 
+            border-color: #ffeaa7; 
+            color: #856404; 
+        }
+        .alert-error { 
+            background: #f8d7da; 
+            border-color: #f5c6cb; 
+            color: #721c24; 
+        }
+        .debug-info {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 20px 0;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧬 Three Stage Analysis - Fixed Version</h1>
+            <p>Universal Survey Digital Twin Analysis Platform</p>
+        </div>
+        
+        <div class="content">
+            <div class="section">
+                <h2>Data Source Selection</h2>
+                
+                <div class="radio-option" id="existingOption">
+                    <label>
+                        <input type="radio" name="dataSource" value="existing">
+                        Use Existing Dataset
+                    </label>
+                </div>
+                
+                <div class="radio-option" id="uploadOption">
+                    <label>
+                        <input type="radio" name="dataSource" value="upload">
+                        Upload New Dataset
+                    </label>
+                </div>
+                
+                <!-- Existing Dataset Section -->
+                <div id="existingSection" class="hidden">
+                    <div class="form-group">
+                        <label class="form-label" for="datasetSelect">Select Dataset</label>
+                        <select id="datasetSelect" class="form-control">
+                            <option value="">Choose a dataset...</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Upload Section -->
+                <div id="uploadSection" class="hidden">
+                    <div class="upload-zone" id="uploadZone">
+                        <div class="upload-icon">📊</div>
+                        <h3 style="margin-bottom: 8px;">Drop your survey file here</h3>
+                        <p style="margin-bottom: 20px;">or click to browse</p>
+                        <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" style="display: none;">
+                        <div style="font-size: 0.85rem; color: #666;">
+                            Supports CSV, XLSX, XLS • Max 50MB
+                        </div>
+                    </div>
+                    
+                    <div id="uploadForm" class="hidden" style="margin-top: 30px;">
+                        <div class="form-group">
+                            <label class="form-label" for="datasetName">Dataset Name</label>
+                            <input type="text" id="datasetName" class="form-control" placeholder="e.g., Consumer Lifestyle Survey 2024">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="targetDemo">Target Demographic</label>
+                            <input type="text" id="targetDemo" class="form-control" placeholder="e.g., Adults 25-45, Urban, College-educated">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="description">Description (Optional)</label>
+                            <textarea id="description" class="form-control" rows="3" placeholder="Brief overview of survey objectives and methodology"></textarea>
+                        </div>
+
+                        <button type="button" id="processBtn" class="btn">
+                            🚀 Process & Analyze
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>Analysis Controls</h2>
+                <button id="startAnalysisBtn" class="btn">Start Three-Stage Analysis</button>
+            </div>
+            
+            <!-- Debug Information -->
+            <div class="debug-info">
+                <h4>🐛 Debug Information</h4>
+                <div id="debugLog">Page loaded, waiting for user interaction...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Debug logging
+        function debugLog(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logDiv = document.getElementById('debugLog');
+            logDiv.innerHTML += `<br>[${timestamp}] ${message}`;
+            console.log(`[DEBUG] ${message}`);
+        }
+        
+        // Global variables
+        let selectedDataset = null;
+        let analysisResults = null;
+
+        // Alert system
+        function showAlert(message, type = 'info') {
+            debugLog(`Alert (${type}): ${message}`);
+            
+            // Remove existing alerts
+            const existingAlert = document.querySelector('.alert');
+            if (existingAlert) {
+                existingAlert.remove();
+            }
+            
+            // Create new alert
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            
+            const content = document.querySelector('.content');
+            content.insertBefore(alert, content.firstChild);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => alert.remove(), 5000);
+        }
+
+        // The problematic function - with debugging
+        async function processUploadedFile() {
+            debugLog('🚨 processUploadedFile() called');
+            console.trace('processUploadedFile call stack:');
+            
+            // Step 1: Check if upload section is visible
+            const uploadSection = document.getElementById('uploadSection');
+            if (uploadSection && uploadSection.classList.contains('hidden')) {
+                showAlert('Please select "Upload New Dataset" first to access file upload.', 'warning');
+                return;
+            }
+            
+            // Step 2: Check if upload form is visible (requires file selection)
+            const uploadForm = document.getElementById('uploadForm');
+            if (uploadForm && uploadForm.classList.contains('hidden')) {
+                showAlert('Please select a file first to complete the upload form.', 'warning');
+                return;
+            }
+            
+            // Step 3: Get DOM elements with comprehensive error handling
+            const fileInput = document.getElementById('fileInput');
+            const nameInput = document.getElementById('datasetName');
+            const demoInput = document.getElementById('targetDemo');
+            const descInput = document.getElementById('description');
+            const processBtn = document.getElementById('processBtn');
+
+            debugLog(`DOM Elements found: fileInput=${!!fileInput}, nameInput=${!!nameInput}, demoInput=${!!demoInput}, processBtn=${!!processBtn}`);
+
+            // Step 4: Validate DOM elements exist
+            const missingElements = [];
+            if (!fileInput) missingElements.push('File input');
+            if (!nameInput) missingElements.push('Dataset name input');
+            if (!demoInput) missingElements.push('Target demographic input');
+            if (!processBtn) missingElements.push('Process button');
+            
+            if (missingElements.length > 0) {
+                const uploadVisible = uploadSection && !uploadSection.classList.contains('hidden');
+                const formVisible = uploadForm && !uploadForm.classList.contains('hidden');
+                
+                debugLog(`Missing elements: ${missingElements.join(', ')}. UploadVisible: ${uploadVisible}, FormVisible: ${formVisible}`);
+                
+                let message = `Missing form elements: ${missingElements.join(', ')}.`;
+                if (!uploadVisible) {
+                    message += ' Please select "Upload New Dataset" first.';
+                } else if (!formVisible) {
+                    message += ' Please select a file first.';
+                } else {
+                    message += ' Please refresh the page.';
+                }
+                
+                showAlert(message, 'error');
+                return;
+            }
+
+            if (!fileInput.files || !fileInput.files[0] || !nameInput.value || !demoInput.value) {
+                showAlert('Please complete all required fields.', 'warning');
+                return;
+            }
+            
+            showAlert('✅ All validations passed! Processing would start here.', 'success');
+            debugLog('✅ processUploadedFile completed successfully');
+        }
+
+        function handleDataSourceChange(event) {
+            debugLog(`Data source changed to: ${event.target.value}`);
+            
+            const value = event.target.value;
+            const existingSection = document.getElementById('existingSection');
+            const uploadSection = document.getElementById('uploadSection');
+            
+            // Update visual selection
+            document.querySelectorAll('.radio-option').forEach(opt => opt.classList.remove('selected'));
+            event.target.closest('.radio-option').classList.add('selected');
+
+            if (value === 'existing') {
+                existingSection.classList.remove('hidden');
+                uploadSection.classList.add('hidden');
+                resetUpload();
+            } else {
+                existingSection.classList.add('hidden');
+                uploadSection.classList.remove('hidden');
+                resetDatasetSelection();
+            }
+        }
+
+        function handleFileSelect(event) {
+            debugLog('File selected');
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Show upload form
+            document.getElementById('uploadForm').classList.remove('hidden');
+            
+            // Attach process button event listener if not already attached
+            const processBtn = document.getElementById('processBtn');
+            if (processBtn && !processBtn.hasAttribute('data-listener-attached')) {
+                debugLog('Attaching processBtn event listener');
+                processBtn.addEventListener('click', processUploadedFile);
+                processBtn.setAttribute('data-listener-attached', 'true');
+            }
+            
+            // Pre-fill dataset name from filename
+            const nameInput = document.getElementById('datasetName');
+            if (!nameInput.value) {
+                nameInput.value = file.name.replace(/\.[^/.]+$/, "");
+            }
+
+            // Update upload zone
+            const uploadZone = document.getElementById('uploadZone');
+            uploadZone.innerHTML = `
+                <div class="upload-icon">📊</div>
+                <h3 style="margin-bottom: 8px; color: #28a745;">File Ready: ${file.name}</h3>
+                <p style="color: #666;">Complete the form below to process</p>
+            `;
+        }
+
+        function resetUpload() {
+            debugLog('Reset upload called');
+            const uploadForm = document.getElementById('uploadForm');
+            const uploadZone = document.getElementById('uploadZone');
+            const fileInput = document.getElementById('fileInput');
+            
+            if (uploadForm) {
+                uploadForm.classList.add('hidden');
+            }
+            
+            if (uploadZone) {
+                uploadZone.innerHTML = `
+                    <div class="upload-icon">📊</div>
+                    <h3 style="margin-bottom: 8px;">Drop your survey file here</h3>
+                    <p style="margin-bottom: 20px;">or click to browse</p>
+                    <div style="font-size: 0.85rem; color: #666;">
+                        Supports CSV, XLSX, XLS • Max 50MB
+                    </div>
+                `;
+            }
+            
+            if (fileInput) {
+                fileInput.value = '';
+            }
+        }
+
+        function resetDatasetSelection() {
+            debugLog('Reset dataset selection called');
+            const select = document.getElementById('datasetSelect');
+            if (select) {
+                select.value = '';
+            }
+            selectedDataset = null;
+        }
+
+        async function startAnalysis() {
+            debugLog('startAnalysis called');
+            showAlert('Analysis would start here (simplified for testing)', 'info');
+        }
+
+        function setupEventListeners() {
+            debugLog('Setting up event listeners');
+            
+            // Radio button handlers
+            document.querySelectorAll('input[name="dataSource"]').forEach(radio => {
+                radio.addEventListener('change', handleDataSourceChange);
+            });
+
+            // Dataset selection
+            const datasetSelect = document.getElementById('datasetSelect');
+            if (datasetSelect) {
+                datasetSelect.addEventListener('change', function(event) {
+                    debugLog(`Dataset selected: ${event.target.value}`);
+                });
+            }
+
+            // File upload
+            const uploadZone = document.getElementById('uploadZone');
+            const fileInput = document.getElementById('fileInput');
+            
+            if (uploadZone && fileInput) {
+                uploadZone.addEventListener('click', () => {
+                    debugLog('Upload zone clicked');
+                    fileInput.click();
+                });
+                fileInput.addEventListener('change', handleFileSelect);
+            } else {
+                debugLog('⚠️ Upload elements not found during initialization');
+            }
+
+            // Process button - NOTE: This should NOT attach here since button doesn't exist yet
+            const processBtn = document.getElementById('processBtn');
+            if (processBtn) {
+                debugLog('⚠️ Process button found during init - this might be the problem!');
+                processBtn.addEventListener('click', processUploadedFile);
+            } else {
+                debugLog('✅ Process button not found during init - this is expected');
+            }
+
+            // Analysis button
+            const startAnalysisBtn = document.getElementById('startAnalysisBtn');
+            if (startAnalysisBtn) {
+                startAnalysisBtn.addEventListener('click', startAnalysis);
+            }
+        }
+
+        function initializeApp() {
+            debugLog('Initializing app');
+            setupEventListeners();
+            debugLog('App initialized');
+        }
+
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            debugLog('DOM Content Loaded');
+            initializeApp();
+        });
+
+        // Global error handler to catch any unexpected calls
+        window.addEventListener('error', function(event) {
+            debugLog(`❌ JavaScript Error: ${event.error.message}`);
+        });
+        
+        debugLog('Script loaded');
+    </script>
+</body>
+</html>

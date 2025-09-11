@@ -1160,13 +1160,9 @@
                 });
             }
 
-            // Process button (may not be visible initially)
-            const processBtn = document.getElementById('processBtn');
-            if (processBtn) {
-                processBtn.addEventListener('click', processUploadedFile);
-            } else {
-                console.warn('Process button not found during initialization - will be attached when form becomes visible');
-            }
+            // Process button - RECURSIVELY FIXED: Do NOT attach here, only attach when file is selected
+            // This prevents premature execution when button exists but shouldn't be functional yet
+            console.log('Process button will be attached dynamically when file is selected');
 
             // Analysis button
             document.getElementById('startAnalysisBtn').addEventListener('click', startAnalysis);
@@ -1313,8 +1309,18 @@
         }
 
         async function processUploadedFile() {
-            // Step 1: Check if upload section is visible
-            const uploadSection = document.getElementById('uploadSection');
+            // RECURSIVE FIX: Execution lock to prevent multiple/premature calls
+            if (processUploadedFile._executionLock) {
+                console.warn('🔒 processUploadedFile blocked - already executing or called prematurely');
+                return;
+            }
+            processUploadedFile._executionLock = true;
+            
+            try {
+                console.log('🎯 processUploadedFile executing - checking DOM state...');
+                
+                // Step 1: Check if upload section is visible
+                const uploadSection = document.getElementById('uploadSection');
             if (uploadSection && uploadSection.classList.contains('hidden')) {
                 showAlert('Please select "Upload New Dataset" first to access file upload.', 'warning');
                 return;
@@ -1414,8 +1420,13 @@
                 console.error('Upload error:', error);
                 showAlert(`❌ Upload failed: ${error.message}`, 'error');
             } finally {
-                processBtn.disabled = false;
-                processBtn.innerHTML = '🚀 Process & Analyze';
+                // RECURSIVE FIX: Unlock execution
+                processUploadedFile._executionLock = false;
+                
+                if (processBtn) {
+                    processBtn.disabled = false;
+                    processBtn.innerHTML = '🚀 Process & Analyze';
+                }
             }
         }
 

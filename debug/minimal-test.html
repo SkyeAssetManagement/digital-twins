@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Minimal DOM Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .hidden { display: none; }
+        .section { border: 1px solid #ccc; padding: 20px; margin: 10px 0; }
+        button { padding: 10px; margin: 5px; }
+        input, textarea { display: block; margin: 5px 0; padding: 5px; width: 300px; }
+        .log { background: #f0f0f0; padding: 10px; font-family: monospace; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <h1>Minimal DOM Test</h1>
+    
+    <div class="log" id="log">
+        <strong>Event Log:</strong><br>
+    </div>
+    
+    <div class="section">
+        <h2>Step 1: Select Data Source</h2>
+        <label><input type="radio" name="source" value="upload" id="uploadRadio"> Upload New Dataset</label>
+    </div>
+    
+    <div id="uploadSection" class="section hidden">
+        <h2>Step 2: Upload File</h2>
+        <input type="file" id="fileInput" accept=".csv">
+        <div>File input exists: <span id="fileStatus">checking...</span></div>
+    </div>
+    
+    <div id="formSection" class="section hidden">
+        <h2>Step 3: Fill Form</h2>
+        <input type="text" id="nameInput" placeholder="Dataset Name">
+        <button id="processBtn" onclick="testProcess()">Process</button>
+    </div>
+    
+    <button onclick="checkElements()">Check All Elements</button>
+    <button onclick="simulateFlow()">Simulate Full Flow</button>
+    
+    <script>
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            document.getElementById('log').innerHTML += `[${timestamp}] ${message}<br>`;
+            console.log(message);
+        }
+        
+        // The problematic function - simplified
+        function testProcess() {
+            log('🚨 testProcess() called');
+            
+            const fileInput = document.getElementById('fileInput');
+            const nameInput = document.getElementById('nameInput');
+            
+            if (!fileInput) {
+                alert('❌ File input element not found!');
+                log('❌ File input missing');
+                return;
+            }
+            
+            if (!nameInput) {
+                alert('❌ Name input element not found!');
+                log('❌ Name input missing');
+                return;
+            }
+            
+            alert('✅ All elements found!');
+            log('✅ All elements found - process would continue');
+        }
+        
+        function checkElements() {
+            log('Checking all elements:');
+            
+            const elements = ['uploadSection', 'formSection', 'fileInput', 'nameInput', 'processBtn'];
+            elements.forEach(id => {
+                const el = document.getElementById(id);
+                const visible = el && el.offsetParent !== null;
+                log(`  ${id}: exists=${!!el}, visible=${visible}`);
+            });
+        }
+        
+        function simulateFlow() {
+            log('🎭 Starting simulated flow...');
+            
+            // Step 1: Select upload
+            document.getElementById('uploadRadio').checked = true;
+            document.getElementById('uploadSection').classList.remove('hidden');
+            log('Step 1: Upload section shown');
+            
+            setTimeout(() => {
+                // Step 2: Simulate file selection
+                document.getElementById('formSection').classList.remove('hidden');
+                log('Step 2: Form section shown');
+                
+                setTimeout(() => {
+                    // Step 3: Fill form
+                    document.getElementById('nameInput').value = 'Test Dataset';
+                    log('Step 3: Form filled');
+                    
+                    setTimeout(() => {
+                        // Step 4: Test process
+                        testProcess();
+                    }, 500);
+                }, 500);
+            }, 500);
+        }
+        
+        // Setup - NO automatic calls to testProcess
+        document.addEventListener('DOMContentLoaded', function() {
+            log('DOM loaded - NO automatic function calls');
+            
+            document.getElementById('uploadRadio').addEventListener('change', function() {
+                if (this.checked) {
+                    document.getElementById('uploadSection').classList.remove('hidden');
+                    log('Upload section revealed');
+                }
+            });
+            
+            document.getElementById('fileInput').addEventListener('change', function() {
+                if (this.files.length > 0) {
+                    document.getElementById('formSection').classList.remove('hidden');
+                    log('File selected, form revealed');
+                }
+            });
+            
+            // Check elements immediately
+            setTimeout(checkElements, 100);
+        });
+        
+        log('Script loaded');
+    </script>
+</body>
+</html>

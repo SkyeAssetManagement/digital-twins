@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOM Diagnostic Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .hidden { display: none; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        button { padding: 10px 20px; margin: 10px 0; }
+        input, textarea { display: block; margin: 5px 0; padding: 8px; width: 300px; }
+        .status { background: #f0f0f0; padding: 10px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>DOM Element Diagnostic Test</h1>
+    
+    <div class="section">
+        <h2>Data Source Selection</h2>
+        <label><input type="radio" name="dataSource" value="existing"> Use Existing Dataset</label><br>
+        <label><input type="radio" name="dataSource" value="upload"> Upload New Dataset</label>
+    </div>
+    
+    <div id="existingSection" class="section hidden">
+        <h3>Existing Datasets</h3>
+        <p>This would show existing datasets</p>
+    </div>
+    
+    <div id="uploadSection" class="section hidden">
+        <h3>Upload New Dataset</h3>
+        
+        <div id="uploadZone" style="border: 2px dashed #ccc; padding: 20px; text-align: center; cursor: pointer;">
+            <div>📊</div>
+            <h3>Drop your survey file here or click to browse</h3>
+            <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" style="display: none;">
+        </div>
+        
+        <div id="uploadForm" class="hidden" style="margin-top: 20px;">
+            <h4>Dataset Information</h4>
+            <label>Dataset Name:</label>
+            <input type="text" id="datasetName" placeholder="e.g., Consumer Survey 2024">
+            
+            <label>Target Demographic:</label>
+            <input type="text" id="targetDemo" placeholder="e.g., Adults 25-45">
+            
+            <label>Description:</label>
+            <textarea id="description" placeholder="Brief description"></textarea>
+            
+            <button type="button" id="processBtn">🚀 Process & Analyze</button>
+        </div>
+    </div>
+    
+    <div id="analysisSection" class="section">
+        <h3>Analysis</h3>
+        <button id="startAnalysisBtn">Start Analysis</button>
+    </div>
+    
+    <div class="status" id="statusDiv">
+        <h4>DOM Status</h4>
+        <div id="domStatus">Checking...</div>
+    </div>
+    
+    <div class="status">
+        <h4>Test Actions</h4>
+        <button onclick="testProcessUploadedFile()">Test processUploadedFile()</button>
+        <button onclick="checkAllElements()">Check All DOM Elements</button>
+        <button onclick="simulateFlow()">Simulate Proper Flow</button>
+    </div>
+    
+    <script>
+        let selectedDataset = null;
+        
+        // Our problematic function - exactly as it is in the real code
+        async function processUploadedFile() {
+            console.log('🧪 processUploadedFile called');
+            
+            // Step 1: Check if upload section is visible
+            const uploadSection = document.getElementById('uploadSection');
+            if (uploadSection && uploadSection.classList.contains('hidden')) {
+                showAlert('Please select "Upload New Dataset" first to access file upload.', 'warning');
+                return;
+            }
+            
+            // Step 2: Check if upload form is visible (requires file selection)
+            const uploadForm = document.getElementById('uploadForm');
+            if (uploadForm && uploadForm.classList.contains('hidden')) {
+                showAlert('Please select a file first to complete the upload form.', 'warning');
+                return;
+            }
+            
+            // Step 3: Get DOM elements with comprehensive error handling
+            const fileInput = document.getElementById('fileInput');
+            const nameInput = document.getElementById('datasetName');
+            const demoInput = document.getElementById('targetDemo');
+            const descInput = document.getElementById('description');
+            const processBtn = document.getElementById('processBtn');
+
+            // Step 4: Validate DOM elements exist
+            const missingElements = [];
+            if (!fileInput) missingElements.push('File input');
+            if (!nameInput) missingElements.push('Dataset name input');
+            if (!demoInput) missingElements.push('Target demographic input');
+            if (!processBtn) missingElements.push('Process button');
+            
+            if (missingElements.length > 0) {
+                const uploadVisible = uploadSection && !uploadSection.classList.contains('hidden');
+                const formVisible = uploadForm && !uploadForm.classList.contains('hidden');
+                
+                let message = `Missing form elements: ${missingElements.join(', ')}.`;
+                if (!uploadVisible) {
+                    message += ' Please select "Upload New Dataset" first.';
+                } else if (!formVisible) {
+                    message += ' Please select a file first.';
+                } else {
+                    message += ' Please refresh the page.';
+                }
+                
+                showAlert(message, 'error');
+                return;
+            }
+
+            if (!fileInput.files || !fileInput.files[0] || !nameInput.value || !demoInput.value) {
+                showAlert('Please complete all required fields.', 'warning');
+                return;
+            }
+            
+            showAlert('✅ All validations passed! Processing would start here.', 'success');
+        }
+        
+        function showAlert(message, type) {
+            const color = type === 'success' ? 'green' : type === 'warning' ? 'orange' : 'red';
+            alert(`${type.toUpperCase()}: ${message}`);
+            
+            const statusDiv = document.getElementById('domStatus');
+            statusDiv.innerHTML += `<div style="color: ${color}; margin: 5px 0;">${message}</div>`;
+        }
+        
+        function handleDataSourceChange(event) {
+            const value = event.target.value;
+            const existingSection = document.getElementById('existingSection');
+            const uploadSection = document.getElementById('uploadSection');
+            
+            if (value === 'existing') {
+                existingSection.classList.remove('hidden');
+                uploadSection.classList.add('hidden');
+            } else {
+                existingSection.classList.add('hidden');
+                uploadSection.classList.remove('hidden');
+            }
+            
+            updateDOMStatus();
+        }
+        
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            // Show upload form
+            document.getElementById('uploadForm').classList.remove('hidden');
+            
+            // Attach process button event listener if not already attached
+            const processBtn = document.getElementById('processBtn');
+            if (processBtn && !processBtn.hasAttribute('data-listener-attached')) {
+                processBtn.addEventListener('click', processUploadedFile);
+                processBtn.setAttribute('data-listener-attached', 'true');
+            }
+            
+            // Pre-fill dataset name
+            const nameInput = document.getElementById('datasetName');
+            if (!nameInput.value) {
+                nameInput.value = file.name.replace(/\.[^/.]+$/, "");
+            }
+            
+            updateDOMStatus();
+        }
+        
+        function updateDOMStatus() {
+            const statusDiv = document.getElementById('domStatus');
+            const uploadSection = document.getElementById('uploadSection');
+            const uploadForm = document.getElementById('uploadForm');
+            const fileInput = document.getElementById('fileInput');
+            const processBtn = document.getElementById('processBtn');
+            
+            const status = `
+                <strong>DOM Element Status:</strong><br>
+                uploadSection visible: ${uploadSection && !uploadSection.classList.contains('hidden')}<br>
+                uploadForm visible: ${uploadForm && !uploadForm.classList.contains('hidden')}<br>
+                fileInput exists: ${!!fileInput}<br>
+                processBtn exists: ${!!processBtn}<br>
+                processBtn visible: ${processBtn && processBtn.offsetParent !== null}
+            `;
+            
+            statusDiv.innerHTML = status;
+        }
+        
+        function checkAllElements() {
+            const elements = ['uploadSection', 'uploadForm', 'fileInput', 'datasetName', 'targetDemo', 'description', 'processBtn'];
+            
+            console.log('🔍 Checking all DOM elements:');
+            elements.forEach(id => {
+                const el = document.getElementById(id);
+                const visible = el && el.offsetParent !== null;
+                console.log(`${id}: exists=${!!el}, visible=${visible}`);
+            });
+            
+            updateDOMStatus();
+        }
+        
+        async function testProcessUploadedFile() {
+            console.log('🧪 Testing processUploadedFile()');
+            await processUploadedFile();
+        }
+        
+        async function simulateFlow() {
+            console.log('🎭 Simulating proper user flow:');
+            
+            // Step 1: Select upload option
+            document.querySelector('input[value="upload"]').checked = true;
+            handleDataSourceChange({ target: { value: 'upload' } });
+            
+            await new Promise(r => setTimeout(r, 500));
+            
+            // Step 2: Create a fake file and trigger file selection
+            const fileInput = document.getElementById('fileInput');
+            const file = new File(['test'], 'test.csv', { type: 'text/csv' });
+            
+            // Create a fake FileList
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            fileInput.files = dataTransfer.files;
+            
+            handleFileSelect({ target: { files: [file] } });
+            
+            await new Promise(r => setTimeout(r, 500));
+            
+            // Step 3: Fill form
+            document.getElementById('datasetName').value = 'Test Dataset';
+            document.getElementById('targetDemo').value = 'Test Demo';
+            
+            await new Promise(r => setTimeout(r, 500));
+            
+            // Step 4: Try to process
+            await processUploadedFile();
+        }
+        
+        // Setup event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Radio button handlers
+            document.querySelectorAll('input[name="dataSource"]').forEach(radio => {
+                radio.addEventListener('change', handleDataSourceChange);
+            });
+            
+            // File upload
+            const uploadZone = document.getElementById('uploadZone');
+            const fileInput = document.getElementById('fileInput');
+            
+            if (uploadZone && fileInput) {
+                uploadZone.addEventListener('click', () => fileInput.click());
+                fileInput.addEventListener('change', handleFileSelect);
+            }
+            
+            // Initial status check
+            setTimeout(updateDOMStatus, 100);
+        });
+    </script>
+</body>
+</html>
