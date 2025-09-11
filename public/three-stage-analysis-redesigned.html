@@ -1557,16 +1557,28 @@
         }
 
         function resetUpload() {
-            document.getElementById('uploadForm').classList.add('hidden');
-            document.getElementById('uploadZone').innerHTML = `
-                <div class="upload-icon">📊</div>
-                <h3 style="margin-bottom: 8px; color: var(--neutral-700);">Drop your survey file here</h3>
-                <p style="color: var(--neutral-500); margin-bottom: 20px;">or click to browse</p>
-                <div style="font-size: 0.85rem; color: var(--neutral-400);">
-                    Supports CSV, XLSX, XLS • Max 50MB
-                </div>
-            `;
-            document.getElementById('fileInput').value = '';
+            const uploadForm = document.getElementById('uploadForm');
+            const uploadZone = document.getElementById('uploadZone');
+            const fileInput = document.getElementById('fileInput');
+            
+            if (uploadForm) {
+                uploadForm.classList.add('hidden');
+            }
+            
+            if (uploadZone) {
+                uploadZone.innerHTML = `
+                    <div class="upload-icon">📊</div>
+                    <h3 style="margin-bottom: 8px; color: var(--neutral-700);">Drop your survey file here</h3>
+                    <p style="color: var(--neutral-500); margin-bottom: 20px;">or click to browse</p>
+                    <div style="font-size: 0.85rem; color: var(--neutral-400);">
+                        Supports CSV, XLSX, XLS • Max 50MB
+                    </div>
+                `;
+            }
+            
+            if (fileInput) {
+                fileInput.value = '';
+            }
         }
 
         function resetDatasetSelection() {
