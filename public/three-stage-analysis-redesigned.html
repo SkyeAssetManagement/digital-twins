@@ -1300,7 +1300,21 @@
             const descInput = document.getElementById('description');
             const processBtn = document.getElementById('processBtn');
 
-            if (!fileInput.files[0] || !nameInput.value || !demoInput.value) {
+            // Add null checks for DOM elements
+            if (!fileInput) {
+                showAlert('File input element not found. Please refresh the page.', 'error');
+                return;
+            }
+            if (!nameInput) {
+                showAlert('Dataset name input not found. Please refresh the page.', 'error');
+                return;
+            }
+            if (!demoInput) {
+                showAlert('Target demographic input not found. Please refresh the page.', 'error');
+                return;
+            }
+
+            if (!fileInput.files || !fileInput.files[0] || !nameInput.value || !demoInput.value) {
                 showAlert('Please complete all required fields.', 'warning');
                 return;
             }
