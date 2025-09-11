@@ -162,9 +162,10 @@ export default async function handler(req, res) {
                         throw new Error(`Failed to retrieve document: ${docResult.error}`);
                     }
                     
-                    // Convert base64 to buffer
+                    // Extract document name and convert base64 to buffer
+                    const documentName = docResult.document.name;
                     const fileBuffer = Buffer.from(docResult.document.file_content_base64, 'base64');
-                    logger.info(`Loaded ${fileBuffer.length} bytes from database`);
+                    logger.info(`Loaded ${fileBuffer.length} bytes from database for document: ${documentName}`);
                     const wrangler = new ImprovedDataWrangler(process.env.ANTHROPIC_API_KEY);
                     
                     // Step 1: Load data
