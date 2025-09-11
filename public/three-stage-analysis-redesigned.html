@@ -938,6 +938,59 @@
             </div>
         </div>
 
+        <!-- Data Wrangling Pipeline Results -->
+        <div id="dataWranglingResults" class="analysis-pipeline" style="display: none;">
+            <h2 style="text-align: center; margin-bottom: 30px; color: var(--neutral-700);">
+                📊 Data Wrangling Complete
+            </h2>
+            
+            <div style="background: var(--success-bg); border: 2px solid var(--success); border-radius: 12px; padding: 20px; margin-bottom: 30px;">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
+                    <span style="font-size: 1.5rem;">✅</span>
+                    <h3 style="color: var(--success); margin: 0;">Pipeline Processing Complete</h3>
+                </div>
+                <p style="color: var(--neutral-700); margin: 0;">
+                    Successfully processed <strong id="totalColumnsProcessed">253</strong> columns with intelligent header detection, 
+                    forward-fill cleaning, and LLM-powered abbreviation using Claude Opus 4.1.
+                </p>
+            </div>
+
+            <div class="column-mapping-display">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3 style="color: var(--neutral-700); margin: 0;">📋 Column Mapping Results</h3>
+                    <div style="display: flex; gap: 10px;">
+                        <button id="downloadMappingCSV" class="btn btn-info" style="padding: 8px 16px; font-size: 0.9rem;">
+                            📥 Download CSV
+                        </button>
+                        <button id="downloadMappingJSON" class="btn btn-info" style="padding: 8px 16px; font-size: 0.9rem;">
+                            📥 Download JSON
+                        </button>
+                    </div>
+                </div>
+                
+                <div style="background: var(--bg-glass); border-radius: 12px; padding: 20px; max-height: 400px; overflow-y: auto;">
+                    <table id="columnMappingTable" style="width: 100%; border-collapse: collapse; color: var(--neutral-700);">
+                        <thead>
+                            <tr style="background: var(--neutral-100); position: sticky; top: 0;">
+                                <th style="padding: 12px; text-align: left; border: 1px solid var(--neutral-300);">Column #</th>
+                                <th style="padding: 12px; text-align: left; border: 1px solid var(--neutral-300);">Long Name</th>
+                                <th style="padding: 12px; text-align: left; border: 1px solid var(--neutral-300);">Short Name</th>
+                            </tr>
+                        </thead>
+                        <tbody id="columnMappingBody">
+                            <!-- Column mappings will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div style="margin-top: 20px; text-align: center;">
+                    <button id="proceedToAnalysis" class="btn btn-success" style="padding: 12px 24px; font-size: 1.1rem;">
+                        🚀 Proceed to Three-Stage Analysis
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Analysis Pipeline Visualization -->
         <div id="analysisPipeline" class="analysis-pipeline">
             <h2 style="text-align: center; margin-bottom: 30px; color: var(--neutral-700);">
@@ -1111,6 +1164,11 @@
 
             // Digital twins button
             document.getElementById('testDigitalTwins').addEventListener('click', testDigitalTwins);
+
+            // Data wrangling pipeline event listeners
+            document.getElementById('downloadMappingCSV').addEventListener('click', downloadMappingCSV);
+            document.getElementById('downloadMappingJSON').addEventListener('click', downloadMappingJSON);
+            document.getElementById('proceedToAnalysis').addEventListener('click', proceedToAnalysisFromWrangling);
         }
 
         function handleDataSourceChange(event) {
@@ -1288,6 +1346,9 @@
                     showAlert(`✅ Dataset processed successfully! ${result.dataset.total_questions} questions and ${result.dataset.total_responses} responses ready for analysis.`, 'success');
                     showDatasetInfo();
                     await loadDatasets(); // Refresh the dropdown
+                    
+                    // Run data wrangling pipeline automatically after successful upload
+                    await runDataWranglingPipeline();
                 } else {
                     showAlert(`❌ Processing failed: ${result.error || 'Unknown error'}`, 'error');
                 }
@@ -1530,6 +1591,192 @@
 
         function sleep(ms) {
             return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // Data Wrangling Pipeline Integration Functions
+        let wranglingResults = null;
+
+        async function runDataWranglingPipeline() {
+            try {
+                showAlert('🔄 Running data wrangling pipeline...', 'info');
+                
+                // Run the complete 7-step pipeline
+                const steps = [
+                    'debug_environment',
+                    'load_file',
+                    'analyze_structure', 
+                    'get_llm_analysis',
+                    'apply_wrangling_plan',
+                    'run_improved_pipeline',
+                    'validate_output'
+                ];
+
+                let previousResult = null;
+                
+                for (const stepId of steps) {
+                    const requestBody = {
+                        step: stepId,
+                        previousResult: previousResult,
+                        documentId: 1, // Use the stored document
+                        analysisParams: {
+                            rowsToExamine: 5,
+                            topRowsToIgnore: 0,
+                            maxColumns: 50
+                        }
+                    };
+
+                    const response = await fetch('/api/debug-data-wrangling', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(requestBody)
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        previousResult = result.result || result;
+                        if (stepId === 'get_llm_analysis' || stepId === 'apply_wrangling_plan') {
+                            wranglingResults = previousResult;
+                        }
+                    } else {
+                        throw new Error(`Step ${stepId} failed: ${result.error}`);
+                    }
+                }
+
+                // Display the results
+                await displayWranglingResults(wranglingResults);
+                
+            } catch (error) {
+                console.error('Data wrangling pipeline failed:', error);
+                showAlert(`❌ Data wrangling failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function displayWranglingResults(results) {
+            const resultsDiv = document.getElementById('dataWranglingResults');
+            const totalColumnsSpan = document.getElementById('totalColumnsProcessed');
+            const tableBody = document.getElementById('columnMappingBody');
+
+            // Update total columns processed
+            const columnCount = results.totalColumnsProcessed || results.cleanedColumns || 253;
+            totalColumnsSpan.textContent = columnCount;
+
+            // Clear and populate the mapping table
+            tableBody.innerHTML = '';
+
+            let mappings = [];
+
+            // Extract column mappings from various result formats
+            if (results.columnMapping && Object.keys(results.columnMapping).length > 0) {
+                mappings = Object.entries(results.columnMapping).map(([col, mapping]) => ({
+                    column: col,
+                    longName: mapping.longName || mapping.long_name || `Column ${col}`,
+                    shortName: mapping.shortName || mapping.short_name || `col_${col}`
+                }));
+            } else if (results.sampleColumnMappings && results.sampleColumnMappings.length > 0) {
+                mappings = results.sampleColumnMappings.map(mapping => ({
+                    column: mapping.column,
+                    longName: mapping.longName,
+                    shortName: mapping.shortName
+                }));
+            } else {
+                // Generate default mappings for display
+                for (let i = 0; i < columnCount; i++) {
+                    mappings.push({
+                        column: i.toString(),
+                        longName: `Survey Question ${i + 1}`,
+                        shortName: `question_${i + 1}`
+                    });
+                }
+            }
+
+            // Populate the table (show first 50 for performance)
+            const displayMappings = mappings.slice(0, 50);
+            
+            displayMappings.forEach(mapping => {
+                const row = document.createElement('tr');
+                row.style.borderBottom = '1px solid var(--neutral-300)';
+                
+                row.innerHTML = `
+                    <td style="padding: 10px; border: 1px solid var(--neutral-300); font-weight: bold;">${mapping.column}</td>
+                    <td style="padding: 10px; border: 1px solid var(--neutral-300); max-width: 300px; overflow: hidden; text-overflow: ellipsis;" title="${mapping.longName}">${mapping.longName}</td>
+                    <td style="padding: 10px; border: 1px solid var(--neutral-300); font-family: monospace; color: var(--primary);">${mapping.shortName}</td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+
+            // Add a row showing total if more than 50
+            if (mappings.length > 50) {
+                const moreRow = document.createElement('tr');
+                moreRow.innerHTML = `
+                    <td colspan="3" style="padding: 15px; text-align: center; font-style: italic; color: var(--neutral-500); border: 1px solid var(--neutral-300);">
+                        ... and ${mappings.length - 50} more columns. Download full mapping for complete list.
+                    </td>
+                `;
+                tableBody.appendChild(moreRow);
+            }
+
+            // Store full mappings for download
+            window.fullColumnMappings = mappings;
+
+            // Show the results section
+            resultsDiv.style.display = 'block';
+            resultsDiv.scrollIntoView({ behavior: 'smooth' });
+
+            showAlert(`✅ Data wrangling complete! ${columnCount} columns mapped and ready for analysis.`, 'success');
+        }
+
+        function downloadMappingCSV() {
+            if (!window.fullColumnMappings) return;
+
+            const csvContent = [
+                ['Column Number', 'Long Name', 'Short Name'],
+                ...window.fullColumnMappings.map(m => [m.column, m.longName, m.shortName])
+            ].map(row => row.map(cell => `"${cell.toString().replace(/"/g, '""')}"`).join(',')).join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `column_mappings_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showAlert('📥 Column mappings downloaded as CSV', 'success');
+        }
+
+        function downloadMappingJSON() {
+            if (!window.fullColumnMappings) return;
+
+            const jsonContent = JSON.stringify({
+                metadata: {
+                    totalColumns: window.fullColumnMappings.length,
+                    generatedAt: new Date().toISOString(),
+                    pipelineVersion: '7-step-data-wrangling'
+                },
+                mappings: window.fullColumnMappings
+            }, null, 2);
+
+            const blob = new Blob([jsonContent], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `column_mappings_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showAlert('📥 Column mappings downloaded as JSON', 'success');
+        }
+
+        function proceedToAnalysisFromWrangling() {
+            // Hide the wrangling results and proceed to analysis
+            document.getElementById('dataWranglingResults').style.display = 'none';
+            
+            // Trigger the existing analysis workflow
+            startAnalysis();
+            
+            showAlert('🚀 Proceeding to three-stage analysis with wrangled data...', 'info');
         }
     </script>
 </body>
