@@ -483,6 +483,81 @@ export class SurveyDataManager {
     }
     
     /**
+     * Store discovered categories from adaptive discovery
+     */
+    async storeDiscoveredCategories(surveyId, categories) {
+        const client = await this.pool.connect();
+        
+        try {
+            await client.query('BEGIN');
+            
+            // Clear existing discovered categories
+            await client.query(
+                'DELETE FROM semantic_categories WHERE survey_id = $1 AND discovery_method = $2', 
+                [surveyId, 'adaptive_discovery']
+            );
+            
+            for (const category of categories) {
+                await client.query(`
+                    INSERT INTO semantic_categories (
+                        survey_id, category_name, category_type, description,
+                        business_relevance, discovery_method, confidence_score,
+                        coverage_percentage
+                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+                `, [
+                    surveyId,
+                    category.name,
+                    category.type,
+                    category.description,
+                    category.business_relevance || '',
+                    'adaptive_discovery',
+                    category.confidence_score || 0.85,
+                    category.expected_coverage || 0
+                ]);
+            }
+            
+            await client.query('COMMIT');
+            console.log(`✅ Stored ${categories.length} discovered categories`);
+            
+        } catch (error) {
+            await client.query('ROLLBACK');
+            console.error('❌ Failed to store discovered categories:', error);
+            throw new Error(`Category storage failed: ${error.message}`);
+        } finally {
+            client.release();
+        }
+    }
+    
+    /**
+     * Store category discovery session results
+     */
+    async storeCategoryDiscoveryResults(surveyId, sessionId, discoveryResults) {
+        try {
+            await this.pool.query(`
+                UPDATE analysis_sessions 
+                SET results_summary = $2
+                WHERE id = $1
+            `, [sessionId, JSON.stringify({
+                categories_discovered: discoveryResults.categories.length,
+                coverage_achieved: discoveryResults.qualityMetrics.coverage,
+                quality_score: discoveryResults.qualityMetrics.overallQualityScore,
+                refinement_iterations: discoveryResults.discovery.refinementIterations,
+                business_alignment: discoveryResults.qualityMetrics.businessAlignment,
+                category_types: discoveryResults.categories.reduce((acc, cat) => {
+                    acc[cat.type] = (acc[cat.type] || 0) + 1;
+                    return acc;
+                }, {})
+            })]);
+            
+            console.log(`✅ Stored discovery results for session: ${sessionId}`);
+            
+        } catch (error) {
+            console.error('❌ Failed to store discovery results:', error);
+            throw new Error(`Discovery results storage failed: ${error.message}`);
+        }
+    }
+    
+    /**
      * Start an analysis session for audit tracking
      */
     async startAnalysisSession(surveyId, sessionType, phase, configuration = {}) {
