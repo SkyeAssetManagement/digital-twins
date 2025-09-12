@@ -1316,11 +1316,10 @@
             }
             processUploadedFile._executionLock = true;
             
-            try {
-                console.log('🎯 processUploadedFile executing - checking DOM state...');
-                
-                // Step 1: Check if upload section is visible
-                const uploadSection = document.getElementById('uploadSection');
+            console.log('🎯 processUploadedFile executing - checking DOM state...');
+            
+            // Step 1: Check if upload section is visible
+            const uploadSection = document.getElementById('uploadSection');
             if (uploadSection && uploadSection.classList.contains('hidden')) {
                 showAlert('Please select "Upload New Dataset" first to access file upload.', 'warning');
                 return;
