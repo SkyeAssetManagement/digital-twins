@@ -1,0 +1,45 @@
+{
+  "surveyId": 1,
+  "responses": [
+    {
+      "id": "r1",
+      "text": "I always check for organic ingredients and avoid harsh chemicals",
+      "columnId": "col_1",
+      "respondentId": "resp_001"
+    },
+    {
+      "id": "r2", 
+      "text": "Price and availability at my local store are most important",
+      "columnId": "col_1",
+      "respondentId": "resp_002"
+    },
+    {
+      "id": "r3",
+      "text": "The product breaks me out and causes skin irritation",
+      "columnId": "col_1", 
+      "respondentId": "resp_003"
+    }
+  ],
+  "categories": [
+    {
+      "name": "ingredient_safety",
+      "type": "pain",
+      "description": "Concerns about harmful or unsafe ingredients"
+    },
+    {
+      "name": "value_price",
+      "type": "pain", 
+      "description": "Price concerns and value for money issues"
+    },
+    {
+      "name": "skin_health",
+      "type": "pain",
+      "description": "Skin reactions, irritation, or health issues"
+    }
+  ],
+  "context": {
+    "target_demographic": "Parents with babies under 12 months",
+    "business_description": "Baby care product consumer research",
+    "dataset_name": "Phase 3B Test Dataset"
+  }
+}

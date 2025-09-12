@@ -135,6 +135,13 @@ export class SurveyDataManager {
     }
     
     /**
+     * Get survey by ID (alias for getSurvey)
+     */
+    async getSurveyById(surveyId) {
+        return this.getSurvey(surveyId);
+    }
+    
+    /**
      * ===================================================
      * COLUMN MANAGEMENT METHODS
      * ===================================================
@@ -394,6 +401,88 @@ export class SurveyDataManager {
     }
     
     /**
+     * Store semantic categorization results
+     */
+    async storeCategorizationResults(surveyId, categorizationResults) {
+        const client = await this.pool.connect();
+        
+        try {
+            await client.query('BEGIN');
+            
+            // Store semantic categories first
+            const categories = Array.from(new Set(
+                categorizationResults.categorizations.map(c => ({
+                    name: c.category_name,
+                    type: c.category_type,
+                    description: c.category_description || ''
+                }))
+            ));
+            
+            const categoryIds = new Map();
+            
+            for (const category of categories) {
+                // Try to find existing category
+                const existingResult = await client.query(`
+                    SELECT id FROM semantic_categories 
+                    WHERE survey_id = $1 AND category_name = $2
+                `, [surveyId, category.name]);
+                
+                let categoryId;
+                if (existingResult.rows.length > 0) {
+                    categoryId = existingResult.rows[0].id;
+                } else {
+                    // Create new category
+                    const insertResult = await client.query(`
+                        INSERT INTO semantic_categories (
+                            survey_id, category_name, category_type, description, 
+                            discovery_method, confidence_score
+                        ) VALUES ($1, $2, $3, $4, 'llm_adaptive', 0.8)
+                        RETURNING id
+                    `, [surveyId, category.name, category.type, category.description]);
+                    
+                    categoryId = insertResult.rows[0].id;
+                }
+                
+                categoryIds.set(category.name, categoryId);
+            }
+            
+            // Store individual categorizations
+            for (const categorization of categorizationResults.categorizations) {
+                const categoryId = categoryIds.get(categorization.category_name);
+                
+                await client.query(`
+                    INSERT INTO response_categorizations (
+                        response_id, column_id, category_id, confidence_score, 
+                        reasoning, llm_model_used
+                    ) VALUES ($1, $2, $3, $4, $5, $6)
+                    ON CONFLICT (response_id, column_id, category_id) 
+                    DO UPDATE SET 
+                        confidence_score = EXCLUDED.confidence_score,
+                        reasoning = EXCLUDED.reasoning,
+                        processing_date = CURRENT_TIMESTAMP
+                `, [
+                    categorization.response_id,
+                    categorization.column_id, 
+                    categoryId,
+                    categorization.confidence,
+                    categorization.reasoning,
+                    'claude-opus-4-1-20250805'
+                ]);
+            }
+            
+            await client.query('COMMIT');
+            console.log(`✅ Stored ${categorizationResults.categorizations.length} categorization results`);
+            
+        } catch (error) {
+            await client.query('ROLLBACK');
+            console.error('❌ Failed to store categorization results:', error);
+            throw new Error(`Categorization storage failed: ${error.message}`);
+        } finally {
+            client.release();
+        }
+    }
+    
+    /**
      * Start an analysis session for audit tracking
      */
     async startAnalysisSession(surveyId, sessionType, phase, configuration = {}) {
@@ -435,6 +524,48 @@ export class SurveyDataManager {
         } catch (error) {
             console.error('❌ Failed to complete analysis session:', error);
             throw new Error(`Analysis session completion failed: ${error.message}`);
+        }
+    }
+    
+    /**
+     * Fail an analysis session with error details
+     */
+    async failAnalysisSession(sessionId, errorMessage, additionalData = {}) {
+        try {
+            await this.pool.query(`
+                UPDATE analysis_sessions 
+                SET status = 'failed', 
+                    completed_at = CURRENT_TIMESTAMP,
+                    error_message = $2,
+                    results_summary = $3
+                WHERE id = $1
+            `, [sessionId, errorMessage, JSON.stringify(additionalData)]);
+            
+            console.log(`❌ Failed analysis session: ${sessionId} - ${errorMessage}`);
+            
+        } catch (error) {
+            console.error('❌ Failed to update failed analysis session:', error);
+            throw new Error(`Analysis session failure update failed: ${error.message}`);
+        }
+    }
+    
+    /**
+     * Find active analysis session for a survey
+     */
+    async findActiveSession(surveyId, sessionType) {
+        try {
+            const result = await this.pool.query(`
+                SELECT id FROM analysis_sessions 
+                WHERE survey_id = $1 AND session_type = $2 AND status = 'running'
+                ORDER BY started_at DESC
+                LIMIT 1
+            `, [surveyId, sessionType]);
+            
+            return result.rows.length > 0 ? result.rows[0].id : null;
+            
+        } catch (error) {
+            console.error('❌ Failed to find active session:', error);
+            return null;
         }
     }
     

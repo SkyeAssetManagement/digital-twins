@@ -20,6 +20,8 @@ import threeStageAnalysisDetailedHandler from '../api/three-stage-analysis-detai
 import universalDigitalTwinHandler from '../api/universal-digital-twin-response.js';
 import generateResponseHandler from '../api/generate-response.js';
 import getCustomerArchetypesHandler from '../api/get-customer-archetypes.js';
+import intelligentColumnDetectionHandler from '../api/intelligent-column-detection.js';
+import llmSemanticAnalysisHandler from '../api/llm-semantic-analysis.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -66,6 +68,8 @@ app.post('/api/three-stage-analysis-simple', vercelHandler(threeStageAnalysisHan
 app.post('/api/universal-digital-twin-response', vercelHandler(universalDigitalTwinHandler));
 app.post('/api/generate-response', vercelHandler(generateResponseHandler));
 app.get('/api/customer-archetypes', vercelHandler(getCustomerArchetypesHandler));
+app.post('/api/intelligent-column-detection', vercelHandler(intelligentColumnDetectionHandler)); // Phase 3A
+app.post('/api/llm-semantic-analysis', vercelHandler(llmSemanticAnalysisHandler)); // Phase 3B
 
 // Handle file uploads with multipart/form-data
 app.use('/api/process-survey-upload', (req, res, next) => {
