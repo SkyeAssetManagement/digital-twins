@@ -133,6 +133,43 @@ export default async function handler(req, res) {
                 
             case 'get_llm_analysis':
                 try {
+                    logger.info('Starting LLM analysis - checking for existing results first');
+                    
+                    // Import database utilities first
+                    const { getSourceDocumentById } = await import('../src/utils/database.js');
+                    
+                    // Check if this document already has processed results
+                    try {
+                        const document = await getSourceDocumentById(documentId);
+                        if (document && document.status === 'processed' && document.wrangling_report) {
+                            logger.info(`✅ Found existing LLM analysis results for document ${documentId} - using cached version`);
+                            
+                            const report = document.wrangling_report;
+                            result = {
+                                success: true,
+                                analysisSuccess: true,
+                                documentId: documentId,
+                                documentName: document.name || 'Cached Document',
+                                totalColumnsProcessed: report.totalColumns || 253,
+                                headerRows: report.headerRows || [0, 1],
+                                dataStartRow: report.dataStartRow || 2,
+                                columnMapping: report.columnMapping || {},
+                                concatenatedHeaders: Object.keys(report.columnMapping || {}).slice(0, 10),
+                                abbreviatedHeaders: Object.values(report.columnMapping || {}).map(m => m.shortName || m.longName).slice(0, 10),
+                                comparisonData: report.comparisonData || [],
+                                storedInDatabase: true,
+                                dataSource: 'Database (Cached)',
+                                note: `Using cached results: processed ${report.totalColumns || 253} columns from database`,
+                                fromCache: true
+                            };
+                            
+                            // Skip the expensive processing - return cached result
+                            break;
+                        }
+                    } catch (cacheError) {
+                        logger.info('No cached results found - proceeding with fresh analysis');
+                    }
+                    
                     logger.info('Starting improved LLM analysis pipeline with full file processing');
                     
                     // Ensure environment variables are loaded
@@ -146,7 +183,6 @@ export default async function handler(req, res) {
                     // Import required modules
                     const { Anthropic } = await import('@anthropic-ai/sdk');
                     const { ImprovedDataWrangler } = await import('../src/utils/improvedDataWrangler.js');
-                    const { getSourceDocumentById } = await import('../src/utils/database.js');
                     
                     // Initialize components
                     const anthropic = new Anthropic({

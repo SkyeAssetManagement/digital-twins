@@ -68,6 +68,11 @@ class PipelineExecutor {
                     console.log(`✅ Step completed in ${duration}ms`);
                     console.log('📊 Result summary:', this.summarizeResult(result));
                     
+                    // Check if this was a cached result
+                    if (result.result?.fromCache) {
+                        console.log('⚡ Used cached results - no LLM processing required');
+                    }
+                    
                     this.results[stepName] = result;
                     this.onStepComplete(stepName, i + 1, result, duration);
                     
