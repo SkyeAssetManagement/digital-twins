@@ -9,6 +9,7 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import formidable from 'formidable';
+import dotenv from 'dotenv';
 
 // Import REAL API handlers from ../api/ directory
 import debugDataWranglingHandler from '../api/debug-data-wrangling.js';
@@ -29,6 +30,9 @@ import mdaFeatureAnalysisHandler from '../api/mda-feature-analysis.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, '..');
+
+// Load environment variables
+dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
 const app = express();
 const PORT = process.env.PORT || 3011; // Use port 3011 for consistency

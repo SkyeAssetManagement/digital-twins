@@ -211,7 +211,7 @@ export class LLMSemanticCategorizer {
                 console.log(`🤖 Calling Claude Opus for semantic analysis (attempt ${attempts + 1})`);
                 
                 const response = await this.anthropic.messages.create({
-                    model: 'claude-3-opus-20240229',
+                    model: 'claude-opus-4-1-20250805',
                     max_tokens: 4000,
                     temperature: 0.1, // Low temperature for consistency
                     messages: [{
@@ -354,7 +354,7 @@ IMPORTANT:
                     })),
                     primary_sentiment: analysis.primary_sentiment || 'neutral',
                     semantic_themes: analysis.semantic_themes || [],
-                    llm_model: 'claude-3-opus-20240229',
+                    llm_model: 'claude-opus-4-1-20250805',
                     analysis_timestamp: new Date().toISOString()
                 });
             }

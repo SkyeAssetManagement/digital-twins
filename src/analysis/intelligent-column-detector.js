@@ -328,7 +328,7 @@ export class IntelligentColumnDetector {
         const prompt = this.buildLLMAnalysisPrompt(columnName, samples, context);
         
         const response = await this.anthropic.messages.create({
-            model: 'claude-3-opus-20240229',
+            model: 'claude-opus-4-1-20250805',
             max_tokens: 1500,
             messages: [{
                 role: 'user',

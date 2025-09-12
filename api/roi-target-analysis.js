@@ -294,6 +294,10 @@ function getROITargetBreakdown(roiTargets) {
         customer_ltv: 0,
         conversion_probability: 0,
         revenue_behavior: 0,
+        brand_loyalty: 0,
+        brand_preference: 0,
+        decision_reasoning: 0,
+        values_alignment: 0,
         other: 0
     };
     
@@ -304,11 +308,13 @@ function getROITargetBreakdown(roiTargets) {
     
     return {
         counts: breakdown,
-        topTargets: roiTargets.slice(0, 5).map(target => ({
+        topTargets: roiTargets.slice(0, 8).map(target => ({
             name: target.column_name,
             type: target.roi_type,
             impact: target.business_impact_score,
-            suitability: target.ml_target_suitability
+            suitability: target.ml_target_suitability,
+            brandRelevance: target.brand_relevance,
+            responseType: target.response_type
         }))
     };
 }

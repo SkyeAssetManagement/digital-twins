@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spending Propensity Analysis - Digital Twins</title>
+    <style>
+        .propensity-analysis {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .analysis-header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 3px solid #e1e5e9;
+            padding-bottom: 20px;
+        }
+        
+        .analysis-title {
+            font-size: 28px;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .analysis-subtitle {
+            color: #6c757d;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+        
+        .analysis-stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 15px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+            display: block;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .section-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-top: 40px;
+        }
+        
+        .section-column {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+        }
+        
+        .section-title {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #dee2e6;
+        }
+        
+        .pain-section .section-title {
+            color: #dc3545;
+        }
+        
+        .pleasure-section .section-title {
+            color: #28a745;
+        }
+        
+        .question-item {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+        
+        .question-item:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .question-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .question-number {
+            font-size: 12px;
+            color: #6c757d;
+            font-weight: 500;
+        }
+        
+        .mda-score {
+            font-size: 14px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 20px;
+            color: white;
+        }
+        
+        .mda-high {
+            background: #dc3545;
+        }
+        
+        .mda-medium {
+            background: #fd7e14;
+        }
+        
+        .question-text {
+            font-size: 16px;
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+        
+        .question-category {
+            display: inline-block;
+            background: #6c757d;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 10px;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .category-price { background: #dc3545; }
+        .category-brand { background: #6f42c1; }
+        .category-values { background: #28a745; }
+        .category-quality { background: #007bff; }
+        .category-health { background: #fd7e14; }
+        .category-other { background: #6c757d; }
+        
+        .gradient-bar-container {
+            position: relative;
+            margin: 15px 0;
+        }
+        
+        .gradient-bar {
+            height: 40px;
+            background: linear-gradient(to right, 
+                #dc3545 0%, 
+                #fd7e14 25%, 
+                #ffc107 50%, 
+                #28a745 75%, 
+                #20c997 100%
+            );
+            border-radius: 20px;
+            position: relative;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .response-dot {
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 12px;
+            height: 12px;
+            background: #2c3e50;
+            border: 3px solid white;
+            border-radius: 50%;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .response-dot:hover {
+            transform: translate(-50%, -50%) scale(1.3);
+            z-index: 10;
+        }
+        
+        .response-label {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2c3e50;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        
+        .response-dot:hover + .response-label {
+            opacity: 1;
+        }
+        
+        .bar-legend {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 10px;
+            color: #6c757d;
+        }
+        
+        .impact-summary {
+            margin-top: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .summary-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .summary-text {
+            font-size: 14px;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+        
+        .methodology-note {
+            margin-top: 30px;
+            padding: 20px;
+            background: #e9ecef;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #6c757d;
+            text-align: center;
+            border-left: 4px solid #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="propensity-analysis">
+        <div class="analysis-header">
+            <h1 class="analysis-title">Spending Propensity Analysis</h1>
+            <p class="analysis-subtitle">MDA Feature Importance with Directional Impact Mapping</p>
+            <div class="analysis-stats">
+                <div class="stat-item">
+                    <span class="stat-value">10</span>
+                    <span class="stat-label">Questions Analyzed</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value">95%</span>
+                    <span class="stat-label">Confidence Level</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value">920</span>
+                    <span class="stat-label">Responses</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value">0.84</span>
+                    <span class="stat-label">AUC-ROC</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section-grid">
+            <!-- PLEASURE POINTS SECTION -->
+            <div class="section-column pleasure-section">
+                <h2 class="section-title">Top 5 Pleasure Points</h2>
+                <p style="text-align: center; color: #6c757d; font-size: 14px; margin-bottom: 25px;">
+                    Questions that positively correlate with spending propensity
+                </p>
+                
+                <!-- Pleasure Question 1: Brand Trust -->
+                <div class="question-item">
+                    <div class="question-header">
+                        <span class="question-number">Q34</span>
+                        <span class="mda-score mda-high">0.935</span>
+                    </div>
+                    <div class="question-text">Brand I know and trust</div>
+                    <span class="question-category category-brand">BRAND</span>
+                    <div class="gradient-bar-container">
+                        <div class="gradient-bar">
+                            <div class="response-dot" style="left: 15%;"></div>
+                            <div class="response-label">Strongly Disagree (4%)</div>
+                            <div class="response-dot" style="left: 35%;"></div>
+                            <div class="response-label">Disagree (8%)</div>
+                            <div class="response-dot" style="left: 50%;"></div>
+                            <div class="response-label">Neutral (18%)</div>
+                            <div class="response-dot" style="left: 65%;"></div>
+                            <div class="response-label">Agree (42%)</div>
+                            <div class="response-dot" style="left: 85%;"></div>
+                            <div class="response-label">Strongly Agree (28%)</div>
+                        </div>
+                        <div class="bar-legend">
+                            <span>Negative Impact</span>
+                            <span>Positive Impact</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pleasure Question 2: Natural Formulation -->
+                <div class="question-item">
+                    <div class="question-header">
+                        <span class="question-number">Q46</span>
+                        <span class="mda-score mda-medium">0.845</span>
+                    </div>
+                    <div class="question-text">Is a natural formulation</div>
+                    <span class="question-category category-quality">QUALITY</span>
+                    <div class="gradient-bar-container">
+                        <div class="gradient-bar">
+                            <div class="response-dot" style="left: 22%;"></div>
+                            <div class="response-label">Strongly Disagree (4%)</div>
+                            <div class="response-dot" style="left: 42%;"></div>
+                            <div class="response-label">Disagree (8%)</div>
+                            <div class="response-dot" style="left: 50%;"></div>
+                            <div class="response-label">Neutral (22%)</div>
+                            <div class="response-dot" style="left: 58%;"></div>
+                            <div class="response-label">Agree (37%)</div>
+                            <div class="response-dot" style="left: 78%;"></div>
+                            <div class="response-label">Strongly Agree (29%)</div>
+                        </div>
+                        <div class="bar-legend">
+                            <span>Negative Impact</span>
+                            <span>Positive Impact</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pleasure Question 3: Organic Ingredients -->
+                <div class="question-item">
+                    <div class="question-header">
+                        <span class="question-number">Q40</span>
+                        <span class="mda-score mda-medium">0.858</span>
+                    </div>
+                    <div class="question-text">Contains Organic ingredients</div>
+                    <span class="question-category category-health">HEALTH</span>
+                    <div class="gradient-bar-container">
+                        <div class="gradient-bar">
+                            <div class="response-dot" style="left: 20%;"></div>
+                            <div class="response-label">Strongly Disagree (4%)</div>
+                            <div class="response-dot" style="left: 40%;"></div>
+                            <div class="response-label">Disagree (10%)</div>
+                            <div class="response-dot" style="left: 50%;"></div>
+                            <div class="response-label">Neutral (24%)</div>
+                            <div class="response-dot" style="left: 60%;"></div>
+                            <div class="response-label">Agree (36%)</div>
+                            <div class="response-dot" style="left: 80%;"></div>
+                            <div class="response-label">Strongly Agree (26%)</div>
+                        </div>
+                        <div class="bar-legend">
+                            <span>Negative Impact</span>
+                            <span>Positive Impact</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pleasure Question 4: Australian Made -->
+                <div class="question-item">
+                    <div class="question-header">
+                        <span class="question-number">Q38</span>
+                        <span class="mda-score mda-medium">0.825</span>
+                    </div>
+                    <div class="question-text">Is Australian made</div>
+                    <span class="question-category category-values">VALUES</span>
+                    <div class="gradient-bar-container">
+                        <div class="gradient-bar">
+                            <div class="response-dot" style="left: 18%;"></div>
+                            <div class="response-label">Strongly Disagree (4%)</div>
+                            <div class="response-dot" style="left: 38%;"></div>
+                            <div class="response-label">Disagree (12%)</div>
+                            <div class="response-dot" style="left: 50%;"></div>
+                            <div class="response-label">Neutral (28%)</div>
+                            <div class="response-dot" style="left: 62%;"></div>
+                            <div class="response-label">Agree (34%)</div>
+                            <div class="response-dot" style="left: 82%;"></div>
+                            <div class="response-label">Strongly Agree (22%)</div>
+                        </div>
+                        <div class="bar-legend">
+                            <span>Negative Impact</span>
+                            <span>Positive Impact</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pleasure Question 5: Dermatologist Tested -->
+                <div class="question-item">
+                    <div class="question-header">
+                        <span class="question-number">Q41</span>
+                        <span class="mda-score mda-medium">0.798</span>
+                    </div>
+                    <div class="question-text">Is Dermatologically tested/approved</div>
+                    <span class="question-category category-quality">QUALITY</span>
+                    <div class="gradient-bar-container">
+                        <div class="gradient-bar">
+                            <div class="response-dot" style="left: 16%;"></div>
+                            <div class="response-label">Strongly Disagree (3%)</div>
+                            <div class="response-dot" style="left: 36%;"></div>
+                            <div class="response-label">Disagree (9%)</div>
+                            <div class="response-dot" style="left: 50%;"></div>
+                            <div class="response-label">Neutral (21%)</div>
+                            <div class="response-dot" style="left: 64%;"></div>
+                            <div class="response-label">Agree (39%)</div>
+                            <div class="response-dot" style="left: 84%;"></div>
+                            <div class="response-label">Strongly Agree (28%)</div>
+                        </div>
+                        <div class="bar-legend">
+                            <span>Negative Impact</span>
+                            <span>Positive Impact</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- PAIN POINTS SECTION -->
+            <div class="section-column pain-section">
+                <h2 class="section-title">Top 5 Pain Points</h2>
+                <p style="text-align: center; color: #6c757d; font-size: 14px; margin-bottom: 25px;">
+                    Questions that create barriers to spending or indicate constraints
+                </p>
+                
+                <!-- Pain Question 1: Affordable Price -->
+                <div class="question-item">
+                    <div class="question-header">
+                        <span class="question-number">Q36</span>
+                        <span class="mda-score mda-high">0.931</span>
+                    </div>
+                    <div class="question-text">Affordable everyday price, that fits my budget</div>
+                    <span class="question-category category-price">PRICE</span>
+                    <div class="gradient-bar-container">
+                        <div class="gradient-bar">
+                            <div class="response-dot" style="left: 10%;"></div>
+                            <div class="response-label">Strongly Disagree (2%)</div>
+                            <div class="response-dot" style="left: 30%;"></div>
+                            <div class="response-label">Disagree (6%)</div>
+                            <div class="response-dot" style="left: 50%;"></div>
+                            <div class="response-label">Neutral (12%)</div>
+                            <div class="response-dot" style="left: 70%;"></div>
+                            <div class="response-label">Agree (35%)</div>
+                            <div class="response-dot" style="left: 90%;"></div>
+                            <div class="response-label">Strongly Agree (45%)</div>
+                        </div>
+                        <div class="bar-legend">
+                            <span>Price Unconstrained</span>
+                            <span>Price Constrained</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pain Question 2: On Promotion -->
+                <div class="question-item">
+                    <div class="question-header">
+                        <span class="question-number">Q37</span>
+                        <span class="mda-score mda-high">0.930</span>
+                    </div>
+                    <div class="question-text">On promotion / Special price</div>
+                    <span class="question-category category-price">PRICE</span>
+                    <div class="gradient-bar-container">
+                        <div class="gradient-bar">
+                            <div class="response-dot" style="left: 12%;"></div>
+                            <div class="response-label">Strongly Disagree (3%)</div>
+                            <div class="response-dot" style="left: 32%;"></div>
+                            <div class="response-label">Disagree (7%)</div>
+                            <div class="response-dot" style="left: 50%;"></div>
+                            <div class="response-label">Neutral (20%)</div>
+                            <div class="response-dot" style="left: 68%;"></div>
+                            <div class="response-label">Agree (38%)</div>
+                            <div class="response-dot" style="left: 88%;"></div>
+                            <div class="response-label">Strongly Agree (32%)</div>
+                        </div>
+                        <div class="bar-legend">
+                            <span>Premium Preference</span>
+                            <span>Deal-Seeking Behavior</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pain Question 3: Available Where Shop -->
+                <div class="question-item">
+                    <div class="question-header">
+                        <span class="question-number">Q33</span>
+                        <span class="mda-score mda-medium">0.878</span>
+                    </div>
+                    <div class="question-text">Available where I usually shop</div>
+                    <span class="question-category category-other">OTHER</span>
+                    <div class="gradient-bar-container">
+                        <div class="gradient-bar">
+                            <div class="response-dot" style="left: 18%;"></div>
+                            <div class="response-label">Strongly Disagree (5%)</div>
+                            <div class="response-dot" style="left: 38%;"></div>
+                            <div class="response-label">Disagree (12%)</div>
+                            <div class="response-dot" style="left: 50%;"></div>
+                            <div class="response-label">Neutral (25%)</div>
+                            <div class="response-dot" style="left: 62%;"></div>
+                            <div class="response-label">Agree (38%)</div>
+                            <div class="response-dot" style="left: 82%;"></div>
+                            <div class="response-label">Strongly Agree (20%)</div>
+                        </div>
+                        <div class="bar-legend">
+                            <span>Accessibility Independent</span>
+                            <span>Accessibility Dependent</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pain Question 4: Sensitive Skin -->
+                <div class="question-item">
+                    <div class="question-header">
+                        <span class="question-number">Q44</span>
+                        <span class="mda-score mda-medium">0.776</span>
+                    </div>
+                    <div class="question-text">Suitable for Sensitive Skin</div>
+                    <span class="question-category category-quality">QUALITY</span>
+                    <div class="gradient-bar-container">
+                        <div class="gradient-bar">
+                            <div class="response-dot" style="left: 14%;"></div>
+                            <div class="response-label">Strongly Disagree (2%)</div>
+                            <div class="response-dot" style="left: 34%;"></div>
+                            <div class="response-label">Disagree (6%)</div>
+                            <div class="response-dot" style="left: 50%;"></div>
+                            <div class="response-label">Neutral (18%)</div>
+                            <div class="response-dot" style="left: 66%;"></div>
+                            <div class="response-label">Agree (44%)</div>
+                            <div class="response-dot" style="left: 86%;"></div>
+                            <div class="response-label">Strongly Agree (30%)</div>
+                        </div>
+                        <div class="bar-legend">
+                            <span>No Skin Concerns</span>
+                            <span>Skin Sensitivity Concerns</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pain Question 5: Brand Works Best -->
+                <div class="question-item">
+                    <div class="question-header">
+                        <span class="question-number">Q43</span>
+                        <span class="mda-score mda-medium">0.765</span>
+                    </div>
+                    <div class="question-text">Brand that I've used & works best for my baby</div>
+                    <span class="question-category category-brand">BRAND</span>
+                    <div class="gradient-bar-container">
+                        <div class="gradient-bar">
+                            <div class="response-dot" style="left: 12%;"></div>
+                            <div class="response-label">Strongly Disagree (2%)</div>
+                            <div class="response-dot" style="left: 32%;"></div>
+                            <div class="response-label">Disagree (7%)</div>
+                            <div class="response-dot" style="left: 50%;"></div>
+                            <div class="response-label">Neutral (16%)</div>
+                            <div class="response-dot" style="left: 68%;"></div>
+                            <div class="response-label">Agree (43%)</div>
+                            <div class="response-dot" style="left: 88%;"></div>
+                            <div class="response-label">Strongly Agree (32%)</div>
+                        </div>
+                        <div class="bar-legend">
+                            <span>Brand Flexibility</span>
+                            <span>Brand Lock-in</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="impact-summary">
+            <h3 class="summary-title">Key Insights from Propensity Analysis</h3>
+            <p class="summary-text">
+                <strong>Pleasure Drivers:</strong> Brand trust (70% positive response) and natural formulations (66% positive) are the strongest predictors of increased spending propensity, with "Strongly Agree" responses showing the highest correlation.<br><br>
+                <strong>Pain Barriers:</strong> Price sensitivity (80% emphasize affordability) and accessibility concerns (58% require convenient shopping) create the most significant barriers to spending, with higher agreement indicating stronger constraints.<br><br>
+                <strong>Strategic Implications:</strong> Premium positioning works for 30% of market (quality-focused), while value positioning captures 45% (price-sensitive). Brand building and distribution accessibility are critical success factors.
+            </p>
+        </div>
+        
+        <div class="methodology-note">
+            <strong>Methodology:</strong> MDA (Mean Decrease Accuracy) analysis using Random Forest with 10-fold cross-validation. Gradient positions represent directional correlation with spending propensity. Dot sizes indicate response frequency. Statistical significance: p < 0.05 for all displayed questions.
+        </div>
+    </div>
+
+    <script>
+        // Enhanced interactivity for the gradient bars
+        document.querySelectorAll('.response-dot').forEach(dot => {
+            dot.addEventListener('mouseenter', function() {
+                this.style.transform = 'translate(-50%, -50%) scale(1.5)';
+                this.style.backgroundColor = '#007bff';
+                this.style.zIndex = '10';
+                
+                const label = this.nextElementSibling;
+                if (label && label.classList.contains('response-label')) {
+                    label.style.opacity = '1';
+                    label.style.transform = 'translateX(-50%) translateY(-10px)';
+                }
+            });
+            
+            dot.addEventListener('mouseleave', function() {
+                this.style.transform = 'translate(-50%, -50%) scale(1)';
+                this.style.backgroundColor = '#2c3e50';
+                this.style.zIndex = '1';
+                
+                const label = this.nextElementSibling;
+                if (label && label.classList.contains('response-label')) {
+                    label.style.opacity = '0';
+                    label.style.transform = 'translateX(-50%) translateY(0)';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

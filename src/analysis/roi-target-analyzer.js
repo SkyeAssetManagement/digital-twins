@@ -26,7 +26,7 @@ export class ROITargetAnalyzer {
             model: options.model || 'claude-opus-4-1-20250805',
             
             // Target identification parameters
-            maxROITargets: options.maxROITargets || 5,
+            maxROITargets: options.maxROITargets || 5, // Can be 3-5 based on revenue impact
             minBusinessImpactScore: options.minBusinessImpactScore || 0.7,
             
             // Pain/Pleasure categorization
@@ -288,10 +288,19 @@ export class ROITargetAnalyzer {
     
     buildROITargetPrompt(surveyColumns, context) {
         const columnList = surveyColumns
-            .map(col => `${col.column_name}: ${col.data_type || 'text'} (${col.sample_values?.slice(0, 3).join(', ') || 'no samples'})`)
+            .map(col => {
+                const questionText = col.question_text || col.description || '';
+                const sampleValues = col.sample_values?.slice(0, 3).join(', ') || 'no samples';
+                
+                if (questionText) {
+                    return `COLUMN_ID: ${col.column_name} | QUESTION: "${questionText}" | TYPE: ${col.data_type || 'text'} | SAMPLES: (${sampleValues})`;
+                } else {
+                    return `COLUMN_ID: ${col.column_name} | TYPE: ${col.data_type || 'text'} | SAMPLES: (${sampleValues})`;
+                }
+            })
             .join('\n');
         
-        return `As a business analyst specializing in revenue optimization, identify the top 5 survey questions most likely to predict purchase intent, customer lifetime value, or revenue impact.
+        return `As a business analyst specializing in revenue optimization and consumer psychology, identify the top 8 survey questions most likely to predict purchase intent, spending behavior, brand loyalty, and customer lifetime value.
 
 SURVEY CONTEXT:
 Business: ${context.business_description || 'Consumer research'}
@@ -301,22 +310,53 @@ Dataset: ${context.dataset_name || 'Survey data'}
 AVAILABLE SURVEY COLUMNS:
 ${columnList}
 
-ANALYSIS REQUIREMENTS:
-Focus on identifying questions that predict:
+EXPANDED ANALYSIS REQUIREMENTS:
+Focus on identifying questions that predict or explain:
+
+**FINANCIAL BEHAVIOR:**
 1. Purchase intent or likelihood to buy
-2. Spending amount or budget willingness
+2. Spending amount or budget willingness  
 3. Customer lifetime value indicators
-4. Conversion probability factors
-5. Revenue-driving behaviors
+4. Price sensitivity and deal-seeking behavior
 
-For each identified ROI target, provide:
-- column_name: Exact column name from the list
-- roi_type: purchase_intent, spending_amount, customer_ltv, conversion_probability, or revenue_behavior
+**BRAND BEHAVIOR:**
+6. Brand switching probability and barriers
+7. Brand choice reasoning and decision factors
+8. Competitive brand consideration patterns
+
+**DECISION DRIVERS:**
+9. Values-based purchase decisions (health, quality, ethics)
+10. Open-ended explanations of purchase choices
+11. Cross-referenced questions (e.g., "Based on your answer to Q3...")
+12. Preference explanations and reasoning responses
+
+**SPECIAL ATTENTION TO:**
+- Questions asking "why" or "please explain" to purchasing decisions (especially after brand choices)
+- Questions about brand preferences, recommendations, or comparisons
+- Open-ended essay responses that explain purchasing decisions (real or hypothetical)
+- Questions about values alignment with purchasing (natural, organic, ethical)
+
+ENHANCED CATEGORIZATION:
+For each identified target, provide:
+- column_name: EXACT COLUMN_ID from the list above (e.g., "Q120", "Q19a" - use only the identifier, NOT the question text)
+- roi_type: purchase_intent, spending_amount, brand_loyalty, brand_preference, decision_reasoning, customer_ltv, conversion_probability, or values_alignment
 - business_impact_score: 0.0-1.0 score for revenue impact potential
-- reasoning: Why this column predicts revenue outcomes
+- reasoning: Why this column predicts revenue outcomes or brand behavior
 - ml_target_suitability: How suitable this is as an ML prediction target (0.0-1.0)
+- response_type: multiple_choice, open_ended, numerical, or categorical
+- brand_relevance: 0.0-1.0 score for brand strategy importance
 
-Respond with JSON array of target objects, ranked by business_impact_score (highest first).`;
+PRIORITIZATION CRITERIA:
+1. Questions that directly explain purchasing and brand choice decisions (highest priority)
+2. Questions measuring price sensitivity and spending constraints
+3. Questions revealing values alignment with purchase behavior
+4. Questions indicating brand loyalty or switching propensity
+
+IMPORTANT: Return only 3-5 target variables. Only return 5 if all 5 have high revenue impact (business_impact_score >= 0.8).
+
+CRITICAL: Use only the COLUMN_ID (like "Q120") in your JSON response, never the full question text.
+
+Respond with JSON array of target objects, ranked by combined business_impact_score and brand_relevance (highest first).`;
     }
     
     buildPainPleasurePrompt(columnBatch, sampleResponses, context) {
@@ -446,14 +486,32 @@ Respond with JSON array of insight objects:
     }
     
     validateAndScoreTargets(targets, context) {
+        const validROITypes = [
+            'purchase_intent', 'spending_amount', 'customer_ltv', 'conversion_probability', 
+            'revenue_behavior', 'brand_loyalty', 'brand_preference', 'decision_reasoning', 'values_alignment'
+        ];
+        
+        const validResponseTypes = ['multiple_choice', 'open_ended', 'numerical', 'categorical'];
+        
         return targets
-            .filter(target => target.column_name && target.roi_type && target.business_impact_score)
+            .filter(target => 
+                target.column_name && 
+                target.roi_type && 
+                target.business_impact_score &&
+                validROITypes.includes(target.roi_type)
+            )
             .map(target => ({
                 ...target,
                 business_impact_score: Math.min(1.0, Math.max(0.0, target.business_impact_score)),
-                ml_target_suitability: Math.min(1.0, Math.max(0.0, target.ml_target_suitability || 0.8))
+                ml_target_suitability: Math.min(1.0, Math.max(0.0, target.ml_target_suitability || 0.8)),
+                brand_relevance: Math.min(1.0, Math.max(0.0, target.brand_relevance || 0.0)),
+                response_type: validResponseTypes.includes(target.response_type) ? target.response_type : 'categorical'
             }))
-            .sort((a, b) => b.business_impact_score - a.business_impact_score);
+            .sort((a, b) => {
+                const combinedScoreA = (a.business_impact_score + a.brand_relevance) / 2;
+                const combinedScoreB = (b.business_impact_score + b.brand_relevance) / 2;
+                return combinedScoreB - combinedScoreA;
+            });
     }
     
     validateInsights(insights, context) {

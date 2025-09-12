@@ -1,0 +1,166 @@
+{
+  "propensity_to_spend_analysis": {
+    "target_variables": {
+      "primary": "Affordable everyday price, that fits my budget",
+      "secondary": "On promotion / Special price",
+      "description": "Questions measuring price sensitivity and spending behavior patterns"
+    },
+    "top_discriminatory_questions": [
+      {
+        "question_id": "34",
+        "question_text": "Brand I know and trust",
+        "short_name": "imp_brand_trust",
+        "semantic_category": "values",
+        "discrimination_power": 0.935,
+        "statistical_significance": 0.008,
+        "effect_size": "large",
+        "spending_influence": "positive",
+        "categorical_responses": {
+          "Strongly Agree": {"influence": "high_positive", "gradient": 85, "percentage": 28},
+          "Agree": {"influence": "moderate_positive", "gradient": 65, "percentage": 42},
+          "Neutral": {"influence": "neutral", "gradient": 50, "percentage": 18},
+          "Disagree": {"influence": "moderate_negative", "gradient": 35, "percentage": 8},
+          "Strongly Disagree": {"influence": "high_negative", "gradient": 15, "percentage": 4}
+        }
+      },
+      {
+        "question_id": "36",
+        "question_text": "Affordable everyday price, that fits my budget",
+        "short_name": "imp_affordable_price",
+        "semantic_category": "price",
+        "discrimination_power": 0.931,
+        "statistical_significance": 0.006,
+        "effect_size": "large",
+        "spending_influence": "direct_target",
+        "categorical_responses": {
+          "Strongly Agree": {"influence": "high_positive", "gradient": 90, "percentage": 45},
+          "Agree": {"influence": "moderate_positive", "gradient": 70, "percentage": 35},
+          "Neutral": {"influence": "neutral", "gradient": 50, "percentage": 12},
+          "Disagree": {"influence": "moderate_negative", "gradient": 30, "percentage": 6},
+          "Strongly Disagree": {"influence": "high_negative", "gradient": 10, "percentage": 2}
+        }
+      },
+      {
+        "question_id": "37",
+        "question_text": "On promotion / Special price",
+        "short_name": "imp_promotion_special",
+        "semantic_category": "price",
+        "discrimination_power": 0.930,
+        "statistical_significance": 0.003,
+        "effect_size": "large",
+        "spending_influence": "direct_target",
+        "categorical_responses": {
+          "Strongly Agree": {"influence": "high_positive", "gradient": 88, "percentage": 32},
+          "Agree": {"influence": "moderate_positive", "gradient": 68, "percentage": 38},
+          "Neutral": {"influence": "neutral", "gradient": 50, "percentage": 20},
+          "Disagree": {"influence": "moderate_negative", "gradient": 32, "percentage": 7},
+          "Strongly Disagree": {"influence": "high_negative", "gradient": 12, "percentage": 3}
+        }
+      },
+      {
+        "question_id": "38",
+        "question_text": "Is Australian made",
+        "short_name": "imp_australian_made",
+        "semantic_category": "values",
+        "discrimination_power": 0.876,
+        "statistical_significance": 0.012,
+        "effect_size": "medium",
+        "spending_influence": "positive",
+        "categorical_responses": {
+          "Strongly Agree": {"influence": "high_positive", "gradient": 82, "percentage": 22},
+          "Agree": {"influence": "moderate_positive", "gradient": 62, "percentage": 34},
+          "Neutral": {"influence": "neutral", "gradient": 50, "percentage": 28},
+          "Disagree": {"influence": "moderate_negative", "gradient": 38, "percentage": 12},
+          "Strongly Disagree": {"influence": "high_negative", "gradient": 18, "percentage": 4}
+        }
+      },
+      {
+        "question_id": "40",
+        "question_text": "Contains Organic ingredients",
+        "short_name": "imp_organic_ingredients",
+        "semantic_category": "health",
+        "discrimination_power": 0.858,
+        "statistical_significance": 0.015,
+        "effect_size": "medium",
+        "spending_influence": "positive",
+        "categorical_responses": {
+          "Strongly Agree": {"influence": "high_positive", "gradient": 80, "percentage": 26},
+          "Agree": {"influence": "moderate_positive", "gradient": 60, "percentage": 36},
+          "Neutral": {"influence": "neutral", "gradient": 50, "percentage": 24},
+          "Disagree": {"influence": "moderate_negative", "gradient": 40, "percentage": 10},
+          "Strongly Disagree": {"influence": "high_negative", "gradient": 20, "percentage": 4}
+        }
+      },
+      {
+        "question_id": "46",
+        "question_text": "Is a natural formulation",
+        "short_name": "imp_natural_formulation",
+        "semantic_category": "quality",
+        "discrimination_power": 0.845,
+        "statistical_significance": 0.018,
+        "effect_size": "medium",
+        "spending_influence": "positive",
+        "categorical_responses": {
+          "Strongly Agree": {"influence": "high_positive", "gradient": 78, "percentage": 29},
+          "Agree": {"influence": "moderate_positive", "gradient": 58, "percentage": 37},
+          "Neutral": {"influence": "neutral", "gradient": 50, "percentage": 22},
+          "Disagree": {"influence": "moderate_negative", "gradient": 42, "percentage": 8},
+          "Strongly Disagree": {"influence": "high_negative", "gradient": 22, "percentage": 4}
+        }
+      }
+    ],
+    "pain_points": [
+      {
+        "category": "Price Concerns",
+        "questions": ["36", "37"],
+        "severity_score": 0.933,
+        "frequency": "high",
+        "description": "Affordability and value perception barriers"
+      },
+      {
+        "category": "Accessibility",
+        "questions": ["33"],
+        "severity_score": 0.671,
+        "frequency": "medium", 
+        "description": "Product availability and convenience issues"
+      },
+      {
+        "category": "Product Issues",
+        "questions": ["71", "78"],
+        "severity_score": 0.842,
+        "frequency": "medium",
+        "description": "Ingredient avoidance and formulation concerns"
+      }
+    ],
+    "pleasure_points": [
+      {
+        "category": "Brand Trust",
+        "questions": ["34", "43"],
+        "satisfaction_score": 0.918,
+        "frequency": "high",
+        "description": "Reliable brands that deliver results"
+      },
+      {
+        "category": "Product Quality",
+        "questions": ["40", "41", "44", "46"],
+        "satisfaction_score": 0.920,
+        "frequency": "high",
+        "description": "Natural, safe, and gentle formulations"
+      },
+      {
+        "category": "Convenience",
+        "questions": ["33"],
+        "satisfaction_score": 0.851,
+        "frequency": "medium",
+        "description": "Easy access and simple usage"
+      }
+    ],
+    "semantic_classification": {
+      "price": ["36", "37", "35"],
+      "values": ["34", "38", "47", "48", "49"],
+      "quality": ["41", "42", "44", "46"],
+      "health": ["40", "45"],
+      "other": ["33", "39", "43"]
+    }
+  }
+}
