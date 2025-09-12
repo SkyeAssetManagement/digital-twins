@@ -127,12 +127,78 @@ Evolve from basic three-stage analysis to advanced psychological and statistical
 - Single-layer ML with MDA feature importance (Random Forest + permutation importance)
 - Significance-based reporting (2-5 features per category based on statistical significance)
 
-#### Phase 3A: Intelligent Column Detection System
+#### Phase 3A: Intelligent Column Detection System ✅ COMPLETED
 **Goal**: Replace current basic column detection with sophisticated two-tier approach
-**Files**: `src/analysis/intelligent-column-detector.js`
+**Files**: `src/analysis/intelligent-column-detector.js`, `api/intelligent-column-detection.js`
+
+**COMPLETED IMPLEMENTATION:**
+- IntelligentColumnDetector class with two-tier detection (header + LLM fallback)
+- Production API endpoint: POST /api/intelligent-column-detection
+- Comprehensive test suites and validation
+- 35+ open-ended indicators with context-aware analysis
+- Efficient LLM usage with confidence scoring
+
+#### Phase 3X: Comprehensive Survey Database Schema 🔄 IN PROGRESS
+**Goal**: Design and implement robust database schema for storing all survey data and analysis results
+**Files**: `database/comprehensive-survey-schema.sql`, `api/survey-data-manager.js`
+
+**CRITICAL FOUNDATIONAL WORK** - This must be completed before continuing with semantic analysis phases.
+
+**Database Design Principles:**
+- Normalized structure to eliminate data duplication
+- Flexible schema supporting different survey structures  
+- Performance optimized with proper indexing
+- Complete audit trail and version control
+- Efficient querying across surveys, responses, and analysis results
+
+**Core Database Tables Designed:**
+1. **surveys** - Master table for each survey/dataset with metadata
+2. **survey_columns** - Column definitions and data types for each survey
+3. **column_detection_results** - Results from Phase 3A intelligent detection with confidence scores
+4. **survey_responses** - Individual survey responses (normalized by respondent)
+5. **response_values** - Actual answer values (key-value pairs for flexible survey structures)
+6. **semantic_categories** - Categories discovered through Phase 3B/3C analysis
+7. **response_categorizations** - Mapping responses to semantic categories with confidence
+8. **customer_archetypes** - Archetype definitions with demographics, behaviors, pain points
+9. **archetype_mappings** - Assignment of responses to customer archetypes
+10. **feature_importance** - ML analysis results with MDA scores and statistical significance
+11. **analysis_sessions** - Complete audit trail of all processing runs with cost tracking
+
+**Advanced Features:**
+- **Performance Views** - Pre-built views for common analysis queries
+- **Automated Triggers** - Auto-update statistics and usage counts
+- **Full-Text Search** - GIN indexes on response text for semantic searching
+- **Audit Trail** - Complete tracking of all analysis sessions with LLM usage and costs
+- **Version Control** - Support for iterative analysis improvements
+
+**Business Value:**
+- **Query Efficiency** - Find all responses mentioning specific concepts across surveys
+- **Cross-Survey Analysis** - Compare archetypes and patterns across different datasets  
+- **Cost Optimization** - Reuse analysis results instead of re-processing
+- **Audit Compliance** - Complete trail of all AI processing and decisions
+- **Scalability** - Support for hundreds of surveys with millions of responses
 
 **Implementation Steps:**
-1. **Header-Based Detection (Fast Path)**:
+1. **Database Schema Deployment** - Execute comprehensive-survey-schema.sql
+2. **Data Migration API** - Create endpoints to populate schema from existing pipeline results
+3. **Query Optimization** - Add additional indexes based on actual usage patterns
+4. **Integration Testing** - Validate with existing Parents Survey data
+5. **Performance Benchmarking** - Ensure efficient querying at scale
+6. **Documentation** - Create query examples and API documentation
+
+**Micro Steps:**
+1. Deploy database schema to development environment
+2. Create SurveyDataManager class for database operations
+3. Build data migration scripts for existing survey data
+4. Implement survey ingestion API endpoints
+5. Create response storage and retrieval functions
+6. Add analysis result persistence layer
+7. Test with real 253-column Parents Survey data
+8. Optimize performance and add missing indexes
+9. Create comprehensive API documentation
+10. Deploy to production environment
+
+**Header-Based Detection (Fast Path) - COMPLETED:**
    ```javascript
    // Check for explicit indicators: "open-ended", "open response", "comment", "explain", etc.
    // Also check first row for metadata indicators
@@ -332,12 +398,15 @@ Evolve from basic three-stage analysis to advanced psychological and statistical
 - P2.2: Digital Twin Debugging Panel
 - P2.3: Downloadable Debug Exports
 
-### Weeks 3-6: Priority 3A-C (Foundation Analytics)
-- Phase 3A: Intelligent Column Detection System
+### Weeks 3-4: Priority 3A-3X (Foundation & Architecture)
+- ✅ Phase 3A: Intelligent Column Detection System (COMPLETED)
+- 🔄 Phase 3X: Comprehensive Survey Database Schema (IN PROGRESS)
+
+### Weeks 5-7: Priority 3B-C (Semantic Analytics)
 - Phase 3B: Pure LLM Semantic Analysis Engine
 - Phase 3C: Adaptive Category Discovery
 
-### Weeks 7-10: Priority 3D-E (Advanced Analytics)
+### Weeks 8-10: Priority 3D-E (Advanced Analytics)
 - Phase 3D: ROI Target + Pain/Pleasure Categorization
 - Phase 3E: Single-Layer ML with MDA Feature Importance
 
