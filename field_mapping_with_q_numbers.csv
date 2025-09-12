@@ -1,0 +1,254 @@
+Q_Number,Column_Index,Column_ID,Question_Text,Original_Row_0,Original_Row_1,Response_Type,Notes
+preData,0,"respondent_id","Respondent ID","Respondent ID","",categorical,"Survey metadata"
+preData,1,"collector_id","Collector ID","Collector ID","",categorical,"Survey metadata"
+preData,2,"start_date","Start Date","Start Date","",categorical,"Survey metadata"
+preData,3,"end_date","End Date","End Date","",categorical,"Survey metadata"
+preData,4,"ip_address","IP Address","IP Address","",categorical,"Survey metadata"
+preData,5,"email_address","Email Address","Email Address","",categorical,"Survey metadata"
+Q1,6,"first_name","First Name","First Name","",categorical,""
+Q2,7,"last_name","Last Name","Last Name","",categorical,""
+Q3,8,"custom_data_1","Custom Data 1","Custom Data 1","",categorical,""
+Q4,9,"gender","Are you? - Response","Are you?","Response",categorical,""
+Q5,10,"age_group","How old are you? - Response","How old are you?","Response",categorical,""
+Q6,11,"state_territory","In which State or Territory do you currently live? - Response","In which State or Territory do you currently live?","Response",categorical,""
+Q7,12,"currently_pregnant","Are you currently pregnant? - Response","Are you currently pregnant?","Response",categorical,""
+Q8,13,"number_of_children","How many children do you have? - Response","How many children do you have?","Response",categorical,""
+Q9,14,"has_child_under_age","Do you have a child aged under 12 months old? - Response","Do you have a child aged under 12 months old?","Response",categorical,""
+Q10,15,"household_purchaser","Within your household who typically purchases these types of baby care products? - Response","Within your household who typically purchases these types of baby care products?","Response",categorical,""
+Q11,16,"qColes or Woolworths supermarke","Coles or Woolworths supermarket in the past month","""Have you purchased baby care products (such as wipes"," bath wash",categorical,""
+Q12,17,"""qChemist Warehouse"," Priceline or Big W in the past 3 months"""," Priceline o""","",categorical,""
+Q13,18,"qBaby bath","How often do you usually use the following types of baby care products on your little ones: (select one per product type) - Baby bath (eg. liquid cleanser/wash)","How often do you usually use the following types of baby care products on your little ones: (select one per product type)","Baby bath (eg. liquid cleanser/wash)",frequency,""
+Q14,19,"q2 in 1 Baby wash & shampoo","How often do you usually use the following types of baby care products on your little ones: (select one per product type) - 2 in 1 Baby wash & shampoo","","2 in 1 Baby wash & shampoo",frequency,""
+Q15,20,"Never Used","How often do you usually use the following types of baby care products on your little ones: (select one per product type) - Baby shampoo","","Baby shampoo",frequency,""
+Q16,21,"Never Used.1","How often do you usually use the following types of baby care products on your little ones: (select one per product type) - Baby conditioner","","Baby conditioner",frequency,""
+Q17,22,"Never Used.2","How often do you usually use the following types of baby care products on your little ones: (select one per product type) - Hair detangling spray","","Hair detangling spray",frequency,""
+Q18,23,"Daily","How often do you usually use the following types of baby care products on your little ones: (select one per product type) - Baby wipes","","Baby wipes",frequency,""
+Q19,24,"Never Used.3","How often do you usually use the following types of baby care products on your little ones: (select one per product type) - Baby powder","","Baby powder",frequency,""
+Q20,25,"Never Used.4","How often do you usually use the following types of baby care products on your little ones: (select one per product type) - Baby soap (eg. bar)","","Baby soap (eg. bar)",frequency,""
+Q21,26,"Every Few Days","How often do you usually use the following types of baby care products on your little ones: (select one per product type) - Nappy rash cream (eg. soothing cream)","","Nappy rash cream (eg. soothing cream)",frequency,""
+Q22,27,"Rarely/As Needed","How often do you usually use the following types of baby care products on your little ones: (select one per product type) - Baby massage oil","","Baby massage oil",frequency,""
+Q23,28,"Never Used.5","How often do you usually use the following types of baby care products on your little ones: (select one per product type) - Baby skin moisturiser","","Baby skin moisturiser",frequency,""
+Q24,29,"Rarely/As Needed.1","How often do you usually use the following types of baby care products on your little ones: (select one per product type) - Cradle cap products","","Cradle cap products",frequency,""
+Q25,30,"Every Few Days.1","How often do you usually use the following types of baby care products on your little ones: (select one per product type) - Eczema cream","","Eczema cream",frequency,""
+Q26,31,"Never Used.6","How often do you usually use the following types of baby care products on your little ones: (select one per product type) - Bath oil","","Bath oil",frequency,""
+Q27,32,"Never Used.7","How often do you usually use the following types of baby care products on your little ones: (select one per product type) - Room spray (in baby/children’s room)","","Room spray (in baby/children’s room)",frequency,""
+Q28,33,"Important","""When considering these types of products","""When considering these types of products"," how important are the following aspects to you in deciding which one to purchase: (select one per aspect)""",categorical,""
+Q29,34,"Important.1"," how important are the following aspects to you in deciding which one to purchase: (select one per aspect)""","","Brand I know and trust",importance,""
+Q30,35,"Important.2"," how important are the following aspects to you in deciding which one to purchase: (select one per aspect)""","","Another mum/family member recommended it",importance,""
+Q31,36,"Very Important","""When considering these types of products","","""Affordable everyday price",categorical,""
+Q32,37,"Very Important.1"," how important are the following aspects to you in deciding which one to purchase: (select one per aspect)""","","On promotion / Special price",importance,""
+Q33,38,"Somewhat Important"," how important are the following aspects to you in deciding which one to purchase: (select one per aspect)""","","Is Australian made",importance,""
+Q34,39,"Important.3"," how important are the following aspects to you in deciding which one to purchase: (select one per aspect)""","","Clinical formulation / lab developed",importance,""
+Q35,40,"Don't Know / Can't Say"," how important are the following aspects to you in deciding which one to purchase: (select one per aspect)""","","Contains Organic ingredients",importance,""
+Q36,41,"Important.4"," how important are the following aspects to you in deciding which one to purchase: (select one per aspect)""","","Is Dermatologically tested/approved",importance,""
+Q37,42,"Don't Know / Can't Say.1","2. - Is Pediatrician tested/approved","2.","Is Pediatrician tested/approved",categorical,""
+Q38,43,"Very Important.2","2. - Brand that I’ve used & works best for my baby","","Brand that I’ve used & works best for my baby",categorical,"BRAND EXPERIENCE QUESTION"
+Q39,44,"Very Important.3","2. - Suitable for Sensitive Skin","","Suitable for Sensitive Skin",categorical,""
+Q40,45,"Very Important.4","2. - Is Eczema Friendly","","Is Eczema Friendly",categorical,""
+Q41,46,"Don't Know / Can't Say.2","2. - Is a natural formulation","","Is a natural formulation",categorical,""
+Q42,47,"Important.5","2. - Is Cruelty Free (not tested on animals)","","Is Cruelty Free (not tested on animals)",categorical,""
+Q43,48,"Very Important.5","2. - Is “Free From” (contains no synthetic fragrance/perfume)","","Is “Free From” (contains no synthetic fragrance/perfume)",categorical,""
+Q44,49,"Don't Know / Can't Say.3","2. - Is Vegan friendly (made or manufactured without the use of animal products)","","Is Vegan friendly (made or manufactured without the use of animal products)",categorical,""
+Q45,50,"Unnamed: 50","""If there are any other important aspects that you consider when purchasing baby body products","""If there are any other important aspects that you consider when purchasing baby body products"," please outline them:""",importance,""
+Q46,51,"Unnamed: 51","Available where I usually shop","""From the below list"," if you had to choose only the 5 most important aspects in deciding which baby body product to purchase",categorical,""
+Q47,52,"3rd Most "," if you had to choose only the 5 most important aspects in deciding which baby body product to purchase","","Brand I know and trust",importance,""
+Q48,53,"5th Most "," if you had to choose only the 5 most important aspects in deciding which baby body product to purchase","","Another mum recommended it",importance,""
+Q49,54,"4th Most ","""From the below list","","""Affordable everyday price",categorical,""
+Q50,55,"Unnamed: 55"," if you had to choose only the 5 most important aspects in deciding which baby body product to purchase","","On promotion / Special price",importance,""
+Q51,56,"Unnamed: 56"," if you had to choose only the 5 most important aspects in deciding which baby body product to purchase","","Is Australian made",importance,""
+Q52,57,"Unnamed: 57"," if you had to choose only the 5 most important aspects in deciding which baby body product to purchase","","Clinical formulation / lab developed",importance,""
+Q53,58,"Unnamed: 58"," if you had to choose only the 5 most important aspects in deciding which baby body product to purchase","","Contains Organic ingredients",importance,""
+Q54,59,"Unnamed: 59"," if you had to choose only the 5 most important aspects in deciding which baby body product to purchase","","Is Dermatologically and or Paediatrician tested/approved",importance,""
+Q55,60,"Most Important"," if you had to choose only the 5 most important aspects in deciding which baby body product to purchase","","Brand that I’ve used & works best for my baby",importance,""
+Q56,61,"2nd Most "," if you had to choose only the 5 most important aspects in deciding which baby body product to purchase","","Suitable for Sensitive Skin",importance,""
+Q57,62,"Unnamed: 62"," if you had to choose only the 5 most important aspects in deciding which baby body product to purchase","","Is Eczema Friendly",importance,""
+Q58,63,"Unnamed: 63"," if you had to choose only the 5 most important aspects in deciding which baby body product to purchase","","Is a natural formulation",importance,""
+Q59,64,"Unnamed: 64"," if you had to choose only the 5 most important aspects in deciding which baby body product to purchase","","Does not contain any food derived ingredients (eg. Avocado Oil)",importance,""
+Q60,65,"Unnamed: 65"," propylene glycol","","""Is “Free From” (contains no parabens",categorical,""
+Q61,66,"Don't Know / Can't Say.4","I prefer products with essential oils over synthetic ingredients and artificial fragrance for my baby","""Essential OilEssential oils are concentrated extracts from different plants that are used in aromatherapy or topically for various conditions. In Baby body products they can provide natural anti-inflammatory"," calming or antimicrobial effects.When it comes to Essential Oil",categorical,""
+Q62,67,"Don't Know / Can't Say.5"," calming or antimicrobial effects.When it comes to Essential Oil","","I believe essential oils provide a positive benefit in baby body products",categorical,""
+Q63,68,"Don't Know / Can't Say.6"," calming or antimicrobial effects.When it comes to Essential Oil","","I am more likely to consider a brand / product that contain essential oils",categorical,""
+Q64,69,"Don't Know / Can't Say.7"," calming or antimicrobial effects.When it comes to Essential Oil","","I think essential oils are good for my little one’s skin",categorical,""
+Q65,70,"Don't Know / Can't Say.8"," calming or antimicrobial effects.When it comes to Essential Oil","","I expect essential oils to be included in all baby body products",categorical,""
+Q66,71,"Don't Know / Can't Say.9"," calming or antimicrobial effects.When it comes to Essential Oil","","I actively avoid products with essential oil ingredients for my baby",categorical,""
+preData,72,"I worry essential oils might cause a reaction for my baby’s delicate skin so avoid them ","""If you have any comments about the use of Essential Oils in baby body products","""If you have any comments about the use of Essential Oils in baby body products"," please outline them:""",categorical,"Survey metadata"
+Q67,73,"Agree"," soothing and barrier protection.When it comes to Food Derived ingredients","""Food Derived ingredients Food derived ingredients in baby skincare are components sourced from edible animal or non-plant origins—like dairy"," honey",categorical,""
+Q68,74,"Don't Know / Can't Say.10"," honey","","I believe food derived ingredients provide a positive benefit in baby body products",categorical,""
+Q69,75,"Agree.1"," honey","","I am more likely to consider a brand / product that contain food derived ingredients",categorical,""
+Q70,76,"Agree.2"," honey","","I think food derived ingredients are good for my little one’s skin",categorical,""
+Q71,77,"Don't Know / Can't Say.11"," honey","","I expect food derived ingredients to be included in all baby body products",categorical,""
+Q72,78,"Don't Know / Can't Say.12"," honey","","I actively avoid products with food derived ingredients for my baby",categorical,""
+Q73,79,"Unnamed: 79","""If you have any comments about the use of Food Derived ingredients in baby body products","""If you have any comments about the use of Food Derived ingredients in baby body products"," please outline them:""",categorical,""
+Q74,80,"Yes","Prior to this survey have you ever seen this certification logo? - Response","Prior to this survey have you ever seen this certification logo?","Response",categorical,""
+Q75,81,"Strongly Agree","Please indicate your feedback about the certification logo: (select one per statement) - I know what this certification means","Please indicate your feedback about the certification logo: (select one per statement)","I know what this certification means",categorical,""
+Q76,82,"Agree.3","Please indicate your feedback about the certification logo: (select one per statement) - I would feel more confident in a baby care brand with this certification","","I would feel more confident in a baby care brand with this certification",categorical,"BRAND RELATED"
+Q77,83,"Don't Know / Can't Say.13","Please indicate your feedback about the certification logo: (select one per statement) - I am more likely to purchase a product that has this certification","","I am more likely to purchase a product that has this certification",likelihood,""
+Q78,84,"No","Prior to this survey have you ever seen this certification logo? - Response","Prior to this survey have you ever seen this certification logo?","Response",categorical,""
+Q79,85,"Strongly Disagree","Please indicate your feedback about the certification logo: (select one per statement) - I know what this certification means","Please indicate your feedback about the certification logo: (select one per statement)","I know what this certification means",categorical,""
+Q80,86,"Agree.4","Please indicate your feedback about the certification logo: (select one per statement) - I would feel more confident in a baby care brand with this certification","","I would feel more confident in a baby care brand with this certification",categorical,"BRAND RELATED"
+Q81,87,"Don't Know / Can't Say.14","Please indicate your feedback about the certification logo: (select one per statement) - I am more likely to purchase a product that has this certification","","I am more likely to purchase a product that has this certification",likelihood,""
+Q82,88,"Don't Know / Can't Say.15","Prior to this survey have you ever seen this certification logo? - Response","Prior to this survey have you ever seen this certification logo?","Response",categorical,""
+Q83,89,"Don't Know / Can't Say.16","Please indicate your feedback about the certification logo: (select one per statement) - I know what this certification means","Please indicate your feedback about the certification logo: (select one per statement)","I know what this certification means",categorical,""
+Q84,90,"Don't Know / Can't Say.17","Please indicate your feedback about the certification logo: (select one per statement) - I would feel more confident in a baby care brand with this certification","","I would feel more confident in a baby care brand with this certification",categorical,"BRAND RELATED"
+Q85,91,"Don't Know / Can't Say.18","Please indicate your feedback about the certification logo: (select one per statement) - I am more likely to purchase a product that has this certification","","I am more likely to purchase a product that has this certification",likelihood,""
+Q86,92,"Yes.1","Prior to this survey have you ever seen this certification logo? - Response","Prior to this survey have you ever seen this certification logo?","Response",categorical,""
+Q87,93,"Strongly Agree.1","Please indicate your feedback about the certification logo: (select one per statement) - I know what this certification means","Please indicate your feedback about the certification logo: (select one per statement)","I know what this certification means",categorical,""
+Q88,94,"Strongly Agree.2","Please indicate your feedback about the certification logo: (select one per statement) - I would feel more confident in a baby care brand with this certification","","I would feel more confident in a baby care brand with this certification",categorical,"BRAND RELATED"
+Q89,95,"Strongly Agree.3","Please indicate your feedback about the certification logo: (select one per statement) - I am more likely to purchase a product that has this certification","","I am more likely to purchase a product that has this certification",likelihood,""
+Q90,96,"3rd Most .1","""In order","""In order"," please indicate which of the certification logos would be most important to you if you were considering a new brand of baby care products:""",categorical,""
+Q91,97,"2nd Most .1"," please indicate which of the certification logos would be most important to you if you were considering a new brand of baby care products:""","","Option B",importance,"BRAND RELATED"
+Q92,98,"Least Important"," please indicate which of the certification logos would be most important to you if you were considering a new brand of baby care products:""","","Option C",importance,"BRAND RELATED"
+Q93,99,"Most Important.1"," please indicate which of the certification logos would be most important to you if you were considering a new brand of baby care products:""","","Option D",importance,"BRAND RELATED"
+Q94,100,"Currently Use","Following is a list of some brands that sell baby body products. Please indicate if you have ever heard of the brand or if you have ever used them: (select one per brand) - QV Baby","Following is a list of some brands that sell baby body products. Please indicate if you have ever heard of the brand or if you have ever used them: (select one per brand)","QV Baby",categorical,"BRAND EXPERIENCE QUESTION"
+Q95,101,"Have Heard of but not used","Following is a list of some brands that sell baby body products. Please indicate if you have ever heard of the brand or if you have ever used them: (select one per brand) - Aveeno Baby","","Aveeno Baby",categorical,"BRAND EXPERIENCE QUESTION"
+Q96,102,"Have Used but not now","Following is a list of some brands that sell baby body products. Please indicate if you have ever heard of the brand or if you have ever used them: (select one per brand) - Mustela Baby","","Mustela Baby",categorical,"BRAND EXPERIENCE QUESTION"
+Q97,103,"Currently Use.1","Following is a list of some brands that sell baby body products. Please indicate if you have ever heard of the brand or if you have ever used them: (select one per brand) - GAIA Natural Baby","","GAIA Natural Baby",categorical,"BRAND EXPERIENCE QUESTION"
+Q98,104,"Have Heard of but not used.1","Following is a list of some brands that sell baby body products. Please indicate if you have ever heard of the brand or if you have ever used them: (select one per brand) - Cetaphil Baby","","Cetaphil Baby",categorical,"BRAND EXPERIENCE QUESTION"
+Q99,105,"Have Heard of but not used.2","Following is a list of some brands that sell baby body products. Please indicate if you have ever heard of the brand or if you have ever used them: (select one per brand) - Johnson's Baby","","Johnson's Baby",categorical,"BRAND EXPERIENCE QUESTION"
+Q100,106,"Never Heard of","Following is a list of some brands that sell baby body products. Please indicate if you have ever heard of the brand or if you have ever used them: (select one per brand) - Bunjie","","Bunjie",categorical,"BRAND EXPERIENCE QUESTION"
+Q101,107,"Never Heard of.1","Following is a list of some brands that sell baby body products. Please indicate if you have ever heard of the brand or if you have ever used them: (select one per brand) - Gro-To","","Gro-To",categorical,"BRAND EXPERIENCE QUESTION"
+Q102,108,"Currently Use.2","Following is a list of some brands that sell baby body products. Please indicate if you have ever heard of the brand or if you have ever used them: (select one per brand) - MooGoo","","MooGoo",categorical,"BRAND EXPERIENCE QUESTION"
+Q103,109,"Have Used but not now.1","Following is a list of some brands that sell baby body products. Please indicate if you have ever heard of the brand or if you have ever used them: (select one per brand) - CeraVe Baby","","CeraVe Baby",categorical,"BRAND EXPERIENCE QUESTION"
+Q104,110,"Have Heard of but not used.3","Following is a list of some brands that sell baby body products. Please indicate if you have ever heard of the brand or if you have ever used them: (select one per brand) - Ecostore Baby","","Ecostore Baby",categorical,"BRAND EXPERIENCE QUESTION"
+Q105,111,"Have Heard of but not used.4","Following is a list of some brands that sell baby body products. Please indicate if you have ever heard of the brand or if you have ever used them: (select one per brand) - Curash Baby","","Curash Baby",categorical,"BRAND EXPERIENCE QUESTION"
+Q106,112,"Never Heard of.2","Following is a list of some brands that sell baby body products. Please indicate if you have ever heard of the brand or if you have ever used them: (select one per brand) - Earthwise","","Earthwise",categorical,"BRAND EXPERIENCE QUESTION"
+Q107,113,"Never Heard of.3","Following is a list of some brands that sell baby body products. Please indicate if you have ever heard of the brand or if you have ever used them: (select one per brand) - Child’s Farm","","Child’s Farm",categorical,"BRAND EXPERIENCE QUESTION"
+Q108,114,"Currently Use.3","Following is a list of some brands that sell baby body products. Please indicate if you have ever heard of the brand or if you have ever used them: (select one per brand) - Dermaveen Baby","","Dermaveen Baby",categorical,"BRAND EXPERIENCE QUESTION"
+Q109,115,"Unnamed: 115","""If there are other brands of baby body products that you currently use","""If there are other brands of baby body products that you currently use"," please outline them:""",categorical,"BRAND RELATED"
+Q110,116,"""I use different brands depending on the product (eg. one brand for body wash","Response"," another brand for shampoo"," another for moisturiser)""",categorical,""
+Q111,117,"Depends on what I have used before and what works on my 4 year old sons skin who has ezcema as well as safe for my 6 month old baby.","""Briefly","""Briefly"," please say why:""",categorical,""
+Q112,118,"MooGoo","Response","""If you were given $100 to spend on baby body products"," but could only spend it on one brand",categorical,""
+Q113,119,"Unnamed: 119"," but could only spend it on one brand","","Other (please say which brand)",categorical,"BRAND RELATED"
+Q114,120,"Because it is natural and good for ezcema and sensitive skin ","You chose to spend your $100 on {{ Q31 }} Please say why you chose that brand: - Open-Ended Response","You chose to spend your $100 on {{ Q31 }} Please say why you chose that brand:","Open-Ended Response",open_ended,"BRAND PREFERENCE EXPLANATION - Q120 TARGET"
+Q115,121,"Unnamed: 121","""If you wanted information on baby products or brands","""If you wanted information on baby products or brands"," which of the following sources are you most likely to use: (select all that apply)""",categorical,"BRAND RELATED"
+Q116,122,"Friends or family"," which of the following sources are you most likely to use: (select all that apply)""","","Friends or family",likelihood,""
+Q117,123,"Unnamed: 123","""If you wanted information on baby products or brands","","""Internet search (eg. Google",categorical,"BRAND RELATED"
+Q118,124,"Unnamed: 124"," Deepseek)""","","""AI search  (eg. ChatGPT",categorical,""
+Q119,125,"Unnamed: 125","""If you wanted information on baby products or brands","","""Mother/Baby websites (eg.  tellmebaby.com.au",categorical,"BRAND RELATED"
+Q120,126,"Unnamed: 126"," etc)""","","""Brand/company websites (eg. Sudocrem ",categorical,""
+Q121,127,"Unnamed: 127"," which of the following sources are you most likely to use: (select all that apply)""","","Brand newsletter/email",likelihood,""
+Q122,128,"Unnamed: 128"," which of the following sources are you most likely to use: (select all that apply)""","","Facebook Groups & Forums",likelihood,""
+Q123,129,"Unnamed: 129"," which of the following sources are you most likely to use: (select all that apply)""","","Facebook ads/Marketplace",likelihood,""
+Q124,130,"Unnamed: 130"," which of the following sources are you most likely to use: (select all that apply)""","","YouTube",likelihood,""
+Q125,131,"Unnamed: 131"," which of the following sources are you most likely to use: (select all that apply)""","","TikTok",likelihood,""
+Q126,132,"Unnamed: 132"," which of the following sources are you most likely to use: (select all that apply)""","","Instagram",likelihood,""
+Q127,133,"Unnamed: 133"," which of the following sources are you most likely to use: (select all that apply)""","","Twitter / X",likelihood,""
+Q128,134,"Unnamed: 134"," which of the following sources are you most likely to use: (select all that apply)""","","Podcast",likelihood,""
+Q129,135,"Pharmacist"," which of the following sources are you most likely to use: (select all that apply)""","","Pharmacist",likelihood,""
+Q130,136,"Unnamed: 136"," Jade Tunch)""","","""Influencer (eg. Snezana Wood",categorical,""
+Q131,137,"Unnamed: 137","""If you wanted information on baby products or brands","","""Influencer (eg. small following",categorical,"BRAND RELATED"
+Q132,138,"Pharmacy assistant"," which of the following sources are you most likely to use: (select all that apply)""","","Pharmacy assistant",likelihood,""
+Q133,139,"Unnamed: 139"," which of the following sources are you most likely to use: (select all that apply)""","","Midwife",likelihood,""
+Q134,140,"Family doctor/GP"," which of the following sources are you most likely to use: (select all that apply)""","","Family doctor/GP",likelihood,""
+Q135,141,"Unnamed: 141"," which of the following sources are you most likely to use: (select all that apply)""","","Pediatrician",likelihood,""
+Q136,142,"Unnamed: 142"," which of the following sources are you most likely to use: (select all that apply)""","","Maternal and Child Health Nurse",likelihood,""
+Q137,143,"Unnamed: 143"," which of the following sources are you most likely to use: (select all that apply)""","","Other sources (please specify)",likelihood,""
+Q138,144,"Occasionally","Have you used any of the following baby product review/information websites:(select one per site) - Tell Me Baby","Have you used any of the following baby product review/information websites:(select one per site)","Tell Me Baby",categorical,""
+Q139,145,"Never","Have you used any of the following baby product review/information websites:(select one per site) - Mouth of Mum’s","","Mouth of Mum’s",categorical,""
+Q140,146,"Occasionally.1","Have you used any of the following baby product review/information websites:(select one per site) - Mum’s Grapevine","","Mum’s Grapevine",categorical,""
+Q141,147,"Never.1","Have you used any of the following baby product review/information websites:(select one per site) - New Born Baby","","New Born Baby",categorical,""
+Q142,148,"Never.2","Have you used any of the following baby product review/information websites:(select one per site) - Baby Center","","Baby Center",categorical,""
+Q143,149,"Occasionally.2","Have you used any of the following baby product review/information websites:(select one per site) - Bounty Parents","","Bounty Parents",categorical,""
+Q144,150,"Never.3","Have you used any of the following baby product review/information websites:(select one per site) - Product Review.com.au","","Product Review.com.au",categorical,""
+Q145,151,"Occasionally.3","Have you used any of the following baby product review/information websites:(select one per site) - Mum’s Central","","Mum’s Central",categorical,""
+Q146,152,"Never.4","Have you used any of the following baby product review/information websites:(select one per site) - Kiindred","","Kiindred",categorical,""
+Q147,153,"Once in a While","Have you used any of the following baby product review/information websites:(select one per site) - Pregnancybirthbaby.org.au","","Pregnancybirthbaby.org.au",categorical,""
+Q148,154,"Once in a While.1","Have you used any of the following baby product review/information websites:(select one per site) - Raisingchildren.net.au","","Raisingchildren.net.au",categorical,""
+Q149,155,"Unnamed: 155","""If there are any other baby product review/information websites that you currently use","""If there are any other baby product review/information websites that you currently use"," please outline them:""",categorical,""
+Q150,156,"Yes.2","Have you attended any of the following Baby Expos?(select one per expo)","Have you attended any of the following Baby Expos?(select one per expo)","""Pregnancy",categorical,""
+Q151,157,"No.1","Have you attended any of the following Baby Expos?(select one per expo) - One Fine Baby Expo","","One Fine Baby Expo",categorical,""
+Q152,158,"Unnamed: 158","Please indicate if you have you ever received a sample of a baby product to trial or use at home from the following sources:(select all that apply) - None of the above","Please indicate if you have you ever received a sample of a baby product to trial or use at home from the following sources:(select all that apply)","None of the above",categorical,""
+Q153,159,"Samples from Bounty Bag","Please indicate if you have you ever received a sample of a baby product to trial or use at home from the following sources:(select all that apply) - Samples from Bounty Bag","","Samples from Bounty Bag",categorical,""
+Q154,160,"Unnamed: 160","Please indicate if you have you ever received a sample of a baby product to trial or use at home from the following sources:(select all that apply) - Samples from Bao Bag","","Samples from Bao Bag",categorical,""
+Q155,161,"Samples from an Expo","Please indicate if you have you ever received a sample of a baby product to trial or use at home from the following sources:(select all that apply) - Samples from an Expo","","Samples from an Expo",categorical,""
+Q156,162,"Unnamed: 162","Please indicate if you have you ever received a sample of a baby product to trial or use at home from the following sources:(select all that apply) - Samples from a GP/family doctor","","Samples from a GP/family doctor",categorical,""
+Q157,163,"Unnamed: 163","Please indicate if you have you ever received a sample of a baby product to trial or use at home from the following sources:(select all that apply) - Samples from a Pediatrician","","Samples from a Pediatrician",categorical,""
+Q158,164,"Unnamed: 164","Please indicate if you have you ever received a sample of a baby product to trial or use at home from the following sources:(select all that apply) - Samples from a Midwife","","Samples from a Midwife",categorical,""
+Q159,165,"Unnamed: 165","Please indicate if you have you ever received a sample of a baby product to trial or use at home from the following sources:(select all that apply) - Samples from a Maternal and Child Health Nurse","","Samples from a Maternal and Child Health Nurse",categorical,""
+Q160,166,"Unnamed: 166","Please indicate if you have you ever received a sample of a baby product to trial or use at home from the following sources:(select all that apply) - Samples from a retail store (eg. pharmacy)","","Samples from a retail store (eg. pharmacy)",categorical,""
+Q161,167,"Unnamed: 167","Please indicate if you have you ever received a sample of a baby product to trial or use at home from the following sources:(select all that apply) - Sample box with purchase (eg. Chemist Warehouse – Bundle of Joy box)","","Sample box with purchase (eg. Chemist Warehouse – Bundle of Joy box)",categorical,""
+Q162,168,"Strongly Agree.4","Please indicate your agreement with the following statements about the sampling of baby products:(select one per statement) - I like getting samples","Please indicate your agreement with the following statements about the sampling of baby products:(select one per statement)","I like getting samples",agreement,""
+Q163,169,"Disagree","Please indicate your agreement with the following statements about the sampling of baby products:(select one per statement) - I get too many samples and don’t end up using them","","I get too many samples and don’t end up using them",agreement,""
+Q164,170,"Agree.5","Please indicate your agreement with the following statements about the sampling of baby products:(select one per statement) - Samples are a good way to test a product","","Samples are a good way to test a product",agreement,""
+Q165,171,"Agree.6","Please indicate your agreement with the following statements about the sampling of baby products:(select one per statement) - Receiving a sample and trying the product has influenced my decision to buy that brand/product","","Receiving a sample and trying the product has influenced my decision to buy that brand/product",agreement,"BRAND RELATED"
+Q166,172,"Strongly Agree.5","Please indicate your agreement with the following statements about the sampling of baby products:(select one per statement) - I am interested in receiving samples in the future","","I am interested in receiving samples in the future",agreement,""
+Q167,173,"Yes.3","Prior to taking this survey had you ever heard of the brand GAIA Natural Baby? - Response","Prior to taking this survey had you ever heard of the brand GAIA Natural Baby?","Response",categorical,"BRAND RELATED"
+Q168,174,"""Natural","Open-Ended Response"," calming safe for baby products""","""Think about the GAIA brand – what do you know about it and what do you think are its key attributes?Briefly",open_ended,""
+Q169,175,"Unnamed: 175","How did you first learn about GAIA Natural Baby? (select as many as apply) - Can't Remember","How did you first learn about GAIA Natural Baby? (select as many as apply)","Can't Remember",categorical,""
+Q170,176,"Unnamed: 176","How did you first learn about GAIA Natural Baby? (select as many as apply) - Friends or Family recommended","","Friends or Family recommended",categorical,""
+Q171,177,"Unnamed: 177","How did you first learn about GAIA Natural Baby? (select as many as apply) - Saw product in a store","","Saw product in a store",categorical,""
+Q172,178,"Unnamed: 178","How did you first learn about GAIA Natural Baby? (select as many as apply) - Saw product at an Expo","","Saw product at an Expo",categorical,""
+Q173,179,"Received a sample","How did you first learn about GAIA Natural Baby? (select as many as apply) - Received a sample","","Received a sample",categorical,""
+Q174,180,"Unnamed: 180","How did you first learn about GAIA Natural Baby? (select as many as apply) - Recommended by a GP/family doctor","","Recommended by a GP/family doctor",categorical,""
+Q175,181,"Unnamed: 181","How did you first learn about GAIA Natural Baby? (select as many as apply) - Recommended by a Paediatrician","","Recommended by a Paediatrician",categorical,""
+Q176,182,"Unnamed: 182","How did you first learn about GAIA Natural Baby? (select as many as apply) - Recommended by a Pharmacist","","Recommended by a Pharmacist",categorical,""
+Q177,183,"Unnamed: 183","How did you first learn about GAIA Natural Baby? (select as many as apply) - Recommended by Pharmacy assistant","","Recommended by Pharmacy assistant",categorical,""
+Q178,184,"Unnamed: 184","How did you first learn about GAIA Natural Baby? (select as many as apply) - Recommended by a Midwife","","Recommended by a Midwife",categorical,""
+Q179,185,"Unnamed: 185","How did you first learn about GAIA Natural Baby? (select as many as apply) - Recommended by a Maternal and Child Health Nurse","","Recommended by a Maternal and Child Health Nurse",categorical,""
+Q180,186,"Unnamed: 186","How did you first learn about GAIA Natural Baby? (select as many as apply) - Read an article / saw a review online","","Read an article / saw a review online",categorical,""
+Q181,187,"Unnamed: 187","How did you first learn about GAIA Natural Baby? (select as many as apply) - Read an article in a newspaper or magazine","","Read an article in a newspaper or magazine",categorical,""
+Q182,188,"Unnamed: 188","How did you first learn about GAIA Natural Baby? (select as many as apply)","","""Internet search (eg. Google",categorical,""
+Q183,189,"Unnamed: 189"," Deepseek)""","","""AI search  (eg. ChatGPT",categorical,""
+Q184,190,"Unnamed: 190","How did you first learn about GAIA Natural Baby? (select as many as apply)","","""Mother/Baby websites (eg.  tellmebaby.com.au",categorical,""
+Q185,191,"Unnamed: 191","How did you first learn about GAIA Natural Baby? (select as many as apply) - Podcast","","Podcast",categorical,""
+Q186,192,"Unnamed: 192","How did you first learn about GAIA Natural Baby? (select as many as apply) - Facebook ad/marketplace","","Facebook ad/marketplace",categorical,""
+Q187,193,"Unnamed: 193","How did you first learn about GAIA Natural Baby? (select as many as apply) - Facebook forum / group","","Facebook forum / group",categorical,""
+Q188,194,"Unnamed: 194","How did you first learn about GAIA Natural Baby? (select as many as apply) - Instagram","","Instagram",categorical,""
+Q189,195,"Unnamed: 195","How did you first learn about GAIA Natural Baby? (select as many as apply) - Tik Tok","","Tik Tok",categorical,""
+Q190,196,"Unnamed: 196","How did you first learn about GAIA Natural Baby? (select as many as apply) - YouTube","","YouTube",categorical,""
+Q191,197,"Unnamed: 197","How did you first learn about GAIA Natural Baby? (select as many as apply) - Influencers","","Influencers",categorical,""
+Q192,198,"Received as a gift","How did you first learn about GAIA Natural Baby? (select as many as apply) - Received as a gift","","Received as a gift",categorical,""
+Q193,199,"Unnamed: 199","How did you first learn about GAIA Natural Baby? (select as many as apply) - Online ads","","Online ads",categorical,""
+Q194,200,"Unnamed: 200","How did you first learn about GAIA Natural Baby? (select as many as apply) - Other way (please say how)","","Other way (please say how)",categorical,""
+Q195,201,"Yes.4","Have you ever purchased a GAIA Natural Baby product? - Response","Have you ever purchased a GAIA Natural Baby product?","Response",categorical,""
+Q196,202,"Never.5","Have you ever purchased a GAIA Natural Baby product from the following outlets:(select one per outlet) - Coles supermarket","Have you ever purchased a GAIA Natural Baby product from the following outlets:(select one per outlet)","Coles supermarket",categorical,""
+Q197,203,"Never.6","Have you ever purchased a GAIA Natural Baby product from the following outlets:(select one per outlet) - Woolworths supermarket","","Woolworths supermarket",categorical,""
+Q198,204,"Never.7","Have you ever purchased a GAIA Natural Baby product from the following outlets:(select one per outlet) - IGA supermarket","","IGA supermarket",categorical,""
+Q199,205,"Occasionally.4","Have you ever purchased a GAIA Natural Baby product from the following outlets:(select one per outlet) - Chemist Warehouse","","Chemist Warehouse",categorical,""
+Q200,206,"Never.8","Have you ever purchased a GAIA Natural Baby product from the following outlets:(select one per outlet) - Priceline","","Priceline",categorical,""
+Q201,207,"Never.9"," etc)""","","""Pharmacy (Amcal",categorical,""
+Q202,208,"Never.10","Have you ever purchased a GAIA Natural Baby product from the following outlets:(select one per outlet) - Big W","","Big W",categorical,""
+Q203,209,"Often","Have you ever purchased a GAIA Natural Baby product from the following outlets:(select one per outlet) - Amazon","","Amazon",categorical,""
+Q204,210,"Never.11","Have you ever purchased a GAIA Natural Baby product from the following outlets:(select one per outlet) - Baby Bunting","","Baby Bunting",categorical,""
+Q205,211,"Never.12","Have you ever purchased a GAIA Natural Baby product from the following outlets:(select one per outlet) - GAIA website (gaiaskinnaturals.com)","","GAIA website (gaiaskinnaturals.com)",categorical,""
+Q206,212,"Unnamed: 212","Have you ever purchased a GAIA Natural Baby product from the following outlets:(select one per outlet) - Online (please say which site(s))","","Online (please say which site(s))",categorical,""
+Q207,213,"Unnamed: 213","""If there are any other stores that you have purchased GAIA Natural Baby from","""If there are any other stores that you have purchased GAIA Natural Baby from"," please say which ones:""",categorical,""
+Q208,214,"A brand I purchase occasionally","Would you say that GAIA Natural Baby is... - Response","Would you say that GAIA Natural Baby is...","Response",categorical,""
+Q209,215,"Unnamed: 215","Nothing – ready to buy if I need something","""What"," if any",categorical,""
+Q210,216,"Price/Value (is too expensive)"," if any","","Price/Value (is too expensive)",categorical,""
+Q211,217,"Unnamed: 217"," if any","","Range (don’t have the type of products I want)",categorical,""
+Q212,218,"Unnamed: 218"," if any","","Availability (not convenient/easy to buy)",categorical,""
+Q213,219,"Unnamed: 219"," if any","","Prefer other brands",categorical,""
+Q214,220,"Unnamed: 220"," if any","","Other (please specify)",categorical,""
+Q215,221,"Unnamed: 221","Brand Preferred 1 - Open-Ended Response","Brand Preferred 1","Open-Ended Response",open_ended,"BRAND RELATED"
+Q216,222,"Unnamed: 222","Reason(s) Why: - Open-Ended Response","Reason(s) Why:","Open-Ended Response",open_ended,""
+Q217,223,"Unnamed: 223","Brand Preferred 2 - Open-Ended Response","Brand Preferred 2","Open-Ended Response",open_ended,"BRAND RELATED"
+Q218,224,"Unnamed: 224","Reason(s) Why: - Open-Ended Response","Reason(s) Why:","Open-Ended Response",open_ended,""
+Q219,225,"Unnamed: 225","Brand Preferred 3 - Open-Ended Response","Brand Preferred 3","Open-Ended Response",open_ended,"BRAND RELATED"
+Q220,226,"Unnamed: 226","Reason(s) Why: - Open-Ended Response","Reason(s) Why:","Open-Ended Response",open_ended,""
+Q221,227,"Strongly Agree.6"," natural ingredients""","""Now that you know a little more about GAIA Natural Baby"," please indicate your agreement with the following statements:(select one per statement)""",categorical,""
+Q222,228,"Strongly Agree.7"," please indicate your agreement with the following statements:(select one per statement)""","","I like the fact that GAIA uses organic ingredients",agreement,""
+Q223,229,"Agree.7"," please indicate your agreement with the following statements:(select one per statement)""","","I don’t like that GAIA uses essential oils",agreement,""
+Q224,230,"Strongly Agree.8"," please indicate your agreement with the following statements:(select one per statement)""","","I like the fact GAIA is compatible with sensitive skin",agreement,""
+Q225,231,"Strongly Agree.9","""Now that you know a little more about GAIA Natural Baby","","""I like the fact GAIA formulations don’t include irritants like sulphates",categorical,""
+Q226,232,"Agree.8"," please indicate your agreement with the following statements:(select one per statement)""","","The GAIA packaging looks good",agreement,""
+Q227,233,"Agree.9"," please indicate your agreement with the following statements:(select one per statement)""","","I like the fact that GAIA is made in Australia",agreement,""
+Q228,234,"Agree.10"," please indicate your agreement with the following statements:(select one per statement)""","","GAIA is a brand I feel I can trust",agreement,""
+Q229,235,"Don't Know / Can't Say.19"," please indicate your agreement with the following statements:(select one per statement)""","","GAIA is affordable",agreement,""
+Q230,236,"Don't Know / Can't Say.20"," please indicate your agreement with the following statements:(select one per statement)""","","The GAIA packaging looks dated and needs a refresh",agreement,""
+Q231,237,"Agree.11"," please indicate your agreement with the following statements:(select one per statement)""","","GAIA is a brand I feel good about",agreement,""
+Q232,238,"Don't Know / Can't Say.21","Based on your understanding of GAIA Natural Baby and its range please assess if you think the following product categories are a good fit for the brand to explore in the future: (select one per statement) - Natural Insect Repellent","Based on your understanding of GAIA Natural Baby and its range please assess if you think the following product categories are a good fit for the brand to explore in the future: (select one per statement)","Natural Insect Repellent",categorical,"BRAND RELATED"
+Q233,239,"Good Fit","Based on your understanding of GAIA Natural Baby and its range please assess if you think the following product categories are a good fit for the brand to explore in the future: (select one per statement) - Natural Sleeptime Calming Room Spray","","Natural Sleeptime Calming Room Spray",categorical,"BRAND RELATED"
+Q234,240,"Good Fit.1","Based on your understanding of GAIA Natural Baby and its range please assess if you think the following product categories are a good fit for the brand to explore in the future: (select one per statement) - Sleeptime Magnesium Bath Oil","","Sleeptime Magnesium Bath Oil",categorical,"BRAND RELATED"
+Q235,241,"Good Fit.2","Based on your understanding of GAIA Natural Baby and its range please assess if you think the following product categories are a good fit for the brand to explore in the future: (select one per statement) - Natural Sunscreen","","Natural Sunscreen",categorical,"BRAND RELATED"
+Q236,242,"Very Good fit","Based on your understanding of GAIA do you think that adding a kids range is a good fit for the brand to explore in the future?(select one) - Response","Based on your understanding of GAIA do you think that adding a kids range is a good fit for the brand to explore in the future?(select one)","Response",categorical,"BRAND RELATED"
+Q237,243,"From the baby / infant products area","""If the proposed Kids range were available in stores","""If the proposed Kids range were available in stores"," where would you prefer to shop for it?(select one)""",categorical,""
+Q238,244,"Likely","""If the proposed Kids range met your quality and price expectations","""If the proposed Kids range met your quality and price expectations"," how likely are you to consider purchasing it in the future?(select one)""",categorical,""
+Q239,245,"Current","Please provide your feedback on the two packaging options:(select one per statement) - Is the most modern","Please provide your feedback on the two packaging options:(select one per statement)","Is the most modern",categorical,""
+Q240,246,"Current.1","Please provide your feedback on the two packaging options:(select one per statement) - Is the most appealing bottle shape/style","","Is the most appealing bottle shape/style",categorical,""
+Q241,247,"Current.2","Please provide your feedback on the two packaging options:(select one per statement) - Best communicates the type of product","","Best communicates the type of product",categorical,""
+Q242,248,"Proposed","Please provide your feedback on the two packaging options:(select one per statement) - Best communicates that it is a baby brand","","Best communicates that it is a baby brand",categorical,"BRAND RELATED"
+Q243,249,"Both could be Better","Please provide your feedback on the two packaging options:(select one per statement) - Is the most eye-catching","","Is the most eye-catching",categorical,""
+Q244,250,"Current.3","Please provide your feedback on the two packaging options:(select one per statement) - Is the most appealing to me","","Is the most appealing to me",categorical,""
+Q245,251,"bottle_shape_preference","""Considering only the shape of the bottle","""Considering only the shape of the bottle"," which option do you prefer:""",categorical,""
+Q246,252,"preference_reason","""For the option you chose","""For the option you chose"," please state why:(what appeals to you)""",categorical,""
