@@ -23,6 +23,7 @@ import getCustomerArchetypesHandler from '../api/get-customer-archetypes.js';
 import intelligentColumnDetectionHandler from '../api/intelligent-column-detection.js';
 import llmSemanticAnalysisHandler from '../api/llm-semantic-analysis.js';
 import adaptiveCategoryDiscoveryHandler from '../api/adaptive-category-discovery.js';
+import roiTargetAnalysisHandler from '../api/roi-target-analysis.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -72,6 +73,7 @@ app.get('/api/customer-archetypes', vercelHandler(getCustomerArchetypesHandler))
 app.post('/api/intelligent-column-detection', vercelHandler(intelligentColumnDetectionHandler)); // Phase 3A
 app.post('/api/llm-semantic-analysis', vercelHandler(llmSemanticAnalysisHandler)); // Phase 3B
 app.post('/api/adaptive-category-discovery', vercelHandler(adaptiveCategoryDiscoveryHandler)); // Phase 3C
+app.post('/api/roi-target-analysis', vercelHandler(roiTargetAnalysisHandler)); // Phase 3D
 
 // Handle file uploads with multipart/form-data
 app.use('/api/process-survey-upload', (req, res, next) => {

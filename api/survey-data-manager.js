@@ -558,6 +558,89 @@ export class SurveyDataManager {
     }
     
     /**
+     * Store ROI target analysis results
+     */
+    async storeROITargetResults(surveyId, analysisResults) {
+        const client = await this.pool.connect();
+        
+        try {
+            await client.query('BEGIN');
+            
+            // Store feature importance results for ROI targets
+            for (const target of analysisResults.analysis.roiTargets) {
+                // Find the column ID for this target
+                const columnResult = await client.query(`
+                    SELECT id FROM survey_columns 
+                    WHERE survey_id = $1 AND column_name = $2
+                `, [surveyId, target.column_name]);
+                
+                if (columnResult.rows.length > 0) {
+                    const columnId = columnResult.rows[0].id;
+                    
+                    await client.query(`
+                        INSERT INTO feature_importance (
+                            survey_id, column_id, importance_score, importance_rank,
+                            analysis_type, target_variable, business_impact_score
+                        ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+                        ON CONFLICT (survey_id, column_id, target_variable) 
+                        DO UPDATE SET 
+                            importance_score = EXCLUDED.importance_score,
+                            importance_rank = EXCLUDED.importance_rank,
+                            business_impact_score = EXCLUDED.business_impact_score
+                    `, [
+                        surveyId,
+                        columnId,
+                        target.business_impact_score,
+                        analysisResults.analysis.roiTargets.indexOf(target) + 1,
+                        'roi_target_analysis',
+                        target.roi_type,
+                        target.business_impact_score
+                    ]);
+                }
+            }
+            
+            // Store Pain/Pleasure categorizations as semantic categories
+            const allFeatures = [
+                ...analysisResults.analysis.painPleasureCategories.pain.map(f => ({...f, category_type: 'pain'})),
+                ...analysisResults.analysis.painPleasureCategories.pleasure.map(f => ({...f, category_type: 'pleasure'})),
+                ...analysisResults.analysis.painPleasureCategories.other.map(f => ({...f, category_type: 'other'}))
+            ];
+            
+            // Clear existing pain/pleasure categories
+            await client.query(
+                'DELETE FROM semantic_categories WHERE survey_id = $1 AND discovery_method = $2',
+                [surveyId, 'pain_pleasure_analysis']
+            );
+            
+            for (const feature of allFeatures) {
+                await client.query(`
+                    INSERT INTO semantic_categories (
+                        survey_id, category_name, category_type, description,
+                        discovery_method, confidence_score
+                    ) VALUES ($1, $2, $3, $4, $5, $6)
+                `, [
+                    surveyId,
+                    feature.column_name || feature.name || 'unknown_feature',
+                    feature.category_type,
+                    feature.reasoning || `Feature categorized as ${feature.category_type}`,
+                    'pain_pleasure_analysis',
+                    feature.confidence || 0.8
+                ]);
+            }
+            
+            await client.query('COMMIT');
+            console.log(`✅ Stored ROI target analysis results: ${analysisResults.analysis.roiTargets.length} targets, ${allFeatures.length} pain/pleasure features`);
+            
+        } catch (error) {
+            await client.query('ROLLBACK');
+            console.error('❌ Failed to store ROI target results:', error);
+            throw new Error(`ROI target results storage failed: ${error.message}`);
+        } finally {
+            client.release();
+        }
+    }
+    
+    /**
      * Start an analysis session for audit tracking
      */
     async startAnalysisSession(surveyId, sessionType, phase, configuration = {}) {
