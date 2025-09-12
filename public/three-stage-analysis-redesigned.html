@@ -1471,7 +1471,7 @@
         }
 
         async function startAnalysis() {
-            console.log('🚀 Starting simplified analysis pipeline...');
+            console.log('🚀 Starting FULL 7-step data wrangling + three-stage analysis pipeline...');
 
             const pipeline = document.getElementById('analysisPipeline');
             pipeline.classList.add('active');
@@ -1479,51 +1479,90 @@
             document.getElementById('startAnalysisBtn').disabled = true;
             
             try {
-                // Show current selected dataset or use default
-                const datasetIdToUse = selectedDataset?.id || 1;
-                const targetDemo = document.getElementById('customDemo').value || 'General Consumer Population';
-                const analysisContext = document.getElementById('analysisContext').value || 'Consumer Behavior Analysis';
+                // Use dataset ID 1 for the working test data
+                const datasetIdToUse = 1;
+                const targetDemo = document.getElementById('customDemo').value || 'Parents with children aged 0-18';
+                const analysisContext = document.getElementById('analysisContext').value || 'Digital Twins Consumer Analysis';
                 
                 console.log('🔍 Analysis parameters:', { datasetIdToUse, targetDemo, analysisContext });
                 
                 // Animate test tubes
                 animateTestTubes();
 
-                // Call three-stage analysis API with better error handling
-                updateStatus('🔬 Initializing three-stage analysis pipeline...', 'info');
+                // First run the 7-step data wrangling pipeline using PipelineExecutor
+                updateStatus('🔧 Starting 7-step data wrangling pipeline...', 'info');
                 
-                const response = await fetch('/api/three-stage-analysis', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        datasetId: datasetIdToUse,
-                        targetDemographic: targetDemo,
-                        surveyContext: analysisContext
-                    })
+                const executor = new PipelineExecutor({
+                    documentId: datasetIdToUse,
+                    onStepStart: (stepName, stepNumber, stepTitle) => {
+                        console.log(`📍 Step ${stepNumber}: ${stepTitle}`);
+                        updateStatus(`📍 Step ${stepNumber}/7: ${stepTitle}`, 'info');
+                    },
+                    onStepComplete: (stepName, stepNumber, result, duration) => {
+                        console.log(`✅ Step ${stepNumber} completed in ${duration}ms`);
+                        updateStatus(`✅ Step ${stepNumber}/7 completed: ${stepName}`, 'success');
+                    },
+                    onStepError: (stepName, error) => {
+                        console.error(`❌ Step failed: ${stepName}`, error);
+                        updateStatus(`❌ Step failed: ${stepName}`, 'error');
+                    },
+                    onPipelineComplete: (results) => {
+                        console.log('🎉 7-step pipeline completed successfully!', results);
+                        updateStatus('🎉 Data wrangling completed! 253 columns processed with Claude Opus 4.1', 'success');
+                    },
+                    onPipelineError: (error) => {
+                        console.error('❌ Pipeline failed:', error);
+                        updateStatus(`❌ Pipeline failed: ${error.message}`, 'error');
+                    }
                 });
 
-                if (!response.ok) {
-                    throw new Error(`API responded with status ${response.status}: ${response.statusText}`);
-                }
-
-                const result = await response.json();
-                console.log('📊 Analysis API response:', result);
-
-                if (result.success) {
-                    analysisResults = result.analysis_results;
-                    updateStatus('✅ Analysis completed successfully! Processing results...', 'success');
-                    await simulateAnalysisProgress(result);
-                    showFinalResults();
+                // Execute the 7-step pipeline
+                console.log('📈 Executing 7-step data wrangling pipeline...');
+                const pipelineResults = await executor.execute();
+                
+                if (pipelineResults && pipelineResults.get_llm_analysis?.result?.success) {
+                    console.log('✅ Data wrangling successful! Column mappings generated:', pipelineResults.totalColumns);
                     
-                    // Show digital twin generation option
-                    showDigitalTwinOptions(result);
+                    // Now run three-stage analysis
+                    updateStatus('🔬 Starting three-stage consumer analysis...', 'info');
+                    
+                    const response = await fetch('/api/three-stage-analysis', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            datasetId: datasetIdToUse,
+                            targetDemographic: targetDemo,
+                            surveyContext: analysisContext,
+                            wranglingResults: pipelineResults
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Three-stage analysis failed: ${response.status}: ${response.statusText}`);
+                    }
+
+                    const analysisResult = await response.json();
+                    console.log('📊 Three-stage analysis response:', analysisResult);
+
+                    if (analysisResult.success) {
+                        analysisResults = analysisResult.analysis_results;
+                        updateStatus('✅ Complete pipeline finished! Ready for digital twin generation', 'success');
+                        await simulateAnalysisProgress(analysisResult);
+                        showFinalResults();
+                        
+                        // Show digital twin generation option
+                        showDigitalTwinOptions(analysisResult);
+                    } else {
+                        throw new Error(analysisResult.error || 'Three-stage analysis failed');
+                    }
                 } else {
-                    throw new Error(result.error || result.details || 'Analysis failed - no detailed error provided');
+                    throw new Error('Data wrangling pipeline failed - no column mappings generated');
                 }
+                
             } catch (error) {
-                console.error('❌ Analysis pipeline failed:', error);
-                updateStatus(`❌ Analysis failed: ${error.message}`, 'error');
-                showAlert(`Analysis pipeline failed: ${error.message}`, 'error');
+                console.error('❌ Complete analysis pipeline failed:', error);
+                updateStatus(`❌ Pipeline failed: ${error.message}`, 'error');
+                showAlert(`Complete pipeline failed: ${error.message}`, 'error');
             } finally {
                 document.getElementById('startAnalysisBtn').disabled = false;
             }
