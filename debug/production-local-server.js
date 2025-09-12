@@ -19,13 +19,14 @@ import threeStageAnalysisHandler from '../api/three-stage-analysis.js';
 import threeStageAnalysisDetailedHandler from '../api/three-stage-analysis-detailed.js';
 import universalDigitalTwinHandler from '../api/universal-digital-twin-response.js';
 import generateResponseHandler from '../api/generate-response.js';
+import getCustomerArchetypesHandler from '../api/get-customer-archetypes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, '..');
 
 const app = express();
-const PORT = process.env.PORT || 3009; // Different port to avoid conflicts
+const PORT = process.env.PORT || 3011; // Use port 3011 for consistency
 
 // Middleware
 app.use(cors());
@@ -64,6 +65,7 @@ app.post('/api/three-stage-analysis', vercelHandler(threeStageAnalysisDetailedHa
 app.post('/api/three-stage-analysis-simple', vercelHandler(threeStageAnalysisHandler)); // Keep old version as backup
 app.post('/api/universal-digital-twin-response', vercelHandler(universalDigitalTwinHandler));
 app.post('/api/generate-response', vercelHandler(generateResponseHandler));
+app.get('/api/customer-archetypes', vercelHandler(getCustomerArchetypesHandler));
 
 // Handle file uploads with multipart/form-data
 app.use('/api/process-survey-upload', (req, res, next) => {

@@ -808,12 +808,604 @@
                 flex-direction: column;
             }
         }
+
+        /* ============================
+           ARCHETYPE REVIEWER STYLES
+           ============================ */
+        
+        .archetype-reviewer {
+            margin-top: 40px;
+        }
+
+        .archetype-reviewer-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .archetype-reviewer-header h2 {
+            color: #f7fafc;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+
+        .archetype-reviewer-header .subtitle {
+            color: var(--neutral-400);
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+
+        .dataset-info-card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 800px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .dataset-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .info-label {
+            color: var(--neutral-400);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            color: #f7fafc;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .confidence-high { color: var(--success); }
+        .confidence-medium { color: var(--warning); }
+        .confidence-low { color: var(--danger); }
+
+        /* Archetype Grid */
+        .archetype-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .archetype-card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 24px;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .archetype-card:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .archetype-card.selected {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(99, 102, 241, 0.05) 100%);
+        }
+
+        .archetype-card.highlighted {
+            animation: highlight-pulse 1s ease-in-out;
+        }
+
+        @keyframes highlight-pulse {
+            0%, 100% { box-shadow: var(--shadow-lg); }
+            50% { box-shadow: 0 0 0 8px rgba(99, 102, 241, 0.4), var(--shadow-xl); }
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .archetype-title h3 {
+            color: #f7fafc;
+            font-size: 1.3rem;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .percentage-badge {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .selection-checkbox {
+            position: relative;
+        }
+
+        .selection-checkbox input[type="checkbox"] {
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--neutral-400);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .selection-checkbox input[type="checkbox"]:checked {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .selection-checkbox input[type="checkbox"]:checked::after {
+            content: '✓';
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            position: absolute;
+            top: 2px;
+            left: 5px;
+        }
+
+        .card-content {
+            color: var(--neutral-300);
+            line-height: 1.6;
+        }
+
+        .core-motivation {
+            margin-bottom: 16px;
+        }
+
+        .core-motivation strong {
+            color: #f7fafc;
+        }
+
+        .core-motivation p {
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        .key-characteristics strong {
+            color: #f7fafc;
+        }
+
+        .key-characteristics ul {
+            margin: 8px 0;
+            padding-left: 20px;
+        }
+
+        .key-characteristics li {
+            margin: 4px 0;
+        }
+
+        .sample-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+        }
+
+        .sample-size {
+            color: var(--neutral-400);
+        }
+
+        .confidence-score {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        /* Expandable Details */
+        .card-expandable {
+            margin-top: 20px;
+        }
+
+        .expand-toggle {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 12px 16px;
+            width: 100%;
+            color: #f7fafc;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .expand-toggle:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .expanded-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-in-out;
+        }
+
+        .card-expandable[data-expanded="true"] .expanded-content {
+            max-height: 800px;
+        }
+
+        .expanded-details {
+            padding: 20px 0;
+        }
+
+        .detail-section {
+            margin-bottom: 24px;
+        }
+
+        .detail-section h4 {
+            color: #f7fafc;
+            margin-bottom: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .pain-points-list, .preferences-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .pain-point-item, .preference-item {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .category-tag {
+            background: var(--neutral-700);
+            color: var(--neutral-200);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .category-pricing { background: var(--danger); }
+        .category-safety_trust { background: var(--success); }
+        .category-accessibility { background: var(--warning); }
+        .category-complexity { background: var(--info); }
+        .category-convenience { background: var(--primary); }
+        .category-ingredients { background: var(--success); }
+        .category-efficacy { background: var(--primary); }
+        .category-trust { background: var(--success); }
+        .category-value { background: var(--warning); }
+
+        .description {
+            flex: 1;
+            color: var(--neutral-300);
+        }
+
+        .severity, .importance {
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .severity-high, .importance-high { 
+            background: var(--danger-bg); 
+            color: var(--danger); 
+        }
+        .severity-medium, .importance-medium { 
+            background: var(--warning-bg); 
+            color: var(--warning); 
+        }
+        .severity-low, .importance-low { 
+            background: var(--info-bg); 
+            color: var(--info); 
+        }
+
+        .marketing-approach {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            padding: 16px;
+            color: var(--neutral-300);
+            line-height: 1.6;
+        }
+
+        .validation-metrics {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .metric-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .metric-label {
+            width: 140px;
+            color: var(--neutral-400);
+            font-size: 0.9rem;
+        }
+
+        .metric-bar {
+            flex: 1;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-fill {
+            height: 100%;
+            background: linear-gradient(135deg, var(--success), var(--success-light));
+            border-radius: 10px;
+            transition: width 0.5s ease-in-out;
+        }
+
+        .metric-value {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #f7fafc;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .discriminatory-questions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .question-item {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .question-text {
+            flex: 1;
+            color: var(--neutral-300);
+            font-size: 0.9rem;
+        }
+
+        .discrimination-power {
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        /* Coverage Visualization */
+        .coverage-visualization {
+            background: var(--bg-glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 40px;
+        }
+
+        .coverage-chart h4 {
+            color: #f7fafc;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .coverage-bar {
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            display: flex;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .coverage-segment {
+            height: 100%;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .coverage-segment:nth-child(1) { background: var(--primary); }
+        .coverage-segment:nth-child(2) { background: var(--success); }
+        .coverage-segment:nth-child(3) { background: var(--warning); }
+        .coverage-segment:nth-child(4) { background: var(--info); }
+        .coverage-segment:nth-child(5) { background: var(--danger); }
+
+        .coverage-segment:hover {
+            filter: brightness(1.2);
+        }
+
+        .coverage-uncovered {
+            background: var(--neutral-600);
+            height: 100%;
+        }
+
+        .coverage-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            justify-content: center;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--neutral-300);
+            font-size: 0.9rem;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+
+        .legend-color[data-archetype-index="0"] { background: var(--primary); }
+        .legend-color[data-archetype-index="1"] { background: var(--success); }
+        .legend-color[data-archetype-index="2"] { background: var(--warning); }
+        .legend-color[data-archetype-index="3"] { background: var(--info); }
+        .legend-color[data-archetype-index="4"] { background: var(--danger); }
+        .legend-color.uncovered { background: var(--neutral-600); }
+
+        /* Action Buttons */
+        .action-buttons {
+            background: var(--bg-glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .selection-summary {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .selected-count {
+            color: #f7fafc;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .primary-actions .btn {
+            position: relative;
+        }
+
+        .btn-count {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 2px 8px;
+            font-size: 0.8rem;
+            margin-left: 8px;
+        }
+
+        /* Export Options */
+        .export-options {
+            background: var(--bg-glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+        }
+
+        .export-options h4 {
+            color: #f7fafc;
+            margin-bottom: 16px;
+        }
+
+        .export-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* States */
+        .loading-state, .error-state, .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--neutral-300);
+        }
+
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-left: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-icon, .error-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .error-state {
+            color: var(--danger-light);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .archetype-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .dataset-info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .export-buttons {
+                flex-direction: column;
+            }
+
+            .coverage-legend {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <!-- Load Pipeline Executor Module -->
         <script src="js/pipeline-executor.js"></script>
+        <!-- Load Archetype Reviewer Module -->
+        <script src="js/archetype-reviewer.js"></script>
         
         <!-- Floating Header -->
         <div class="header">
@@ -1099,6 +1691,13 @@
                 </div>
             </div>
 
+            <!-- Archetype Review Section -->
+            <div id="archetypeReviewSection" class="results-section">
+                <div id="archetypeReviewContainer" class="archetype-reviewer">
+                    <!-- Archetype reviewer will be rendered here -->
+                </div>
+            </div>
+
             <!-- Final Actions -->
             <div id="finalActions" class="results-section">
                 <div style="text-align: center; margin-top: 40px;">
@@ -1118,6 +1717,7 @@
         let selectedDataset = null;
         let analysisResults = null;
         let currentStage = 0;
+        let archetypeReviewer = null;
 
         // Initialize Application
         document.addEventListener('DOMContentLoaded', function() {
@@ -1546,12 +2146,11 @@
 
                     if (analysisResult.success) {
                         analysisResults = analysisResult.analysis_results;
-                        updateStatus('✅ Complete pipeline finished! Ready for digital twin generation', 'success');
+                        updateStatus('✅ Analysis complete! Please review generated customer archetypes', 'success');
                         await simulateAnalysisProgress(analysisResult);
-                        showFinalResults();
                         
-                        // Show digital twin generation option
-                        showDigitalTwinOptions(analysisResult);
+                        // NOTE: showFinalResults() and showDigitalTwinOptions() are now called 
+                        // from proceedToDigitalTwinGeneration() after archetype selection
                     } else {
                         throw new Error(analysisResult.error || 'Three-stage analysis failed');
                     }
@@ -1684,6 +2283,86 @@
             document.getElementById('archetypeCount').textContent = archetypes.length;
             document.getElementById('marketCoverage').textContent = coverage + '%';
             document.getElementById('implementationReady').textContent = ready + '%';
+            
+            // Initialize Archetype Review after a brief delay
+            setTimeout(() => {
+                initializeArchetypeReview();
+            }, 1500);
+        }
+
+        // Archetype Review Integration
+        function initializeArchetypeReview() {
+            console.log('🎯 Initializing archetype review interface...');
+            
+            if (!selectedDataset) {
+                console.error('No dataset selected for archetype review');
+                return;
+            }
+
+            // Show the archetype review section
+            const reviewSection = document.getElementById('archetypeReviewSection');
+            reviewSection.classList.add('active');
+            
+            // Initialize the archetype reviewer
+            archetypeReviewer = new ArchetypeReviewer('archetypeReviewContainer', {
+                showExportOptions: true,
+                allowMultipleSelection: true,
+                showAdvancedMetrics: true,
+                onArchetypeSelected: (selectedIds, changedId, isSelected) => {
+                    console.log(`Archetype ${changedId} ${isSelected ? 'selected' : 'deselected'}`);
+                    console.log('Currently selected:', selectedIds);
+                },
+                onProceedToDigitalTwin: (data) => {
+                    console.log('Proceeding to digital twin generation with:', data);
+                    proceedToDigitalTwinGeneration(data);
+                },
+                onExportData: (format, data) => {
+                    console.log(`Archetype data exported in ${format} format`);
+                }
+            });
+            
+            // Load the archetypes for this dataset
+            archetypeReviewer.loadArchetypes(selectedDataset.id).then(data => {
+                if (data) {
+                    console.log(`✅ Successfully loaded ${data.archetypes.length} archetypes for review`);
+                } else {
+                    console.warn('Failed to load archetypes - may need to run three-stage analysis first');
+                }
+            }).catch(error => {
+                console.error('Error loading archetypes:', error);
+                // Show message to run analysis first
+                showArchetypeLoadError();
+            });
+        }
+
+        function showArchetypeLoadError() {
+            const container = document.getElementById('archetypeReviewContainer');
+            container.innerHTML = `
+                <div class="error-state">
+                    <div class="error-icon">⚠️</div>
+                    <h3>Archetypes Not Available</h3>
+                    <p>Customer archetypes need to be generated first. Please ensure the three-stage analysis completed successfully and try again.</p>
+                    <button class="btn btn-primary" onclick="location.reload()">Retry Analysis</button>
+                </div>
+            `;
+        }
+
+        function proceedToDigitalTwinGeneration(data) {
+            console.log('🤖 Proceeding to digital twin generation with selected archetypes:', data);
+            
+            // Store selected archetypes for digital twin generation
+            window.selectedArchetypesForTwins = data.selectedArchetypes;
+            window.archetypeDatasetMetadata = data.datasetMetadata;
+            
+            // Show final results and digital twin options
+            showFinalResults();
+            
+            // Show digital twin options with selected archetypes
+            showDigitalTwinOptions({
+                success: true,
+                analysis_results: analysisResults,
+                selected_archetypes: data.selectedArchetypes
+            });
         }
 
         function showFinalResults() {
