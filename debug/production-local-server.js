@@ -24,6 +24,7 @@ import intelligentColumnDetectionHandler from '../api/intelligent-column-detecti
 import llmSemanticAnalysisHandler from '../api/llm-semantic-analysis.js';
 import adaptiveCategoryDiscoveryHandler from '../api/adaptive-category-discovery.js';
 import roiTargetAnalysisHandler from '../api/roi-target-analysis.js';
+import mdaFeatureAnalysisHandler from '../api/mda-feature-analysis.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -74,6 +75,7 @@ app.post('/api/intelligent-column-detection', vercelHandler(intelligentColumnDet
 app.post('/api/llm-semantic-analysis', vercelHandler(llmSemanticAnalysisHandler)); // Phase 3B
 app.post('/api/adaptive-category-discovery', vercelHandler(adaptiveCategoryDiscoveryHandler)); // Phase 3C
 app.post('/api/roi-target-analysis', vercelHandler(roiTargetAnalysisHandler)); // Phase 3D
+app.post('/api/mda-feature-analysis', vercelHandler(mdaFeatureAnalysisHandler)); // Phase 3E
 
 // Handle file uploads with multipart/form-data
 app.use('/api/process-survey-upload', (req, res, next) => {

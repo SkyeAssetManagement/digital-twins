@@ -641,6 +641,91 @@ export class SurveyDataManager {
     }
     
     /**
+     * Store MDA feature analysis results
+     */
+    async storeMDAResults(surveyId, analysisResults) {
+        const client = await this.pool.connect();
+        
+        try {
+            await client.query('BEGIN');
+            
+            // Store feature importance results for each target
+            for (const [targetName, targetResult] of Object.entries(analysisResults.targetAnalysis)) {
+                for (const feature of targetResult.featureImportance.reported.total) {
+                    // Find the column ID for this feature
+                    const columnResult = await client.query(`
+                        SELECT id FROM survey_columns 
+                        WHERE survey_id = $1 AND (column_name = $2 OR short_name = $2)
+                    `, [surveyId, feature.feature]);
+                    
+                    if (columnResult.rows.length > 0) {
+                        const columnId = columnResult.rows[0].id;
+                        
+                        await client.query(`
+                            INSERT INTO feature_importance (
+                                survey_id, column_id, importance_score, importance_rank,
+                                analysis_type, target_variable, statistical_significance,
+                                business_impact_score
+                            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+                            ON CONFLICT (survey_id, column_id, target_variable, analysis_type) 
+                            DO UPDATE SET 
+                                importance_score = EXCLUDED.importance_score,
+                                importance_rank = EXCLUDED.importance_rank,
+                                statistical_significance = EXCLUDED.statistical_significance,
+                                business_impact_score = EXCLUDED.business_impact_score
+                        `, [
+                            surveyId,
+                            columnId,
+                            feature.meanImportance,
+                            feature.rank,
+                            'mda_permutation',
+                            targetName,
+                            feature.isSignificant ? feature.confidenceInterval?.lower || 0 : 0,
+                            feature.businessRelevance || 0.8
+                        ]);
+                    }
+                }
+            }
+            
+            // Store ML model performance results
+            for (const [targetName, targetResult] of Object.entries(analysisResults.targetAnalysis)) {
+                await client.query(`
+                    INSERT INTO ml_model_results (
+                        survey_id, model_type, target_variable, accuracy,
+                        train_size, test_size, feature_count, training_time_seconds
+                    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+                    ON CONFLICT (survey_id, model_type, target_variable) 
+                    DO UPDATE SET 
+                        accuracy = EXCLUDED.accuracy,
+                        train_size = EXCLUDED.train_size,
+                        test_size = EXCLUDED.test_size,
+                        feature_count = EXCLUDED.feature_count,
+                        training_time_seconds = EXCLUDED.training_time_seconds
+                `, [
+                    surveyId,
+                    'random_forest',
+                    targetName,
+                    targetResult.modelPerformance.baselineAccuracy,
+                    targetResult.modelPerformance.trainSamples,
+                    targetResult.modelPerformance.testSamples,
+                    targetResult.featureImportance.totalFeatures,
+                    Math.round(analysisResults.summary.processingTimeMs / 1000)
+                ]);
+            }
+            
+            await client.query('COMMIT');
+            console.log(`✅ Stored MDA analysis results for ${Object.keys(analysisResults.targetAnalysis).length} targets`);
+            
+        } catch (error) {
+            await client.query('ROLLBACK');
+            console.error('❌ Failed to store MDA results:', error);
+            throw new Error(`MDA results storage failed: ${error.message}`);
+        } finally {
+            client.release();
+        }
+    }
+    
+    /**
      * Start an analysis session for audit tracking
      */
     async startAnalysisSession(surveyId, sessionType, phase, configuration = {}) {
