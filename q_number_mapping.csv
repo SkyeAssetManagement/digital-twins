@@ -1,0 +1,145 @@
+Q_Number,Column_Index,Column_ID,Question_Text,Response_Type
+preData,0,respondent_id,Respondent ID,identifier
+preData,1,collector_id,Collector ID,identifier
+preData,2,start_date,Start Date,datetime
+preData,3,end_date,End Date,datetime
+preData,4,ip_address,IP Address,text
+preData,5,email_address,Email Address,text
+preData,6,first_name,First Name,text
+preData,7,last_name,Last Name,text
+preData,8,custom_data_1,Custom Data 1,text
+Q1,9,gender,Are you?,categorical
+Q2,10,age_group,How old are you?,categorical
+Q3,11,state_territory,In which State or Territory do you currently live?,categorical
+Q4,12,currently_pregnant,Are you currently pregnant?,binary
+Q5,13,number_of_children,How many children do you have?,numeric
+Q6,14,has_child_under_age,Do you have a child aged under 12 months old?,binary
+Q7,15,household_purchaser,Within your household who typically purchases these types of baby care products?,categorical
+Q8,16,purchase_coles_woolworths,Have you purchased baby care products from Coles or Woolworths supermarket in the past month?,binary
+Q9,17,purchase_chemist_priceline,Have you purchased baby care products from Chemist Warehouse Priceline or Big W in the past 3 months?,binary
+Q10,18,usage_baby_bath,How often do you usually use Baby bath (eg. liquid cleanser/wash)?,frequency
+Q11,19,usage_2in1_wash_shampoo,How often do you usually use 2 in 1 Baby wash & shampoo?,frequency
+Q12,20,usage_baby_shampoo,How often do you usually use Baby shampoo?,frequency
+Q13,21,usage_baby_conditioner,How often do you usually use Baby conditioner?,frequency
+Q14,22,usage_hair_detangling,How often do you usually use Hair detangling spray?,frequency
+Q15,23,usage_baby_wipes,How often do you usually use Baby wipes?,frequency
+Q16,24,usage_baby_powder,How often do you usually use Baby powder?,frequency
+Q17,25,usage_baby_soap,How often do you usually use Baby soap (eg. bar)?,frequency
+Q18,26,usage_nappy_rash_cream,How often do you usually use Nappy rash cream (eg. soothing cream)?,frequency
+Q19,27,usage_baby_massage_oil,How often do you usually use Baby massage oil?,frequency
+Q20,28,usage_baby_moisturiser,How often do you usually use Baby skin moisturiser?,frequency
+Q21,29,usage_cradle_cap,How often do you usually use Cradle cap products?,frequency
+Q22,30,usage_eczema_cream,How often do you usually use Eczema cream?,frequency
+Q23,31,usage_bath_oil,How often do you usually use Bath oil?,frequency
+Q24,32,usage_room_spray,How often do you usually use Room spray (in baby/children's room)?,frequency
+Q25,33,importance_available_where_shop,How important is Available where I usually shop?,importance
+Q26,34,importance_brand_know_trust,How important is Brand I know and trust?,importance
+Q27,35,importance_mum_recommended,How important is Another mum/family member recommended it?,importance
+Q28,36,importance_affordable_price,How important is Affordable everyday price that fits my budget?,importance
+Q29,37,importance_on_promotion,How important is On promotion / Special price?,importance
+Q30,38,importance_australian_made,How important is Is Australian made?,importance
+Q31,39,importance_clinical_formulation,How important is Clinical formulation / lab developed?,importance
+Q32,40,importance_organic_ingredients,How important is Contains Organic ingredients?,importance
+Q33,41,importance_dermatologically_tested,How important is Is Dermatologically tested/approved?,importance
+Q34,42,importance_pediatrician_tested,How important is Is Pediatrician tested/approved?,importance
+Q35,43,importance_brand_used_works,How important is Brand that I've used & works best for my baby?,importance
+Q36,44,importance_suitable_sensitive_skin,How important is Suitable for Sensitive Skin?,importance
+Q37,45,importance_eczema_friendly,How important is Is Eczema Friendly?,importance
+Q38,46,importance_natural_formulation,How important is Is a natural formulation?,importance
+Q39,47,importance_cruelty_free,How important is Is Cruelty Free (not tested on animals)?,importance
+Q40,48,importance_free_from_synthetic,How important is Is Free From (contains no synthetic fragrance/perfume)?,importance
+Q41,49,importance_vegan_friendly,How important is Is Vegan friendly?,importance
+Q42,50,other_important_aspects,If there are any other important aspects that you consider when purchasing baby body products please outline them,open_ended
+Q43,51,top5_available_where_shop,From the below list if you had to choose only the 5 most important aspects - Available where I usually shop?,ranking
+Q44,52,top5_brand_know_trust,From the below list if you had to choose only the 5 most important aspects - Brand I know and trust?,ranking
+Q45,53,top5_mum_recommended,From the below list if you had to choose only the 5 most important aspects - Another mum recommended it?,ranking
+Q46,54,top5_affordable_price,From the below list if you had to choose only the 5 most important aspects - Affordable everyday price?,ranking
+Q47,55,top5_on_promotion,From the below list if you had to choose only the 5 most important aspects - On promotion / Special price?,ranking
+Q48,56,top5_australian_made,From the below list if you had to choose only the 5 most important aspects - Is Australian made?,ranking
+Q49,57,top5_clinical_formulation,From the below list if you had to choose only the 5 most important aspects - Clinical formulation?,ranking
+Q50,58,top5_organic_ingredients,From the below list if you had to choose only the 5 most important aspects - Contains Organic ingredients?,ranking
+Q51,59,top5_dermatologically_tested,From the below list if you had to choose only the 5 most important aspects - Is Dermatologically tested?,ranking
+Q52,60,top5_brand_used_works,From the below list if you had to choose only the 5 most important aspects - Brand that I've used & works best?,ranking
+Q53,61,top5_suitable_sensitive_skin,From the below list if you had to choose only the 5 most important aspects - Suitable for Sensitive Skin?,ranking
+Q54,62,top5_eczema_friendly,From the below list if you had to choose only the 5 most important aspects - Is Eczema Friendly?,ranking
+Q55,63,top5_natural_formulation,From the below list if you had to choose only the 5 most important aspects - Is a natural formulation?,ranking
+Q56,64,top5_no_food_derived,From the below list if you had to choose only the 5 most important aspects - Does not contain food derived ingredients?,ranking
+Q57,65,top5_free_from_chemicals,From the below list if you had to choose only the 5 most important aspects - Is Free From chemicals?,ranking
+Q58,66,essential_oil_prefer_over_synthetic,When it comes to Essential Oil - I prefer products with essential oils over synthetic ingredients,agreement
+Q59,67,essential_oil_positive_benefit,When it comes to Essential Oil - I believe essential oils provide a positive benefit,agreement
+Q60,68,essential_oil_more_likely_consider,When it comes to Essential Oil - I am more likely to consider a brand with essential oils,agreement
+Q61,69,essential_oil_good_for_skin,When it comes to Essential Oil - I think essential oils are good for my little one's skin,agreement
+Q62,70,essential_oil_expect_included,When it comes to Essential Oil - I expect essential oils to be included in all baby products,agreement
+Q63,71,essential_oil_actively_avoid,When it comes to Essential Oil - I actively avoid products with essential oil ingredients,agreement
+Q64,72,essential_oil_comments,If you have any comments about the use of Essential Oils in baby body products please outline them,open_ended
+Q65,73,food_derived_prefer_natural,When it comes to Food Derived ingredients - I prefer products with natural or food derived ingredients,agreement
+Q66,74,food_derived_positive_benefit,When it comes to Food Derived ingredients - I believe food derived ingredients provide positive benefit,agreement
+Q67,75,food_derived_more_likely_consider,When it comes to Food Derived ingredients - I am more likely to consider a brand with food derived ingredients,agreement
+Q68,76,food_derived_good_for_skin,When it comes to Food Derived ingredients - I think food derived ingredients are good for skin,agreement
+Q69,77,food_derived_expect_included,When it comes to Food Derived ingredients - I expect food derived ingredients in all baby products,agreement
+Q70,78,food_derived_actively_avoid,When it comes to Food Derived ingredients - I actively avoid products with food derived ingredients,agreement
+Q71,79,food_derived_comments,If you have any comments about the use of Food Derived ingredients please outline them,open_ended
+Q72,80,seen_certification_logo_1,Prior to this survey have you ever seen this certification logo? (Logo 1),binary
+Q73,81,certification_1_know_meaning,Please indicate your feedback about certification logo 1 - I know what this certification means,agreement
+Q74,82,certification_1_feel_confident,Please indicate your feedback about certification logo 1 - I would feel more confident with this certification,agreement
+Q75,83,certification_1_likely_purchase,Please indicate your feedback about certification logo 1 - I am more likely to purchase with this certification,agreement
+Q76,84,seen_certification_logo_2,Prior to this survey have you ever seen this certification logo? (Logo 2),binary
+Q77,85,certification_2_know_meaning,Please indicate your feedback about certification logo 2 - I know what this certification means,agreement
+Q78,86,certification_2_feel_confident,Please indicate your feedback about certification logo 2 - I would feel more confident with this certification,agreement
+Q79,87,certification_2_likely_purchase,Please indicate your feedback about certification logo 2 - I am more likely to purchase with this certification,agreement
+Q80,88,seen_certification_logo_3,Prior to this survey have you ever seen this certification logo? (Logo 3),binary
+Q81,89,certification_3_know_meaning,Please indicate your feedback about certification logo 3 - I know what this certification means,agreement
+Q82,90,certification_3_feel_confident,Please indicate your feedback about certification logo 3 - I would feel more confident with this certification,agreement
+Q83,91,certification_3_likely_purchase,Please indicate your feedback about certification logo 3 - I am more likely to purchase with this certification,agreement
+Q84,92,seen_certification_logo_4,Prior to this survey have you ever seen this certification logo? (Logo 4),binary
+Q85,93,certification_4_know_meaning,Please indicate your feedback about certification logo 4 - I know what this certification means,agreement
+Q86,94,certification_4_feel_confident,Please indicate your feedback about certification logo 4 - I would feel more confident with this certification,agreement
+Q87,95,certification_4_likely_purchase,Please indicate your feedback about certification logo 4 - I am more likely to purchase with this certification,agreement
+Q88,96,certification_ranking_option_a,In order please indicate which certification logos would be most important - Option A,ranking
+Q89,97,certification_ranking_option_b,In order please indicate which certification logos would be most important - Option B,ranking
+Q90,98,certification_ranking_option_c,In order please indicate which certification logos would be most important - Option C,ranking
+Q91,99,certification_ranking_option_d,In order please indicate which certification logos would be most important - Option D,ranking
+Q92,100,brand_awareness_qv_baby,Following is a list of brands - QV Baby,brand_awareness
+Q93,101,brand_awareness_aveeno_baby,Following is a list of brands - Aveeno Baby,brand_awareness
+Q94,102,brand_awareness_mustela_baby,Following is a list of brands - Mustela Baby,brand_awareness
+Q95,103,brand_awareness_gaia_natural,Following is a list of brands - GAIA Natural Baby,brand_awareness
+Q96,104,brand_awareness_cetaphil_baby,Following is a list of brands - Cetaphil Baby,brand_awareness
+Q97,105,brand_awareness_johnsons_baby,Following is a list of brands - Johnson's Baby,brand_awareness
+Q98,106,brand_awareness_bunjie,Following is a list of brands - Bunjie,brand_awareness
+Q99,107,brand_awareness_groto,Following is a list of brands - Gro-To,brand_awareness
+Q100,108,brand_awareness_moogoo,Following is a list of brands - MooGoo,brand_awareness
+Q101,109,brand_awareness_cerave_baby,Following is a list of brands - CeraVe Baby,brand_awareness
+Q102,110,brand_awareness_ecostore_baby,Following is a list of brands - Ecostore Baby,brand_awareness
+Q103,111,brand_awareness_curash_baby,Following is a list of brands - Curash Baby,brand_awareness
+Q104,112,brand_awareness_earthwise,Following is a list of brands - Earthwise,brand_awareness
+Q105,113,brand_awareness_childs_farm,Following is a list of brands - Child's Farm,brand_awareness
+Q106,114,brand_awareness_dermaveen_baby,Following is a list of brands - Dermaveen Baby,brand_awareness
+Q107,115,other_brands_currently_use,If there are other brands of baby body products that you currently use please outline them,open_ended
+Q108,116,brand_usage_description,Please select the option which best describes you,categorical
+Q109,117,brand_usage_reason,Briefly please say why,open_ended
+Q110,118,hypothetical_100_dollar_spend,If you were given $100 to spend on baby body products but could only spend it on one brand which would you choose,categorical
+Q111,119,hypothetical_100_other_brand,Other brand (please say which brand),open_ended
+Q120,120,brand_choice_reason,You chose to spend your $100 on that brand Please say why you chose that brand,open_ended
+Q121,121,info_sources_none,If you wanted information on baby products or brands - None of the above,binary
+Q122,122,info_sources_friends_family,If you wanted information on baby products or brands - Friends or family,binary
+Q123,123,info_sources_internet_search,If you wanted information on baby products or brands - Internet search,binary
+Q124,124,info_sources_ai_search,If you wanted information on baby products or brands - AI search,binary
+Q125,125,info_sources_mother_baby_websites,If you wanted information on baby products or brands - Mother/Baby websites,binary
+Q126,126,info_sources_brand_websites,If you wanted information on baby products or brands - Brand/company websites,binary
+Q127,127,info_sources_brand_newsletter,If you wanted information on baby products or brands - Brand newsletter/email,binary
+Q128,128,info_sources_facebook_groups,If you wanted information on baby products or brands - Facebook Groups & Forums,binary
+Q129,129,info_sources_facebook_ads,If you wanted information on baby products or brands - Facebook ads/Marketplace,binary
+Q130,130,info_sources_youtube,If you wanted information on baby products or brands - YouTube,binary
+Q131,131,info_sources_tiktok,If you wanted information on baby products or brands - TikTok,binary
+Q132,132,info_sources_instagram,If you wanted information on baby products or brands - Instagram,binary
+Q133,133,info_sources_twitter,If you wanted information on baby products or brands - Twitter / X,binary
+Q134,134,info_sources_podcast,If you wanted information on baby products or brands - Podcast,binary
+Q135,135,info_sources_pharmacist,If you wanted information on baby products or brands - Pharmacist,binary
+Q136,136,info_sources_influencer_major,If you wanted information on baby products or brands - Major influencer,binary
+Q137,137,info_sources_influencer_local,If you wanted information on baby products or brands - Local influencer,binary
+Q138,138,info_sources_pharmacy_assistant,If you wanted information on baby products or brands - Pharmacy assistant,binary
+Q139,139,info_sources_midwife,If you wanted information on baby products or brands - Midwife,binary
+Q140,140,info_sources_family_doctor,If you wanted information on baby products or brands - Family doctor/GP,binary
+Q141,141,info_sources_pediatrician,If you wanted information on baby products or brands - Pediatrician,binary
+Q142,142,info_sources_maternal_child_health,If you wanted information on baby products or brands - Maternal and Child Health Nurse,binary
+Q143,143,info_sources_other,If you wanted information on baby products or brands - Other sources,open_ended
