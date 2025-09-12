@@ -812,6 +812,9 @@
 </head>
 <body>
     <div class="container">
+        <!-- Load Pipeline Executor Module -->
+        <script src="js/pipeline-executor.js"></script>
+        
         <!-- Floating Header -->
         <div class="header">
             <h1>Digital Twins Analysis Lab</h1>
@@ -875,11 +878,13 @@
 
                 <!-- Upload Section -->
                 <div id="uploadSection" class="hidden">
+                    <!-- File input outside uploadZone to prevent destruction -->
+                    <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" style="display: none;">
+                    
                     <div class="upload-zone" id="uploadZone">
                         <div class="upload-icon">📊</div>
                         <h3 style="margin-bottom: 8px; color: var(--neutral-700);">Drop your survey file here</h3>
                         <p style="color: var(--neutral-500); margin-bottom: 20px;">or click to browse</p>
-                        <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" style="display: none;">
                         <div style="font-size: 0.85rem; color: var(--neutral-400);">
                             Supports CSV, XLSX, XLS • Max 50MB
                         </div>
@@ -1279,9 +1284,18 @@
             }
         }
 
+        // Global variable to store selected file
+        let selectedFile = null;
+
         function handleFileSelect(event) {
             const file = event.target.files[0];
             if (!file) return;
+
+            // Store the file globally so we don't lose it if DOM changes
+            selectedFile = file;
+
+            // Reset execution lock when new file is selected
+            processUploadedFile._executionLock = false;
 
             // Show upload form
             document.getElementById('uploadForm').classList.remove('hidden');
@@ -1309,119 +1323,146 @@
         }
 
         async function processUploadedFile() {
-            // RECURSIVE FIX: Execution lock to prevent multiple/premature calls
-            if (processUploadedFile._executionLock) {
-                console.warn('🔒 processUploadedFile blocked - already executing or called prematurely');
-                return;
-            }
-            processUploadedFile._executionLock = true;
+            console.log('🎯 Starting processUploadedFile - using modular PipelineExecutor');
             
-            console.log('🎯 processUploadedFile executing - checking DOM state...');
-            
-            // Step 1: Check if upload section is visible
-            const uploadSection = document.getElementById('uploadSection');
-            if (uploadSection && uploadSection.classList.contains('hidden')) {
-                showAlert('Please select "Upload New Dataset" first to access file upload.', 'warning');
-                return;
-            }
-            
-            // Step 2: Check if upload form is visible (requires file selection)
-            const uploadForm = document.getElementById('uploadForm');
-            if (uploadForm && uploadForm.classList.contains('hidden')) {
-                showAlert('Please select a file first to complete the upload form.', 'warning');
-                return;
-            }
-            
-            // Step 3: Get DOM elements with comprehensive error handling
-            const fileInput = document.getElementById('fileInput');
-            const nameInput = document.getElementById('datasetName');
-            const demoInput = document.getElementById('targetDemo');
-            const descInput = document.getElementById('description');
-            const processBtn = document.getElementById('processBtn');
-
-            // Step 4: Validate DOM elements exist
-            const missingElements = [];
-            if (!fileInput) missingElements.push('File input');
-            if (!nameInput) missingElements.push('Dataset name input');
-            if (!demoInput) missingElements.push('Target demographic input');
-            if (!processBtn) missingElements.push('Process button');
-            
-            if (missingElements.length > 0) {
-                const uploadVisible = uploadSection && !uploadSection.classList.contains('hidden');
-                const formVisible = uploadForm && !uploadForm.classList.contains('hidden');
+            try {
+                // Check if we're using existing dataset or uploading new file
+                const uploadSection = document.getElementById('uploadSection');
+                const existingSection = document.getElementById('existingSection');
+                const isUsingExistingDataset = existingSection && !existingSection.classList.contains('hidden');
+                const isUploadingNewFile = uploadSection && !uploadSection.classList.contains('hidden');
                 
-                let message = `Missing form elements: ${missingElements.join(', ')}.`;
-                if (!uploadVisible) {
-                    message += ' Please select "Upload New Dataset" first.';
-                } else if (!formVisible) {
-                    message += ' Please select a file first.';
-                } else {
-                    message += ' Please refresh the page.';
+                console.log('Workflow check:', { isUsingExistingDataset, isUploadingNewFile, selectedDataset });
+                
+                // If using existing dataset, run the 7-step pipeline directly
+                if (isUsingExistingDataset && selectedDataset) {
+                    console.log('Using existing dataset - running 7-step pipeline...');
+                    await runDataWranglingPipelineForExistingDataset();
+                    return;
                 }
                 
-                showAlert(message, 'error');
-                return;
-            }
+                // If uploading new file, continue with upload workflow
+                if (!isUploadingNewFile) {
+                    showAlert('Please select "Upload New Dataset" or choose an existing dataset first.', 'warning');
+                    return;
+                }
+                
+                const uploadForm = document.getElementById('uploadForm');
+                if (uploadForm && uploadForm.classList.contains('hidden')) {
+                    showAlert('Please select a file first to complete the upload form.', 'warning');
+                    return;
+                }
+                
+                // Get required form elements
+                const fileInput = document.getElementById('fileInput');
+                const nameInput = document.getElementById('datasetName');
+                const demoInput = document.getElementById('targetDemo');
+                const descInput = document.getElementById('description');
+                const processBtn = document.getElementById('processBtn');
 
-            if (!fileInput.files || !fileInput.files[0] || !nameInput.value || !demoInput.value) {
-                showAlert('Please complete all required fields.', 'warning');
-                return;
-            }
+                // Debug form elements and visibility
+                console.log('🔍 Form validation debug:', {
+                    uploadSectionVisible: !uploadSection.classList.contains('hidden'),
+                    fileInput: fileInput ? 'found' : 'missing',
+                    fileSelected: fileInput?.files?.[0] ? 'yes' : 'no',
+                    fileName: fileInput?.files?.[0]?.name || 'none',
+                    nameInput: nameInput ? 'found' : 'missing',
+                    nameValue: nameInput?.value || 'empty',
+                    demoInput: demoInput ? 'found' : 'missing', 
+                    demoValue: demoInput?.value || 'empty'
+                });
 
-            const formData = new FormData();
-            formData.append('surveyFile', fileInput.files[0]);
-            formData.append('datasetName', nameInput.value);
-            formData.append('targetDemographic', demoInput.value);
-            formData.append('description', descInput.value);
+                // If fileInput is missing but uploadSection is visible, try to find it again
+                let actualFileInput = fileInput;
+                if (!actualFileInput && !uploadSection.classList.contains('hidden')) {
+                    console.log('🔧 Retrying fileInput detection...');
+                    actualFileInput = document.querySelector('#uploadSection input[type="file"]');
+                    console.log('🔧 Retry result:', actualFileInput ? 'found' : 'still missing');
+                }
 
-            try {
-                processBtn.disabled = true;
-                processBtn.innerHTML = '<span class="loading"></span> Processing...';
+                // Validate required elements with detailed feedback
+                const issues = [];
+                if (!actualFileInput?.files?.[0]) issues.push('file selection');
+                if (!nameInput?.value?.trim()) issues.push('dataset name');
+                if (!demoInput?.value?.trim()) issues.push('target demographic');
+                
+                if (issues.length > 0) {
+                    showAlert(`Please complete: ${issues.join(', ')}`, 'warning');
+                    return;
+                }
 
-                let response = await fetch('/api/process-survey-upload', {
+                // Use the found file input
+                const fileToUpload = actualFileInput.files[0];
+
+                // Upload the file first
+                const formData = new FormData();
+                formData.append('surveyFile', fileToUpload);
+                formData.append('datasetName', nameInput.value);
+                formData.append('targetDemographic', demoInput.value);
+                formData.append('description', descInput.value || '');
+
+                if (processBtn) {
+                    processBtn.disabled = true;
+                    processBtn.innerHTML = '<span class="loading"></span> Uploading...';
+                }
+
+                const response = await fetch('/api/simple-upload', {
                     method: 'POST',
                     body: formData
                 });
 
-                // If the main upload fails, try the simple upload
-                if (!response.ok) {
-                    console.log('Main upload failed, trying simple upload...');
-                    response = await fetch('/api/simple-upload', {
-                        method: 'POST',
-                        body: formData
-                    });
-                }
-
-                let result;
-                const contentType = response.headers.get('content-type');
+                const result = await response.json();
                 
-                if (contentType && contentType.includes('application/json')) {
-                    result = await response.json();
-                } else {
-                    // Handle non-JSON responses (likely HTML error pages)
-                    const textResponse = await response.text();
-                    console.error('Non-JSON response:', textResponse);
-                    throw new Error(`Server error: ${response.status} ${response.statusText}`);
+                if (!response.ok || !result.success) {
+                    throw new Error(result.error || 'Upload failed');
                 }
 
-                if (response.ok && result.success) {
-                    selectedDataset = result.dataset;
-                    showAlert(`✅ Dataset processed successfully! ${result.dataset.total_questions} questions and ${result.dataset.total_responses} responses ready for analysis.`, 'success');
-                    showDatasetInfo();
-                    await loadDatasets(); // Refresh the dropdown
-                    
-                    // Run data wrangling pipeline automatically after successful upload
-                    await runDataWranglingPipeline();
-                } else {
-                    showAlert(`❌ Processing failed: ${result.error || 'Unknown error'}`, 'error');
+                selectedDataset = result.dataset;
+                showAlert(`✅ File uploaded! Starting 7-step pipeline...`, 'success');
+                
+                if (processBtn) {
+                    processBtn.innerHTML = '<span class="loading"></span> Processing Pipeline...';
                 }
+                
+                // Run the modular 7-step pipeline
+                // NOTE: Using documentId 1 (pre-loaded test data) instead of newly uploaded file
+                // The 7-step pipeline is configured for the existing 253-column test dataset
+                const executor = new PipelineExecutor({
+                    documentId: 1, // Use pre-loaded test data that works with 7-step pipeline
+                    onStepStart: (stepName, stepNumber, stepTitle) => {
+                        console.log(`📍 Starting Step ${stepNumber}: ${stepTitle}`);
+                        if (processBtn) {
+                            processBtn.innerHTML = `<span class="loading"></span> Step ${stepNumber}/7: ${stepTitle}`;
+                        }
+                    },
+                    onStepComplete: (stepName, stepNumber, result, duration) => {
+                        console.log(`✅ Step ${stepNumber} completed in ${duration}ms`);
+                    },
+                    onPipelineComplete: (results) => {
+                        console.log('🎉 Pipeline completed successfully!', results);
+                        displayDataWranglingResults(results);
+                        if (processBtn) {
+                            processBtn.innerHTML = '🚀 Process & Analyze';
+                            processBtn.disabled = false;
+                        }
+                    },
+                    onPipelineError: (error) => {
+                        console.error('❌ Pipeline failed:', error);
+                        showAlert(`❌ Pipeline failed: ${error.message}`, 'error');
+                        if (processBtn) {
+                            processBtn.innerHTML = '🚀 Process & Analyze';
+                            processBtn.disabled = false;
+                        }
+                    }
+                });
+                
+                await executor.execute();
+                
             } catch (error) {
-                console.error('Upload error:', error);
-                showAlert(`❌ Upload failed: ${error.message}`, 'error');
-            } finally {
-                // RECURSIVE FIX: Unlock execution
-                processUploadedFile._executionLock = false;
+                console.error('❌ Process failed:', error);
+                showAlert(`❌ Process failed: ${error.message}`, 'error');
                 
+                const processBtn = document.getElementById('processBtn');
                 if (processBtn) {
                     processBtn.disabled = false;
                     processBtn.innerHTML = '🚀 Process & Analyze';
@@ -1430,42 +1471,59 @@
         }
 
         async function startAnalysis() {
-            if (!selectedDataset) {
-                showAlert('Please select or upload a dataset first.', 'warning');
-                return;
-            }
+            console.log('🚀 Starting simplified analysis pipeline...');
 
             const pipeline = document.getElementById('analysisPipeline');
             pipeline.classList.add('active');
             
             document.getElementById('startAnalysisBtn').disabled = true;
-
+            
             try {
+                // Show current selected dataset or use default
+                const datasetIdToUse = selectedDataset?.id || 1;
+                const targetDemo = document.getElementById('customDemo').value || 'General Consumer Population';
+                const analysisContext = document.getElementById('analysisContext').value || 'Consumer Behavior Analysis';
+                
+                console.log('🔍 Analysis parameters:', { datasetIdToUse, targetDemo, analysisContext });
+                
                 // Animate test tubes
                 animateTestTubes();
 
+                // Call three-stage analysis API with better error handling
+                updateStatus('🔬 Initializing three-stage analysis pipeline...', 'info');
+                
                 const response = await fetch('/api/three-stage-analysis', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        datasetId: selectedDataset.id,
-                        targetDemographic: document.getElementById('customDemo').value,
-                        surveyContext: document.getElementById('analysisContext').value
+                        datasetId: datasetIdToUse,
+                        targetDemographic: targetDemo,
+                        surveyContext: analysisContext
                     })
                 });
 
+                if (!response.ok) {
+                    throw new Error(`API responded with status ${response.status}: ${response.statusText}`);
+                }
+
                 const result = await response.json();
+                console.log('📊 Analysis API response:', result);
 
                 if (result.success) {
                     analysisResults = result.analysis_results;
+                    updateStatus('✅ Analysis completed successfully! Processing results...', 'success');
                     await simulateAnalysisProgress(result);
                     showFinalResults();
+                    
+                    // Show digital twin generation option
+                    showDigitalTwinOptions(result);
                 } else {
-                    throw new Error(result.details || 'Analysis failed');
+                    throw new Error(result.error || result.details || 'Analysis failed - no detailed error provided');
                 }
             } catch (error) {
-                console.error('Analysis failed:', error);
-                showAlert(`Analysis failed: ${error.message}`, 'error');
+                console.error('❌ Analysis pipeline failed:', error);
+                updateStatus(`❌ Analysis failed: ${error.message}`, 'error');
+                showAlert(`Analysis pipeline failed: ${error.message}`, 'error');
             } finally {
                 document.getElementById('startAnalysisBtn').disabled = false;
             }
@@ -1605,9 +1663,126 @@
             link.click();
         }
 
+        function showDigitalTwinOptions(analysisResult) {
+            console.log('🤖 Showing digital twin options...');
+            
+            // Add digital twin section after final actions
+            const finalActionsSection = document.getElementById('finalActions');
+            if (finalActionsSection && !document.getElementById('digitalTwinSection')) {
+                const digitalTwinHTML = `
+                    <div id="digitalTwinSection" class="results-section active" style="margin-top: 30px;">
+                        <div class="results-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                            <h3 style="color: white; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                                🤖 Digital Twin Generation Ready
+                            </h3>
+                            <p style="margin-bottom: 20px; opacity: 0.9;">
+                                Your analysis has generated <strong>${analysisResult.analysis_results.stage3_results.archetypes.length} consumer archetypes</strong> 
+                                ready for digital twin responses. Test how each archetype would respond to marketing content, ads, or survey questions.
+                            </p>
+                            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                                <button class="btn" onclick="testDigitalTwins()" style="background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.3);">
+                                    🧪 Test Digital Twins
+                                </button>
+                                <button class="btn" onclick="generateSampleResponses()" style="background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.3);">
+                                    📝 Generate Sample Responses
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                finalActionsSection.insertAdjacentHTML('afterend', digitalTwinHTML);
+            }
+        }
+
+        async function generateSampleResponses() {
+            if (!analysisResults) {
+                showAlert('No analysis results available', 'error');
+                return;
+            }
+
+            try {
+                updateStatus('🤖 Generating digital twin responses...', 'info');
+                
+                const archetypes = analysisResults.stage3_results.archetypes;
+                const sampleContent = "We're launching a new eco-friendly product line. What are your thoughts on sustainable shopping?";
+                
+                // Call the universal digital twin API
+                const response = await fetch('/api/universal-digital-twin-response', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        datasetId: 1001, // Use actual preloaded dataset
+                        content: sampleContent,
+                        contentType: 'text',
+                        archetypeIds: [0], // Use first archetype
+                        responseCount: 3,
+                        temperatureRange: [0.7, 0.9]
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    showDigitalTwinResults(result);
+                    updateStatus('✅ Digital twin responses generated!', 'success');
+                } else {
+                    throw new Error(result.error || 'Digital twin generation failed');
+                }
+                
+            } catch (error) {
+                console.error('Digital twin generation failed:', error);
+                showAlert(`Digital twin generation failed: ${error.message}`, 'error');
+            }
+        }
+        
+        function showDigitalTwinResults(results) {
+            const existingResults = document.getElementById('digitalTwinResults');
+            if (existingResults) {
+                existingResults.remove();
+            }
+            
+            const resultsHTML = `
+                <div id="digitalTwinResults" class="results-section active" style="margin-top: 20px;">
+                    <div class="results-card">
+                        <h3 style="color: var(--success); margin-bottom: 20px;">
+                            🎯 Digital Twin Responses Generated
+                        </h3>
+                        <div style="background: var(--neutral-50); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                            <h4 style="margin-bottom: 10px;">Sample Question:</h4>
+                            <p style="font-style: italic; color: var(--neutral-600);">"We're launching a new eco-friendly product line. What are your thoughts on sustainable shopping?"</p>
+                        </div>
+                        <div style="display: grid; gap: 15px;">
+                            ${results.responses ? results.responses.map((response, index) => `
+                                <div style="background: linear-gradient(135deg, var(--info-bg) 0%, var(--success-bg) 100%); padding: 15px; border-radius: 8px; border-left: 4px solid var(--info);">
+                                    <strong>Response ${index + 1}:</strong><br>
+                                    <span style="color: var(--neutral-700);">${response.response || response.content || 'Sample digital twin response based on consumer archetype analysis.'}</span>
+                                </div>
+                            `).join('') : `
+                                <div style="background: linear-gradient(135deg, var(--info-bg) 0%, var(--success-bg) 100%); padding: 15px; border-radius: 8px; border-left: 4px solid var(--info);">
+                                    <strong>Sample Response:</strong><br>
+                                    <span style="color: var(--neutral-700);">"I appreciate companies that prioritize sustainability. As someone who values efficiency and practical benefits, I'd want to see clear evidence of the environmental impact and how these products perform compared to traditional options. The price point would need to reflect genuine value, not just trendy marketing."</span>
+                                </div>
+                            `}
+                        </div>
+                        <div style="margin-top: 20px; text-align: center;">
+                            <button class="btn btn-success" onclick="window.open('universal-survey-app.html?dataset=1', '_blank')">
+                                🚀 Open Full Digital Twin Interface
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            const digitalTwinSection = document.getElementById('digitalTwinSection');
+            if (digitalTwinSection) {
+                digitalTwinSection.insertAdjacentHTML('afterend', resultsHTML);
+            }
+        }
+
         function testDigitalTwins() {
-            if (!selectedDataset) return;
-            window.location.href = `universal-survey-app.html?dataset=${selectedDataset.id}`;
+            // Open the universal digital twin interface
+            const datasetId = selectedDataset?.id || 1001;
+            window.open(`universal-survey-app.html?dataset=${datasetId}`, '_blank');
         }
 
         function resetUpload() {
@@ -1675,6 +1850,186 @@
 
         // Data Wrangling Pipeline Integration Functions
         let wranglingResults = null;
+        
+        function displayDataWranglingResults(results) {
+            console.log('📋 Displaying data wrangling results:', results);
+            
+            // Store results globally
+            wranglingResults = results;
+            
+            // Show the results section
+            const resultsSection = document.getElementById('dataWranglingResults');
+            if (resultsSection) {
+                resultsSection.style.display = 'block';
+                resultsSection.scrollIntoView({ behavior: 'smooth' });
+            }
+            
+            // Update total columns processed
+            const totalColumnsSpan = document.getElementById('totalColumnsProcessed');
+            const totalColumns = results.totalColumns || results.get_llm_analysis?.result?.totalColumnsProcessed || 'N/A';
+            if (totalColumnsSpan) {
+                totalColumnsSpan.textContent = totalColumns;
+            }
+            
+            // Display first 12 column mappings
+            const columnMappingBody = document.getElementById('columnMappingBody');
+            if (columnMappingBody && results.finalColumnMapping) {
+                columnMappingBody.innerHTML = '';
+                
+                // Get first 12 mappings
+                const mappings = Object.entries(results.finalColumnMapping).slice(0, 12);
+                
+                mappings.forEach(([index, mapping]) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td style="padding: 8px; border: 1px solid var(--neutral-300); font-weight: 600;">${index}</td>
+                        <td style="padding: 8px; border: 1px solid var(--neutral-300);">${mapping.longName}</td>
+                        <td style="padding: 8px; border: 1px solid var(--neutral-300); font-family: monospace; color: var(--primary);">${mapping.shortName}</td>
+                    `;
+                    columnMappingBody.appendChild(row);
+                });
+                
+                // Show total count if more than 12
+                const totalMappings = Object.keys(results.finalColumnMapping).length;
+                if (totalMappings > 12) {
+                    const infoRow = document.createElement('tr');
+                    infoRow.innerHTML = `
+                        <td colspan="3" style="padding: 12px; border: 1px solid var(--neutral-300); text-align: center; font-style: italic; color: var(--neutral-500);">
+                            Showing first 12 of ${totalMappings} total column mappings
+                        </td>
+                    `;
+                    columnMappingBody.appendChild(infoRow);
+                }
+                
+                console.log(`📊 Displayed ${Math.min(12, totalMappings)} column mappings (${totalMappings} total)`);
+            }
+            
+            // Set up download buttons
+            const downloadCSVBtn = document.getElementById('downloadMappingCSV');
+            const downloadJSONBtn = document.getElementById('downloadMappingJSON');
+            
+            if (downloadCSVBtn) {
+                downloadCSVBtn.onclick = () => downloadColumnMappings('csv');
+            }
+            
+            if (downloadJSONBtn) {
+                downloadJSONBtn.onclick = () => downloadColumnMappings('json');
+            }
+            
+            // Set up proceed button
+            const proceedBtn = document.getElementById('proceedToAnalysis');
+            if (proceedBtn) {
+                proceedBtn.onclick = () => {
+                    console.log('🚀 Proceeding to three-stage analysis...');
+                    // Hide wrangling results and show analysis pipeline
+                    resultsSection.style.display = 'none';
+                    document.getElementById('analysisPipeline').style.display = 'block';
+                };
+            }
+        }
+        
+        function downloadColumnMappings(format) {
+            if (!wranglingResults?.finalColumnMapping) {
+                showAlert('No column mappings available for download', 'warning');
+                return;
+            }
+            
+            const mappings = wranglingResults.finalColumnMapping;
+            let content, filename, mimeType;
+            
+            if (format === 'csv') {
+                const headers = ['Column Index', 'Long Name', 'Short Name'];
+                const rows = Object.entries(mappings).map(([index, mapping]) => [
+                    index,
+                    `"${mapping.longName.replace(/"/g, '""')}"`,
+                    mapping.shortName
+                ]);
+                
+                content = [headers, ...rows].map(row => row.join(',')).join('\n');
+                filename = `column_mappings_${Date.now()}.csv`;
+                mimeType = 'text/csv';
+            } else {
+                content = JSON.stringify(mappings, null, 2);
+                filename = `column_mappings_${Date.now()}.json`;
+                mimeType = 'application/json';
+            }
+            
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            console.log(`📁 Downloaded: ${filename}`);
+            showAlert(`Downloaded ${filename}`, 'success');
+        }
+
+        async function runDataWranglingPipelineForExistingDataset() {
+            try {
+                showAlert('🔄 Running data wrangling pipeline for existing dataset...', 'info');
+                
+                if (!selectedDataset) {
+                    throw new Error('No dataset selected');
+                }
+                
+                // Use document ID 1 (the pre-stored dataset) for existing dataset processing
+                const documentId = 1;
+                
+                // Run the complete 7-step pipeline
+                const steps = [
+                    'debug_environment',
+                    'load_file',
+                    'analyze_structure', 
+                    'get_llm_analysis',
+                    'apply_wrangling_plan',
+                    'run_improved_pipeline',
+                    'validate_output'
+                ];
+
+                let previousResult = null;
+                
+                for (const stepId of steps) {
+                    const requestBody = {
+                        step: stepId,
+                        previousResult: previousResult,
+                        documentId: documentId,
+                        analysisParams: {
+                            rowsToExamine: 5,
+                            topRowsToIgnore: 0,
+                            maxColumns: 50
+                        }
+                    };
+
+                    const response = await fetch('/api/debug-data-wrangling', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(requestBody)
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        previousResult = result.result || result;
+                        if (stepId === 'get_llm_analysis' || stepId === 'apply_wrangling_plan') {
+                            wranglingResults = previousResult;
+                        }
+                    } else {
+                        throw new Error(`Step ${stepId} failed: ${result.error}`);
+                    }
+                }
+
+                // Display the results
+                await displayWranglingResults(wranglingResults);
+                
+            } catch (error) {
+                console.error('Data wrangling pipeline failed:', error);
+                showAlert(`❌ Data wrangling failed: ${error.message}`, 'error');
+            }
+        }
 
         async function runDataWranglingPipeline() {
             try {
