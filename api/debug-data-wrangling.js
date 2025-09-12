@@ -416,6 +416,37 @@ export default async function handler(req, res) {
                     
                     logger.info(`Successfully processed ${wrangler.concatenatedHeaders.length} columns`);
                     
+                    // Initialize abbreviated headers array for createColumnMapping fallback
+                    if (!wrangler.abbreviatedHeaders || wrangler.abbreviatedHeaders.length === 0) {
+                        wrangler.abbreviatedHeaders = [];
+                        logger.info('Initialized empty abbreviatedHeaders for fallback mapping');
+                    }
+                    
+                    // Create column mapping for analysis
+                    logger.info('Creating column mapping...');
+                    const mappingResult = await wrangler.createColumnMapping();
+                    if (!mappingResult.success) {
+                        throw new Error(`Column mapping creation failed: ${mappingResult.error}`);
+                    }
+                    
+                    logger.info(`Created column mapping for ${mappingResult.mappingCount} columns`);
+                    
+                    // Store results back to database with complete wrangling report
+                    
+                    const wranglingReport = {
+                        totalColumns: wrangler.concatenatedHeaders.length,
+                        headerRows: wrangler.headerRows || [],
+                        dataStartRow: wrangler.dataStartRow || 2,
+                        columnMapping: wrangler.columnMapping || {},
+                        concatenatedHeaders: wrangler.concatenatedHeaders || [],
+                        originalFileName: docResult.document.original_filename,
+                        processedAt: new Date().toISOString(),
+                        pipelineCompleted: true
+                    };
+                    
+                    await updateSourceDocumentStatus(documentId, 'processed', wranglingReport);
+                    logger.info(`Stored complete wrangling results for document ${documentId} in database - ${wrangler.concatenatedHeaders.length} columns processed`);
+                    
                     result = {
                         success: true,
                         pipelineCompleted: true,

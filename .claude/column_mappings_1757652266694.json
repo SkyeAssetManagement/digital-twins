@@ -1,0 +1,1014 @@
+{
+  "0": {
+    "longName": "Respondent ID",
+    "shortName": "respondent_id"
+  },
+  "1": {
+    "longName": "Collector ID",
+    "shortName": "collector_id"
+  },
+  "2": {
+    "longName": "Start Date",
+    "shortName": "start_date"
+  },
+  "3": {
+    "longName": "End Date",
+    "shortName": "end_date"
+  },
+  "4": {
+    "longName": "IP Address",
+    "shortName": "ip_address"
+  },
+  "5": {
+    "longName": "Email Address",
+    "shortName": "email_address"
+  },
+  "6": {
+    "longName": "First Name",
+    "shortName": "first_name"
+  },
+  "7": {
+    "longName": "Last Name",
+    "shortName": "last_name"
+  },
+  "8": {
+    "longName": "Custom Data 1",
+    "shortName": "custom_data_1"
+  },
+  "9": {
+    "longName": "Are you? | Response",
+    "shortName": "gender"
+  },
+  "10": {
+    "longName": "How old are you? | Response",
+    "shortName": "age"
+  },
+  "11": {
+    "longName": "In which State or Territory do you currently live? | Response",
+    "shortName": "state_territory"
+  },
+  "12": {
+    "longName": "Are you currently pregnant? | Response",
+    "shortName": "currently_pregnant"
+  },
+  "13": {
+    "longName": "How many children do you have? | Response",
+    "shortName": "num_children"
+  },
+  "14": {
+    "longName": "Do you have a child aged under 12 months old? | Response",
+    "shortName": "child_under_12_months"
+  },
+  "15": {
+    "longName": "Within your household who typically purchases these types of baby care products? | Response",
+    "shortName": "household_purchaser"
+  },
+  "16": {
+    "longName": "Have you purchased baby care products (such as wipes, bath wash, powder or creams) from the following outlets:? | Coles or Woolworths supermarket in the past month",
+    "shortName": "purchase_supermarket_1mo"
+  },
+  "17": {
+    "longName": "Have you purchased baby care products (such as wipes, bath wash, powder or creams) from the following outlets:? | Chemist Warehouse, Priceline or Big W in the past 3 months",
+    "shortName": "purchase_pharmacy_3mo"
+  },
+  "18": {
+    "longName": "How often do you usually use the following types of baby care products on your little ones: (select one per product type) | Baby bath (eg. liquid cleanser/wash)",
+    "shortName": "freq_baby_bath"
+  },
+  "19": {
+    "longName": "How often do you usually use the following types of baby care products on your little ones: (select one per product type) | 2 in 1 Baby wash & shampoo",
+    "shortName": "freq_2in1_wash_shampoo"
+  },
+  "20": {
+    "longName": "How often do you usually use the following types of baby care products on your little ones: (select one per product type) | Baby shampoo",
+    "shortName": "freq_baby_shampoo"
+  },
+  "21": {
+    "longName": "How often do you usually use the following types of baby care products on your little ones: (select one per product type) | Baby conditioner",
+    "shortName": "freq_baby_conditioner"
+  },
+  "22": {
+    "longName": "How often do you usually use the following types of baby care products on your little ones: (select one per product type) | Hair detangling spray",
+    "shortName": "freq_detangling_spray"
+  },
+  "23": {
+    "longName": "How often do you usually use the following types of baby care products on your little ones: (select one per product type) | Baby wipes",
+    "shortName": "freq_baby_wipes"
+  },
+  "24": {
+    "longName": "How often do you usually use the following types of baby care products on your little ones: (select one per product type) | Baby powder",
+    "shortName": "freq_baby_powder"
+  },
+  "25": {
+    "longName": "How often do you usually use the following types of baby care products on your little ones: (select one per product type) | Baby soap (eg. bar)",
+    "shortName": "freq_baby_soap"
+  },
+  "26": {
+    "longName": "How often do you usually use the following types of baby care products on your little ones: (select one per product type) | Nappy rash cream (eg. soothing cream)",
+    "shortName": "freq_nappy_rash_cream"
+  },
+  "27": {
+    "longName": "How often do you usually use the following types of baby care products on your little ones: (select one per product type) | Baby massage oil",
+    "shortName": "freq_massage_oil"
+  },
+  "28": {
+    "longName": "How often do you usually use the following types of baby care products on your little ones: (select one per product type) | Baby skin moisturiser",
+    "shortName": "freq_skin_moisturiser"
+  },
+  "29": {
+    "longName": "How often do you usually use the following types of baby care products on your little ones: (select one per product type) | Cradle cap products",
+    "shortName": "freq_cradle_cap_products"
+  },
+  "30": {
+    "longName": "How often do you usually use the following types of baby care products on your little ones: (select one per product type) | Eczema cream",
+    "shortName": "freq_eczema_cream"
+  },
+  "31": {
+    "longName": "How often do you usually use the following types of baby care products on your little ones: (select one per product type) | Bath oil",
+    "shortName": "freq_bath_oil"
+  },
+  "32": {
+    "longName": "How often do you usually use the following types of baby care products on your little ones: (select one per product type) | Room spray (in baby/children’s room)",
+    "shortName": "freq_room_spray"
+  },
+  "33": {
+    "longName": "When considering these types of products, how important are the following aspects to you in deciding which one to purchase: (select one per aspect) | Available where I usually shop",
+    "shortName": "imp_available_where_shop"
+  },
+  "34": {
+    "longName": "When considering these types of products, how important are the following aspects to you in deciding which one to purchase: (select one per aspect) | Brand I know and trust",
+    "shortName": "imp_brand_trust"
+  },
+  "35": {
+    "longName": "When considering these types of products, how important are the following aspects to you in deciding which one to purchase: (select one per aspect) | Another mum/family member recommended it",
+    "shortName": "imp_recommendation"
+  },
+  "36": {
+    "longName": "When considering these types of products, how important are the following aspects to you in deciding which one to purchase: (select one per aspect) | Affordable everyday price, that fits my budget",
+    "shortName": "imp_affordable_price"
+  },
+  "37": {
+    "longName": "When considering these types of products, how important are the following aspects to you in deciding which one to purchase: (select one per aspect) | On promotion / Special price",
+    "shortName": "imp_promotion_special"
+  },
+  "38": {
+    "longName": "When considering these types of products, how important are the following aspects to you in deciding which one to purchase: (select one per aspect) | Is Australian made",
+    "shortName": "imp_australian_made"
+  },
+  "39": {
+    "longName": "When considering these types of products, how important are the following aspects to you in deciding which one to purchase: (select one per aspect) | Clinical formulation / lab developed",
+    "shortName": "imp_clinical_formulation"
+  },
+  "40": {
+    "longName": "When considering these types of products, how important are the following aspects to you in deciding which one to purchase: (select one per aspect) | Contains Organic ingredients",
+    "shortName": "imp_organic_ingredients"
+  },
+  "41": {
+    "longName": "When considering these types of products, how important are the following aspects to you in deciding which one to purchase: (select one per aspect) | Is Dermatologically tested/approved",
+    "shortName": "imp_derma_tested"
+  },
+  "42": {
+    "longName": "2. | Is Pediatrician tested/approved",
+    "shortName": "imp_pediatrician_tested"
+  },
+  "43": {
+    "longName": "2. | Brand that I’ve used & works best for my baby",
+    "shortName": "imp_brand_works_best"
+  },
+  "44": {
+    "longName": "2. | Suitable for Sensitive Skin",
+    "shortName": "imp_sensitive_skin"
+  },
+  "45": {
+    "longName": "2. | Is Eczema Friendly",
+    "shortName": "imp_eczema_friendly"
+  },
+  "46": {
+    "longName": "2. | Is a natural formulation",
+    "shortName": "imp_natural_formulation"
+  },
+  "47": {
+    "longName": "2. | Is Cruelty Free (not tested on animals)",
+    "shortName": "imp_cruelty_free"
+  },
+  "48": {
+    "longName": "2. | Is “Free From” (contains no synthetic fragrance/perfume)",
+    "shortName": "imp_free_from_synthetic"
+  },
+  "49": {
+    "longName": "2. | Is Vegan friendly (made or manufactured without the use of animal products)",
+    "shortName": "imp_vegan_friendly"
+  },
+  "50": {
+    "longName": "If there are any other important aspects that you consider when purchasing baby body products, please outline them: | Open-Ended Response",
+    "shortName": "other_important_aspects"
+  },
+  "51": {
+    "longName": "From the below list, if you had to choose only the 5 most important aspects in deciding which baby body product to purchase, which would they be:  (select 5 aspects only) | Available where I usually shop",
+    "shortName": "top5_available_usual_shop"
+  },
+  "52": {
+    "longName": "From the below list, if you had to choose only the 5 most important aspects in deciding which baby body product to purchase, which would they be:  (select 5 aspects only) | Brand I know and trust",
+    "shortName": "top5_brand_know_trust"
+  },
+  "53": {
+    "longName": "From the below list, if you had to choose only the 5 most important aspects in deciding which baby body product to purchase, which would they be:  (select 5 aspects only) | Another mum recommended it",
+    "shortName": "top5_mum_recommended"
+  },
+  "54": {
+    "longName": "From the below list, if you had to choose only the 5 most important aspects in deciding which baby body product to purchase, which would they be:  (select 5 aspects only) | Affordable everyday price, that fits my budget",
+    "shortName": "top5_affordable_price"
+  },
+  "55": {
+    "longName": "From the below list, if you had to choose only the 5 most important aspects in deciding which baby body product to purchase, which would they be:  (select 5 aspects only) | On promotion / Special price",
+    "shortName": "top5_promotion_special"
+  },
+  "56": {
+    "longName": "From the below list, if you had to choose only the 5 most important aspects in deciding which baby body product to purchase, which would they be:  (select 5 aspects only) | Is Australian made",
+    "shortName": "top5_australian_made"
+  },
+  "57": {
+    "longName": "From the below list, if you had to choose only the 5 most important aspects in deciding which baby body product to purchase, which would they be:  (select 5 aspects only) | Clinical formulation / lab developed",
+    "shortName": "top5_clinical_formulation"
+  },
+  "58": {
+    "longName": "From the below list, if you had to choose only the 5 most important aspects in deciding which baby body product to purchase, which would they be:  (select 5 aspects only) | Contains Organic ingredients",
+    "shortName": "top5_organic_ingredients"
+  },
+  "59": {
+    "longName": "From the below list, if you had to choose only the 5 most important aspects in deciding which baby body product to purchase, which would they be:  (select 5 aspects only) | Is Dermatologically and or Paediatrician tested/approved",
+    "shortName": "top5_derm_tested"
+  },
+  "60": {
+    "longName": "From the below list, if you had to choose only the 5 most important aspects in deciding which baby body product to purchase, which would they be:  (select 5 aspects only) | Brand that I’ve used & works best for my baby",
+    "shortName": "top5_brand_works_best"
+  },
+  "61": {
+    "longName": "From the below list, if you had to choose only the 5 most important aspects in deciding which baby body product to purchase, which would they be:  (select 5 aspects only) | Suitable for Sensitive Skin",
+    "shortName": "top5_sensitive_skin"
+  },
+  "62": {
+    "longName": "From the below list, if you had to choose only the 5 most important aspects in deciding which baby body product to purchase, which would they be:  (select 5 aspects only) | Is Eczema Friendly",
+    "shortName": "top5_eczema_friendly"
+  },
+  "63": {
+    "longName": "From the below list, if you had to choose only the 5 most important aspects in deciding which baby body product to purchase, which would they be:  (select 5 aspects only) | Is a natural formulation",
+    "shortName": "top5_natural_formulation"
+  },
+  "64": {
+    "longName": "From the below list, if you had to choose only the 5 most important aspects in deciding which baby body product to purchase, which would they be:  (select 5 aspects only) | Does not contain any food derived ingredients (eg. Avocado Oil)",
+    "shortName": "top5_no_food_ingredients"
+  },
+  "65": {
+    "longName": "From the below list, if you had to choose only the 5 most important aspects in deciding which baby body product to purchase, which would they be:  (select 5 aspects only) | Is “Free From” (contains no parabens, mineral oil, propylene glycol, artificial colours, artificial fragrance)",
+    "shortName": "top5_free_from"
+  },
+  "66": {
+    "longName": "Essential OilEssential oils are concentrated extracts from different plants that are used in aromatherapy or topically for various conditions. In Baby body products they can provide natural anti-inflammatory, calming or antimicrobial effects.When it comes to Essential Oil, please indicate your views: (select one per statement) | I prefer products with essential oils over synthetic ingredients and artificial fragrance for my baby",
+    "shortName": "ess_oil_prefer_over_synthetic"
+  },
+  "67": {
+    "longName": "Essential OilEssential oils are concentrated extracts from different plants that are used in aromatherapy or topically for various conditions. In Baby body products they can provide natural anti-inflammatory, calming or antimicrobial effects.When it comes to Essential Oil, please indicate your views: (select one per statement) | I believe essential oils provide a positive benefit in baby body products",
+    "shortName": "ess_oil_positive_benefit"
+  },
+  "68": {
+    "longName": "Essential OilEssential oils are concentrated extracts from different plants that are used in aromatherapy or topically for various conditions. In Baby body products they can provide natural anti-inflammatory, calming or antimicrobial effects.When it comes to Essential Oil, please indicate your views: (select one per statement) | I am more likely to consider a brand / product that contain essential oils",
+    "shortName": "ess_oil_more_likely_consider"
+  },
+  "69": {
+    "longName": "Essential OilEssential oils are concentrated extracts from different plants that are used in aromatherapy or topically for various conditions. In Baby body products they can provide natural anti-inflammatory, calming or antimicrobial effects.When it comes to Essential Oil, please indicate your views: (select one per statement) | I think essential oils are good for my little one’s skin",
+    "shortName": "ess_oil_good_for_skin"
+  },
+  "70": {
+    "longName": "Essential OilEssential oils are concentrated extracts from different plants that are used in aromatherapy or topically for various conditions. In Baby body products they can provide natural anti-inflammatory, calming or antimicrobial effects.When it comes to Essential Oil, please indicate your views: (select one per statement) | I expect essential oils to be included in all baby body products",
+    "shortName": "ess_oil_expect_all_products"
+  },
+  "71": {
+    "longName": "Essential OilEssential oils are concentrated extracts from different plants that are used in aromatherapy or topically for various conditions. In Baby body products they can provide natural anti-inflammatory, calming or antimicrobial effects.When it comes to Essential Oil, please indicate your views: (select one per statement) | I actively avoid products with essential oil ingredients for my baby",
+    "shortName": "ess_oil_actively_avoid"
+  },
+  "72": {
+    "longName": "If you have any comments about the use of Essential Oils in baby body products, please outline them: | Open-Ended Response",
+    "shortName": "ess_oil_comments"
+  },
+  "73": {
+    "longName": "Food Derived ingredients Food derived ingredients in baby skincare are components sourced from edible animal or non-plant origins—like dairy, honey, or beeswax. They can provide natural nurturing qualities for delicate skin such as hydration, soothing and barrier protection.When it comes to Food Derived ingredients, please indicate your views: (select one per statement) | I prefer products with natural or food derived ingredients over synthetic ingredients for my baby",
+    "shortName": "food_prefer_over_synthetic"
+  },
+  "74": {
+    "longName": "Food Derived ingredients Food derived ingredients in baby skincare are components sourced from edible animal or non-plant origins—like dairy, honey, or beeswax. They can provide natural nurturing qualities for delicate skin such as hydration, soothing and barrier protection.When it comes to Food Derived ingredients, please indicate your views: (select one per statement) | I believe food derived ingredients provide a positive benefit in baby body products",
+    "shortName": "food_positive_benefit"
+  },
+  "75": {
+    "longName": "Food Derived ingredients Food derived ingredients in baby skincare are components sourced from edible animal or non-plant origins—like dairy, honey, or beeswax. They can provide natural nurturing qualities for delicate skin such as hydration, soothing and barrier protection.When it comes to Food Derived ingredients, please indicate your views: (select one per statement) | I am more likely to consider a brand / product that contain food derived ingredients",
+    "shortName": "food_ingr_consider_brand"
+  },
+  "76": {
+    "longName": "Food Derived ingredients Food derived ingredients in baby skincare are components sourced from edible animal or non-plant origins—like dairy, honey, or beeswax. They can provide natural nurturing qualities for delicate skin such as hydration, soothing and barrier protection.When it comes to Food Derived ingredients, please indicate your views: (select one per statement) | I think food derived ingredients are good for my little one’s skin",
+    "shortName": "food_ingr_good_for_skin"
+  },
+  "77": {
+    "longName": "Food Derived ingredients Food derived ingredients in baby skincare are components sourced from edible animal or non-plant origins—like dairy, honey, or beeswax. They can provide natural nurturing qualities for delicate skin such as hydration, soothing and barrier protection.When it comes to Food Derived ingredients, please indicate your views: (select one per statement) | I expect food derived ingredients to be included in all baby body products",
+    "shortName": "food_ingr_expect_all_prods"
+  },
+  "78": {
+    "longName": "Food Derived ingredients Food derived ingredients in baby skincare are components sourced from edible animal or non-plant origins—like dairy, honey, or beeswax. They can provide natural nurturing qualities for delicate skin such as hydration, soothing and barrier protection.When it comes to Food Derived ingredients, please indicate your views: (select one per statement) | I actively avoid products with food derived ingredients for my baby",
+    "shortName": "food_ingr_actively_avoid"
+  },
+  "79": {
+    "longName": "If you have any comments about the use of Food Derived ingredients in baby body products, please outline them: | Open-Ended Response",
+    "shortName": "food_ingr_comments"
+  },
+  "80": {
+    "longName": "Prior to this survey have you ever seen this certification logo? | Response",
+    "shortName": "cert1_seen_before"
+  },
+  "81": {
+    "longName": "Please indicate your feedback about the certification logo: (select one per statement) | I know what this certification means",
+    "shortName": "cert1_know_meaning"
+  },
+  "82": {
+    "longName": "Please indicate your feedback about the certification logo: (select one per statement) | I would feel more confident in a baby care brand with this certification",
+    "shortName": "cert1_more_confident"
+  },
+  "83": {
+    "longName": "Please indicate your feedback about the certification logo: (select one per statement) | I am more likely to purchase a product that has this certification",
+    "shortName": "cert1_more_likely_purchase"
+  },
+  "84": {
+    "longName": "Prior to this survey have you ever seen this certification logo? | Response",
+    "shortName": "cert2_seen_before"
+  },
+  "85": {
+    "longName": "Please indicate your feedback about the certification logo: (select one per statement) | I know what this certification means",
+    "shortName": "cert2_know_meaning"
+  },
+  "86": {
+    "longName": "Please indicate your feedback about the certification logo: (select one per statement) | I would feel more confident in a baby care brand with this certification",
+    "shortName": "cert2_more_confident"
+  },
+  "87": {
+    "longName": "Please indicate your feedback about the certification logo: (select one per statement) | I am more likely to purchase a product that has this certification",
+    "shortName": "cert2_more_likely_purchase"
+  },
+  "88": {
+    "longName": "Prior to this survey have you ever seen this certification logo? | Response",
+    "shortName": "cert3_seen_before"
+  },
+  "89": {
+    "longName": "Please indicate your feedback about the certification logo: (select one per statement) | I know what this certification means",
+    "shortName": "cert3_know_meaning"
+  },
+  "90": {
+    "longName": "Please indicate your feedback about the certification logo: (select one per statement) | I would feel more confident in a baby care brand with this certification",
+    "shortName": "cert3_more_confident"
+  },
+  "91": {
+    "longName": "Please indicate your feedback about the certification logo: (select one per statement) | I am more likely to purchase a product that has this certification",
+    "shortName": "cert3_more_likely_purchase"
+  },
+  "92": {
+    "longName": "Prior to this survey have you ever seen this certification logo? | Response",
+    "shortName": "cert4_seen_before"
+  },
+  "93": {
+    "longName": "Please indicate your feedback about the certification logo: (select one per statement) | I know what this certification means",
+    "shortName": "cert4_know_meaning"
+  },
+  "94": {
+    "longName": "Please indicate your feedback about the certification logo: (select one per statement) | I would feel more confident in a baby care brand with this certification",
+    "shortName": "cert4_more_confident"
+  },
+  "95": {
+    "longName": "Please indicate your feedback about the certification logo: (select one per statement) | I am more likely to purchase a product that has this certification",
+    "shortName": "cert4_more_likely_purchase"
+  },
+  "96": {
+    "longName": "In order, please indicate which of the certification logos would be most important to you if you were considering a new brand of baby care products: | Option A",
+    "shortName": "cert_rank_option_a"
+  },
+  "97": {
+    "longName": "In order, please indicate which of the certification logos would be most important to you if you were considering a new brand of baby care products: | Option B",
+    "shortName": "cert_rank_option_b"
+  },
+  "98": {
+    "longName": "In order, please indicate which of the certification logos would be most important to you if you were considering a new brand of baby care products: | Option C",
+    "shortName": "cert_rank_option_c"
+  },
+  "99": {
+    "longName": "In order, please indicate which of the certification logos would be most important to you if you were considering a new brand of baby care products: | Option D",
+    "shortName": "cert_rank_option_d"
+  },
+  "100": {
+    "longName": "Following is a list of some brands that sell baby body products. Please indicate if you have ever heard of the brand or if you have ever used them: (select one per brand) | QV Baby",
+    "shortName": "brand_aware_qv_baby"
+  },
+  "101": {
+    "longName": "Following is a list of some brands that sell baby body products. Please indicate if you have ever heard of the brand or if you have ever used them: (select one per brand) | Aveeno Baby",
+    "shortName": "brand_aware_aveeno_baby"
+  },
+  "102": {
+    "longName": "Following is a list of some brands that sell baby body products. Please indicate if you have ever heard of the brand or if you have ever used them: (select one per brand) | Mustela Baby",
+    "shortName": "brand_aware_mustela_baby"
+  },
+  "103": {
+    "longName": "Following is a list of some brands that sell baby body products. Please indicate if you have ever heard of the brand or if you have ever used them: (select one per brand) | GAIA Natural Baby",
+    "shortName": "brand_aware_gaia_natural"
+  },
+  "104": {
+    "longName": "Following is a list of some brands that sell baby body products. Please indicate if you have ever heard of the brand or if you have ever used them: (select one per brand) | Cetaphil Baby",
+    "shortName": "brand_aware_cetaphil_baby"
+  },
+  "105": {
+    "longName": "Following is a list of some brands that sell baby body products. Please indicate if you have ever heard of the brand or if you have ever used them: (select one per brand) | Johnson's Baby",
+    "shortName": "brand_aware_johnsons_baby"
+  },
+  "106": {
+    "longName": "Following is a list of some brands that sell baby body products. Please indicate if you have ever heard of the brand or if you have ever used them: (select one per brand) | Bunjie",
+    "shortName": "brand_aware_bunjie"
+  },
+  "107": {
+    "longName": "Following is a list of some brands that sell baby body products. Please indicate if you have ever heard of the brand or if you have ever used them: (select one per brand) | Gro-To",
+    "shortName": "brand_aware_gro_to"
+  },
+  "108": {
+    "longName": "Following is a list of some brands that sell baby body products. Please indicate if you have ever heard of the brand or if you have ever used them: (select one per brand) | MooGoo",
+    "shortName": "brand_aware_moogoo"
+  },
+  "109": {
+    "longName": "Following is a list of some brands that sell baby body products. Please indicate if you have ever heard of the brand or if you have ever used them: (select one per brand) | CeraVe Baby",
+    "shortName": "brand_aware_cerave_baby"
+  },
+  "110": {
+    "longName": "Following is a list of some brands that sell baby body products. Please indicate if you have ever heard of the brand or if you have ever used them: (select one per brand) | Ecostore Baby",
+    "shortName": "brand_aware_ecostore_baby"
+  },
+  "111": {
+    "longName": "Following is a list of some brands that sell baby body products. Please indicate if you have ever heard of the brand or if you have ever used them: (select one per brand) | Curash Baby",
+    "shortName": "brand_aware_curash_baby"
+  },
+  "112": {
+    "longName": "Following is a list of some brands that sell baby body products. Please indicate if you have ever heard of the brand or if you have ever used them: (select one per brand) | Earthwise",
+    "shortName": "brand_aware_earthwise"
+  },
+  "113": {
+    "longName": "Following is a list of some brands that sell baby body products. Please indicate if you have ever heard of the brand or if you have ever used them: (select one per brand) | Child’s Farm",
+    "shortName": "brand_aware_childs_farm"
+  },
+  "114": {
+    "longName": "Following is a list of some brands that sell baby body products. Please indicate if you have ever heard of the brand or if you have ever used them: (select one per brand) | Dermaveen Baby",
+    "shortName": "brand_aware_dermaveen_baby"
+  },
+  "115": {
+    "longName": "If there are other brands of baby body products that you currently use, please outline them: | Open-Ended Response",
+    "shortName": "other_brands_used"
+  },
+  "116": {
+    "longName": "Please select the option which best describes you: | Response",
+    "shortName": "user_description"
+  },
+  "117": {
+    "longName": "Briefly, please say why: | Open-Ended Response",
+    "shortName": "user_description_why"
+  },
+  "118": {
+    "longName": "If you were given $100 to spend on baby body products, but could only spend it on one brand, which one would you choose: | Response",
+    "shortName": "preferred_brand_100"
+  },
+  "119": {
+    "longName": "If you were given $100 to spend on baby body products, but could only spend it on one brand, which one would you choose: | Other (please say which brand)",
+    "shortName": "preferred_brand_other"
+  },
+  "120": {
+    "longName": "You chose to spend your $100 on {{ Q31 }} Please say why you chose that brand: | Open-Ended Response",
+    "shortName": "preferred_brand_why"
+  },
+  "121": {
+    "longName": "If you wanted information on baby products or brands, which of the following sources are you most likely to use: (select all that apply) | None of the above",
+    "shortName": "info_source_none"
+  },
+  "122": {
+    "longName": "If you wanted information on baby products or brands, which of the following sources are you most likely to use: (select all that apply) | Friends or family",
+    "shortName": "info_source_friends_family"
+  },
+  "123": {
+    "longName": "If you wanted information on baby products or brands, which of the following sources are you most likely to use: (select all that apply) | Internet search (eg. Google, Bing)",
+    "shortName": "info_source_internet_search"
+  },
+  "124": {
+    "longName": "If you wanted information on baby products or brands, which of the following sources are you most likely to use: (select all that apply) | AI search  (eg. ChatGPT, Grock, Deepseek)",
+    "shortName": "info_source_ai_search"
+  },
+  "125": {
+    "longName": "If you wanted information on baby products or brands, which of the following sources are you most likely to use: (select all that apply) | Mother/Baby websites (eg.  tellmebaby.com.au, practicalparenting.com.au)",
+    "shortName": "info_src_mother_baby_sites"
+  },
+  "126": {
+    "longName": "If you wanted information on baby products or brands, which of the following sources are you most likely to use: (select all that apply) | Brand/company websites (eg. Sudocrem , Mountain Buggy, etc)",
+    "shortName": "info_src_brand_websites"
+  },
+  "127": {
+    "longName": "If you wanted information on baby products or brands, which of the following sources are you most likely to use: (select all that apply) | Brand newsletter/email",
+    "shortName": "info_src_brand_newsletter"
+  },
+  "128": {
+    "longName": "If you wanted information on baby products or brands, which of the following sources are you most likely to use: (select all that apply) | Facebook Groups & Forums",
+    "shortName": "info_src_fb_groups_forums"
+  },
+  "129": {
+    "longName": "If you wanted information on baby products or brands, which of the following sources are you most likely to use: (select all that apply) | Facebook ads/Marketplace",
+    "shortName": "info_src_fb_ads_marketplace"
+  },
+  "130": {
+    "longName": "If you wanted information on baby products or brands, which of the following sources are you most likely to use: (select all that apply) | YouTube",
+    "shortName": "info_src_youtube"
+  },
+  "131": {
+    "longName": "If you wanted information on baby products or brands, which of the following sources are you most likely to use: (select all that apply) | TikTok",
+    "shortName": "info_src_tiktok"
+  },
+  "132": {
+    "longName": "If you wanted information on baby products or brands, which of the following sources are you most likely to use: (select all that apply) | Instagram",
+    "shortName": "info_src_instagram"
+  },
+  "133": {
+    "longName": "If you wanted information on baby products or brands, which of the following sources are you most likely to use: (select all that apply) | Twitter / X",
+    "shortName": "info_src_twitter_x"
+  },
+  "134": {
+    "longName": "If you wanted information on baby products or brands, which of the following sources are you most likely to use: (select all that apply) | Podcast",
+    "shortName": "info_src_podcast"
+  },
+  "135": {
+    "longName": "If you wanted information on baby products or brands, which of the following sources are you most likely to use: (select all that apply) | Pharmacist",
+    "shortName": "info_src_pharmacist"
+  },
+  "136": {
+    "longName": "If you wanted information on baby products or brands, which of the following sources are you most likely to use: (select all that apply) | Influencer (eg. Snezana Wood, Steph Claire Smith, Jade Tunch)",
+    "shortName": "info_src_influencer_major"
+  },
+  "137": {
+    "longName": "If you wanted information on baby products or brands, which of the following sources are you most likely to use: (select all that apply) | Influencer (eg. small following, local community)",
+    "shortName": "info_src_influencer_local"
+  },
+  "138": {
+    "longName": "If you wanted information on baby products or brands, which of the following sources are you most likely to use: (select all that apply) | Pharmacy assistant",
+    "shortName": "info_src_pharmacy_assistant"
+  },
+  "139": {
+    "longName": "If you wanted information on baby products or brands, which of the following sources are you most likely to use: (select all that apply) | Midwife",
+    "shortName": "info_src_midwife"
+  },
+  "140": {
+    "longName": "If you wanted information on baby products or brands, which of the following sources are you most likely to use: (select all that apply) | Family doctor/GP",
+    "shortName": "info_src_family_doctor_gp"
+  },
+  "141": {
+    "longName": "If you wanted information on baby products or brands, which of the following sources are you most likely to use: (select all that apply) | Pediatrician",
+    "shortName": "info_src_pediatrician"
+  },
+  "142": {
+    "longName": "If you wanted information on baby products or brands, which of the following sources are you most likely to use: (select all that apply) | Maternal and Child Health Nurse",
+    "shortName": "info_src_child_health_nurse"
+  },
+  "143": {
+    "longName": "If you wanted information on baby products or brands, which of the following sources are you most likely to use: (select all that apply) | Other sources (please specify)",
+    "shortName": "info_src_other"
+  },
+  "144": {
+    "longName": "Have you used any of the following baby product review/information websites:(select one per site) | Tell Me Baby",
+    "shortName": "review_site_tell_me_baby"
+  },
+  "145": {
+    "longName": "Have you used any of the following baby product review/information websites:(select one per site) | Mouth of Mum’s",
+    "shortName": "review_site_mouth_of_mums"
+  },
+  "146": {
+    "longName": "Have you used any of the following baby product review/information websites:(select one per site) | Mum’s Grapevine",
+    "shortName": "review_site_mums_grapevine"
+  },
+  "147": {
+    "longName": "Have you used any of the following baby product review/information websites:(select one per site) | New Born Baby",
+    "shortName": "review_site_new_born_baby"
+  },
+  "148": {
+    "longName": "Have you used any of the following baby product review/information websites:(select one per site) | Baby Center",
+    "shortName": "review_site_baby_center"
+  },
+  "149": {
+    "longName": "Have you used any of the following baby product review/information websites:(select one per site) | Bounty Parents",
+    "shortName": "review_site_bounty_parents"
+  },
+  "150": {
+    "longName": "Have you used any of the following baby product review/information websites:(select one per site) | Product Review.com.au",
+    "shortName": "used_product_review_au"
+  },
+  "151": {
+    "longName": "Have you used any of the following baby product review/information websites:(select one per site) | Mum’s Central",
+    "shortName": "used_mums_central"
+  },
+  "152": {
+    "longName": "Have you used any of the following baby product review/information websites:(select one per site) | Kiindred",
+    "shortName": "used_kiindred"
+  },
+  "153": {
+    "longName": "Have you used any of the following baby product review/information websites:(select one per site) | Pregnancybirthbaby.org.au",
+    "shortName": "used_pregnancy_birth_baby"
+  },
+  "154": {
+    "longName": "Have you used any of the following baby product review/information websites:(select one per site) | Raisingchildren.net.au",
+    "shortName": "used_raising_children"
+  },
+  "155": {
+    "longName": "If there are any other baby product review/information websites that you currently use, please outline them: | Open-Ended Response",
+    "shortName": "other_review_sites"
+  },
+  "156": {
+    "longName": "Have you attended any of the following Baby Expos?(select one per expo) | Pregnancy, Babies & Children’s Expo",
+    "shortName": "attended_pregnancy_expo"
+  },
+  "157": {
+    "longName": "Have you attended any of the following Baby Expos?(select one per expo) | One Fine Baby Expo",
+    "shortName": "attended_one_fine_baby"
+  },
+  "158": {
+    "longName": "Please indicate if you have you ever received a sample of a baby product to trial or use at home from the following sources:(select all that apply) | None of the above",
+    "shortName": "sample_source_none"
+  },
+  "159": {
+    "longName": "Please indicate if you have you ever received a sample of a baby product to trial or use at home from the following sources:(select all that apply) | Samples from Bounty Bag",
+    "shortName": "sample_bounty_bag"
+  },
+  "160": {
+    "longName": "Please indicate if you have you ever received a sample of a baby product to trial or use at home from the following sources:(select all that apply) | Samples from Bao Bag",
+    "shortName": "sample_bao_bag"
+  },
+  "161": {
+    "longName": "Please indicate if you have you ever received a sample of a baby product to trial or use at home from the following sources:(select all that apply) | Samples from an Expo",
+    "shortName": "sample_expo"
+  },
+  "162": {
+    "longName": "Please indicate if you have you ever received a sample of a baby product to trial or use at home from the following sources:(select all that apply) | Samples from a GP/family doctor",
+    "shortName": "sample_gp"
+  },
+  "163": {
+    "longName": "Please indicate if you have you ever received a sample of a baby product to trial or use at home from the following sources:(select all that apply) | Samples from a Pediatrician",
+    "shortName": "sample_pediatrician"
+  },
+  "164": {
+    "longName": "Please indicate if you have you ever received a sample of a baby product to trial or use at home from the following sources:(select all that apply) | Samples from a Midwife",
+    "shortName": "sample_midwife"
+  },
+  "165": {
+    "longName": "Please indicate if you have you ever received a sample of a baby product to trial or use at home from the following sources:(select all that apply) | Samples from a Maternal and Child Health Nurse",
+    "shortName": "sample_child_health_nurse"
+  },
+  "166": {
+    "longName": "Please indicate if you have you ever received a sample of a baby product to trial or use at home from the following sources:(select all that apply) | Samples from a retail store (eg. pharmacy)",
+    "shortName": "sample_retail_store"
+  },
+  "167": {
+    "longName": "Please indicate if you have you ever received a sample of a baby product to trial or use at home from the following sources:(select all that apply) | Sample box with purchase (eg. Chemist Warehouse – Bundle of Joy box)",
+    "shortName": "sample_purchase_box"
+  },
+  "168": {
+    "longName": "Please indicate your agreement with the following statements about the sampling of baby products:(select one per statement) | I like getting samples",
+    "shortName": "like_getting_samples"
+  },
+  "169": {
+    "longName": "Please indicate your agreement with the following statements about the sampling of baby products:(select one per statement) | I get too many samples and don’t end up using them",
+    "shortName": "too_many_samples"
+  },
+  "170": {
+    "longName": "Please indicate your agreement with the following statements about the sampling of baby products:(select one per statement) | Samples are a good way to test a product",
+    "shortName": "samples_good_for_testing"
+  },
+  "171": {
+    "longName": "Please indicate your agreement with the following statements about the sampling of baby products:(select one per statement) | Receiving a sample and trying the product has influenced my decision to buy that brand/product",
+    "shortName": "samples_influence_purchase"
+  },
+  "172": {
+    "longName": "Please indicate your agreement with the following statements about the sampling of baby products:(select one per statement) | I am interested in receiving samples in the future",
+    "shortName": "want_future_samples"
+  },
+  "173": {
+    "longName": "Prior to taking this survey had you ever heard of the brand GAIA Natural Baby? | Response",
+    "shortName": "heard_of_gaia"
+  },
+  "174": {
+    "longName": "Think about the GAIA brand – what do you know about it and what do you think are its key attributes?Briefly, please describe your understanding and perceptions of GAIA Natural Baby: | Open-Ended Response",
+    "shortName": "gaia_perceptions"
+  },
+  "175": {
+    "longName": "How did you first learn about GAIA Natural Baby? (select as many as apply) | Can't Remember",
+    "shortName": "first_learn_cant_remember"
+  },
+  "176": {
+    "longName": "How did you first learn about GAIA Natural Baby? (select as many as apply) | Friends or Family recommended",
+    "shortName": "first_learn_friends_family"
+  },
+  "177": {
+    "longName": "How did you first learn about GAIA Natural Baby? (select as many as apply) | Saw product in a store",
+    "shortName": "first_learn_saw_in_store"
+  },
+  "178": {
+    "longName": "How did you first learn about GAIA Natural Baby? (select as many as apply) | Saw product at an Expo",
+    "shortName": "first_learn_saw_at_expo"
+  },
+  "179": {
+    "longName": "How did you first learn about GAIA Natural Baby? (select as many as apply) | Received a sample",
+    "shortName": "first_learn_received_sample"
+  },
+  "180": {
+    "longName": "How did you first learn about GAIA Natural Baby? (select as many as apply) | Recommended by a GP/family doctor",
+    "shortName": "first_learn_gp_recommended"
+  },
+  "181": {
+    "longName": "How did you first learn about GAIA Natural Baby? (select as many as apply) | Recommended by a Paediatrician",
+    "shortName": "first_learn_paediatrician"
+  },
+  "182": {
+    "longName": "How did you first learn about GAIA Natural Baby? (select as many as apply) | Recommended by a Pharmacist",
+    "shortName": "first_learn_pharmacist"
+  },
+  "183": {
+    "longName": "How did you first learn about GAIA Natural Baby? (select as many as apply) | Recommended by Pharmacy assistant",
+    "shortName": "first_learn_pharmacy_assist"
+  },
+  "184": {
+    "longName": "How did you first learn about GAIA Natural Baby? (select as many as apply) | Recommended by a Midwife",
+    "shortName": "first_learn_midwife"
+  },
+  "185": {
+    "longName": "How did you first learn about GAIA Natural Baby? (select as many as apply) | Recommended by a Maternal and Child Health Nurse",
+    "shortName": "first_learn_child_health_nurse"
+  },
+  "186": {
+    "longName": "How did you first learn about GAIA Natural Baby? (select as many as apply) | Read an article / saw a review online",
+    "shortName": "first_learn_online_review"
+  },
+  "187": {
+    "longName": "How did you first learn about GAIA Natural Baby? (select as many as apply) | Read an article in a newspaper or magazine",
+    "shortName": "first_learn_print_article"
+  },
+  "188": {
+    "longName": "How did you first learn about GAIA Natural Baby? (select as many as apply) | Internet search (eg. Google, Bing)",
+    "shortName": "first_learn_internet_search"
+  },
+  "189": {
+    "longName": "How did you first learn about GAIA Natural Baby? (select as many as apply) | AI search  (eg. ChatGPT, Grock, Deepseek)",
+    "shortName": "first_learn_ai_search"
+  },
+  "190": {
+    "longName": "How did you first learn about GAIA Natural Baby? (select as many as apply) | Mother/Baby websites (eg.  tellmebaby.com.au, practicalparenting.com.au)",
+    "shortName": "first_learn_parenting_sites"
+  },
+  "191": {
+    "longName": "How did you first learn about GAIA Natural Baby? (select as many as apply) | Podcast",
+    "shortName": "first_learn_podcast"
+  },
+  "192": {
+    "longName": "How did you first learn about GAIA Natural Baby? (select as many as apply) | Facebook ad/marketplace",
+    "shortName": "first_learn_facebook_ad"
+  },
+  "193": {
+    "longName": "How did you first learn about GAIA Natural Baby? (select as many as apply) | Facebook forum / group",
+    "shortName": "first_learn_facebook_group"
+  },
+  "194": {
+    "longName": "How did you first learn about GAIA Natural Baby? (select as many as apply) | Instagram",
+    "shortName": "first_learn_instagram"
+  },
+  "195": {
+    "longName": "How did you first learn about GAIA Natural Baby? (select as many as apply) | Tik Tok",
+    "shortName": "first_learn_tiktok"
+  },
+  "196": {
+    "longName": "How did you first learn about GAIA Natural Baby? (select as many as apply) | YouTube",
+    "shortName": "first_learn_youtube"
+  },
+  "197": {
+    "longName": "How did you first learn about GAIA Natural Baby? (select as many as apply) | Influencers",
+    "shortName": "first_learn_influencers"
+  },
+  "198": {
+    "longName": "How did you first learn about GAIA Natural Baby? (select as many as apply) | Received as a gift",
+    "shortName": "first_learn_received_gift"
+  },
+  "199": {
+    "longName": "How did you first learn about GAIA Natural Baby? (select as many as apply) | Online ads",
+    "shortName": "first_learn_online_ads"
+  },
+  "200": {
+    "longName": "How did you first learn about GAIA Natural Baby? (select as many as apply) | Other way (please say how)",
+    "shortName": "learn_source_other"
+  },
+  "201": {
+    "longName": "Have you ever purchased a GAIA Natural Baby product? | Response",
+    "shortName": "ever_purchased"
+  },
+  "202": {
+    "longName": "Have you ever purchased a GAIA Natural Baby product from the following outlets:(select one per outlet) | Coles supermarket",
+    "shortName": "purchased_coles"
+  },
+  "203": {
+    "longName": "Have you ever purchased a GAIA Natural Baby product from the following outlets:(select one per outlet) | Woolworths supermarket",
+    "shortName": "purchased_woolworths"
+  },
+  "204": {
+    "longName": "Have you ever purchased a GAIA Natural Baby product from the following outlets:(select one per outlet) | IGA supermarket",
+    "shortName": "purchased_iga"
+  },
+  "205": {
+    "longName": "Have you ever purchased a GAIA Natural Baby product from the following outlets:(select one per outlet) | Chemist Warehouse",
+    "shortName": "purchased_chemist_warehouse"
+  },
+  "206": {
+    "longName": "Have you ever purchased a GAIA Natural Baby product from the following outlets:(select one per outlet) | Priceline",
+    "shortName": "purchased_priceline"
+  },
+  "207": {
+    "longName": "Have you ever purchased a GAIA Natural Baby product from the following outlets:(select one per outlet) | Pharmacy (Amcal, Terry White Chemart, etc)",
+    "shortName": "purchased_pharmacy"
+  },
+  "208": {
+    "longName": "Have you ever purchased a GAIA Natural Baby product from the following outlets:(select one per outlet) | Big W",
+    "shortName": "purchased_big_w"
+  },
+  "209": {
+    "longName": "Have you ever purchased a GAIA Natural Baby product from the following outlets:(select one per outlet) | Amazon",
+    "shortName": "purchased_amazon"
+  },
+  "210": {
+    "longName": "Have you ever purchased a GAIA Natural Baby product from the following outlets:(select one per outlet) | Baby Bunting",
+    "shortName": "purchased_baby_bunting"
+  },
+  "211": {
+    "longName": "Have you ever purchased a GAIA Natural Baby product from the following outlets:(select one per outlet) | GAIA website (gaiaskinnaturals.com)",
+    "shortName": "purchased_gaia_website"
+  },
+  "212": {
+    "longName": "Have you ever purchased a GAIA Natural Baby product from the following outlets:(select one per outlet) | Online (please say which site(s))",
+    "shortName": "purchased_online_other"
+  },
+  "213": {
+    "longName": "If there are any other stores that you have purchased GAIA Natural Baby from, please say which ones: | Open-Ended Response",
+    "shortName": "purchased_other_stores"
+  },
+  "214": {
+    "longName": "Would you say that GAIA Natural Baby is... | Response",
+    "shortName": "brand_perception"
+  },
+  "215": {
+    "longName": "What, if any, are barriers to you buying a GAIA Natural Baby product in the future? | Nothing – ready to buy if I need something",
+    "shortName": "barrier_none_ready"
+  },
+  "216": {
+    "longName": "What, if any, are barriers to you buying a GAIA Natural Baby product in the future? | Price/Value (is too expensive)",
+    "shortName": "barrier_price"
+  },
+  "217": {
+    "longName": "What, if any, are barriers to you buying a GAIA Natural Baby product in the future? | Range (don’t have the type of products I want)",
+    "shortName": "barrier_range"
+  },
+  "218": {
+    "longName": "What, if any, are barriers to you buying a GAIA Natural Baby product in the future? | Availability (not convenient/easy to buy)",
+    "shortName": "barrier_availability"
+  },
+  "219": {
+    "longName": "What, if any, are barriers to you buying a GAIA Natural Baby product in the future? | Prefer other brands",
+    "shortName": "barrier_prefer_other"
+  },
+  "220": {
+    "longName": "What, if any, are barriers to you buying a GAIA Natural Baby product in the future? | Other (please specify)",
+    "shortName": "barrier_other"
+  },
+  "221": {
+    "longName": "Brand Preferred 1 | Open-Ended Response",
+    "shortName": "preferred_brand_1"
+  },
+  "222": {
+    "longName": "Reason(s) Why: | Open-Ended Response",
+    "shortName": "preferred_brand_1_reason"
+  },
+  "223": {
+    "longName": "Brand Preferred 2 | Open-Ended Response",
+    "shortName": "preferred_brand_2"
+  },
+  "224": {
+    "longName": "Reason(s) Why: | Open-Ended Response",
+    "shortName": "preferred_brand_2_reason"
+  },
+  "225": {
+    "longName": "Brand Preferred 3 | Open-Ended Response",
+    "shortName": "brand_preferred_3"
+  },
+  "226": {
+    "longName": "Reason(s) Why: | Open-Ended Response",
+    "shortName": "reasons_why"
+  },
+  "227": {
+    "longName": "Now that you know a little more about GAIA Natural Baby, please indicate your agreement with the following statements:(select one per statement) | I like the fact that GAIA uses pure, natural ingredients",
+    "shortName": "gaia_pure_natural_ingred"
+  },
+  "228": {
+    "longName": "Now that you know a little more about GAIA Natural Baby, please indicate your agreement with the following statements:(select one per statement) | I like the fact that GAIA uses organic ingredients",
+    "shortName": "gaia_organic_ingred"
+  },
+  "229": {
+    "longName": "Now that you know a little more about GAIA Natural Baby, please indicate your agreement with the following statements:(select one per statement) | I don’t like that GAIA uses essential oils",
+    "shortName": "gaia_dislike_essential_oils"
+  },
+  "230": {
+    "longName": "Now that you know a little more about GAIA Natural Baby, please indicate your agreement with the following statements:(select one per statement) | I like the fact GAIA is compatible with sensitive skin",
+    "shortName": "gaia_sensitive_skin_compat"
+  },
+  "231": {
+    "longName": "Now that you know a little more about GAIA Natural Baby, please indicate your agreement with the following statements:(select one per statement) | I like the fact GAIA formulations don’t include irritants like sulphates, parabens and mineral oils",
+    "shortName": "gaia_no_irritants"
+  },
+  "232": {
+    "longName": "Now that you know a little more about GAIA Natural Baby, please indicate your agreement with the following statements:(select one per statement) | The GAIA packaging looks good",
+    "shortName": "gaia_packaging_looks_good"
+  },
+  "233": {
+    "longName": "Now that you know a little more about GAIA Natural Baby, please indicate your agreement with the following statements:(select one per statement) | I like the fact that GAIA is made in Australia",
+    "shortName": "gaia_made_in_australia"
+  },
+  "234": {
+    "longName": "Now that you know a little more about GAIA Natural Baby, please indicate your agreement with the following statements:(select one per statement) | GAIA is a brand I feel I can trust",
+    "shortName": "gaia_brand_trust"
+  },
+  "235": {
+    "longName": "Now that you know a little more about GAIA Natural Baby, please indicate your agreement with the following statements:(select one per statement) | GAIA is affordable",
+    "shortName": "gaia_affordable"
+  },
+  "236": {
+    "longName": "Now that you know a little more about GAIA Natural Baby, please indicate your agreement with the following statements:(select one per statement) | The GAIA packaging looks dated and needs a refresh",
+    "shortName": "gaia_packaging_dated"
+  },
+  "237": {
+    "longName": "Now that you know a little more about GAIA Natural Baby, please indicate your agreement with the following statements:(select one per statement) | GAIA is a brand I feel good about",
+    "shortName": "gaia_feel_good_brand"
+  },
+  "238": {
+    "longName": "Based on your understanding of GAIA Natural Baby and its range please assess if you think the following product categories are a good fit for the brand to explore in the future: (select one per statement) | Natural Insect Repellent",
+    "shortName": "fit_insect_repellent"
+  },
+  "239": {
+    "longName": "Based on your understanding of GAIA Natural Baby and its range please assess if you think the following product categories are a good fit for the brand to explore in the future: (select one per statement) | Natural Sleeptime Calming Room Spray",
+    "shortName": "fit_calming_room_spray"
+  },
+  "240": {
+    "longName": "Based on your understanding of GAIA Natural Baby and its range please assess if you think the following product categories are a good fit for the brand to explore in the future: (select one per statement) | Sleeptime Magnesium Bath Oil",
+    "shortName": "fit_magnesium_bath_oil"
+  },
+  "241": {
+    "longName": "Based on your understanding of GAIA Natural Baby and its range please assess if you think the following product categories are a good fit for the brand to explore in the future: (select one per statement) | Natural Sunscreen",
+    "shortName": "fit_sunscreen"
+  },
+  "242": {
+    "longName": "Based on your understanding of GAIA do you think that adding a kids range is a good fit for the brand to explore in the future?(select one) | Response",
+    "shortName": "kids_range_good_fit"
+  },
+  "243": {
+    "longName": "If the proposed Kids range were available in stores, where would you prefer to shop for it?(select one) | Response",
+    "shortName": "kids_range_shop_location"
+  },
+  "244": {
+    "longName": "If the proposed Kids range met your quality and price expectations, how likely are you to consider purchasing it in the future?(select one) | Response",
+    "shortName": "kids_range_purchase_likely"
+  },
+  "245": {
+    "longName": "Please provide your feedback on the two packaging options:(select one per statement) | Is the most modern",
+    "shortName": "pkg_most_modern"
+  },
+  "246": {
+    "longName": "Please provide your feedback on the two packaging options:(select one per statement) | Is the most appealing bottle shape/style",
+    "shortName": "pkg_most_appealing_shape"
+  },
+  "247": {
+    "longName": "Please provide your feedback on the two packaging options:(select one per statement) | Best communicates the type of product",
+    "shortName": "pkg_best_product_comm"
+  },
+  "248": {
+    "longName": "Please provide your feedback on the two packaging options:(select one per statement) | Best communicates that it is a baby brand",
+    "shortName": "pkg_best_baby_brand_comm"
+  },
+  "249": {
+    "longName": "Please provide your feedback on the two packaging options:(select one per statement) | Is the most eye-catching",
+    "shortName": "pkg_most_eye_catching"
+  },
+  "250": {
+    "longName": "Please provide your feedback on the two packaging options:(select one per statement) | Is the most appealing to me",
+    "shortName": "packaging_most_appealing"
+  },
+  "251": {
+    "longName": "Considering only the shape of the bottle, which option do you prefer: | Response",
+    "shortName": "bottle_shape_preference"
+  },
+  "252": {
+    "longName": "For the option you chose, please state why:(what appeals to you) | Open-Ended Response",
+    "shortName": "preference_reason"
+  }
+}

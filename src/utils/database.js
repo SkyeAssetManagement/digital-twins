@@ -35,7 +35,12 @@ async function initializeDatabase() {
                 ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
                 max: 10,
                 idleTimeoutMillis: 30000,
-                connectionTimeoutMillis: 2000,
+                connectionTimeoutMillis: 30000, // Extended from 2s to 30s
+                acquireTimeoutMillis: 60000,    // 60s timeout for acquiring connection from pool
+                createTimeoutMillis: 30000,     // 30s timeout for creating new connections
+                destroyTimeoutMillis: 5000,     // 5s timeout for destroying connections
+                reapIntervalMillis: 1000,       // Check for idle connections every 1s
+                createRetryIntervalMillis: 200, // 200ms between connection retry attempts
             });
         } else {
             logger.warn('DATABASE_URL not found in environment, trying dbConfig.yaml');
@@ -55,7 +60,12 @@ async function initializeDatabase() {
                     ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
                     max: 10,
                     idleTimeoutMillis: 30000,
-                    connectionTimeoutMillis: 2000,
+                    connectionTimeoutMillis: 30000, // Extended from 2s to 30s
+                    acquireTimeoutMillis: 60000,    // 60s timeout for acquiring connection from pool
+                    createTimeoutMillis: 30000,     // 30s timeout for creating new connections
+                    destroyTimeoutMillis: 5000,     // 5s timeout for destroying connections
+                    reapIntervalMillis: 1000,       // Check for idle connections every 1s
+                    createRetryIntervalMillis: 200, // 200ms between connection retry attempts
                 });
             } else {
                 // Final fallback to dbConfig.yaml for local development

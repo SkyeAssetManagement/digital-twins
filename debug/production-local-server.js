@@ -16,6 +16,7 @@ import processUploadHandler from '../api/process-survey-upload.js';
 import simpleUploadHandler from '../api/simple-upload.js';
 import surveyDatasetsHandler from '../api/survey-datasets.js';
 import threeStageAnalysisHandler from '../api/three-stage-analysis.js';
+import threeStageAnalysisDetailedHandler from '../api/three-stage-analysis-detailed.js';
 import universalDigitalTwinHandler from '../api/universal-digital-twin-response.js';
 import generateResponseHandler from '../api/generate-response.js';
 
@@ -59,7 +60,8 @@ app.post('/api/debug-data-wrangling', vercelHandler(debugDataWranglingHandler));
 app.post('/api/process-survey-upload', vercelHandler(processUploadHandler));
 app.post('/api/simple-upload', vercelHandler(simpleUploadHandler));
 app.get('/api/survey-datasets', vercelHandler(surveyDatasetsHandler));
-app.post('/api/three-stage-analysis', vercelHandler(threeStageAnalysisHandler));
+app.post('/api/three-stage-analysis', vercelHandler(threeStageAnalysisDetailedHandler));
+app.post('/api/three-stage-analysis-simple', vercelHandler(threeStageAnalysisHandler)); // Keep old version as backup
 app.post('/api/universal-digital-twin-response', vercelHandler(universalDigitalTwinHandler));
 app.post('/api/generate-response', vercelHandler(generateResponseHandler));
 

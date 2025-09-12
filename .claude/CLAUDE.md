@@ -115,3 +115,4 @@ npm run format       # Auto-format code
 - never skip because of connectivity or other challenges - work it out, even if you need the users help
 - REMEMBER - NO FALLBACKS!!!! return NA not a fallback
  - Never bypass anything for the sake of simplicity when you cannot solve something.  ALWAYS aske the user before simplifying
+- NEVER EVER use mock/ synthetic data.  NEVER!!!!
